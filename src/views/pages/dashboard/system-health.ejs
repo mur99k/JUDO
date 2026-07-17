@@ -1,0 +1,95 @@
+<% activePage = 'system-health'; %>
+
+<div class="page-header"><h2>صحة النظام</h2></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+  <!-- Service Status -->
+  <div class="dash-card">
+    <div class="dash-card-header"><h3 class="dash-card-title">حالة الخدمة</h3></div>
+    <div class="dash-card-body" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="health-row"><span class="health-label">التطبيق</span><span class="health-badge health-ok">شغال</span></div>
+      <div class="health-row"><span class="health-label">الإصدار</span><span class="health-value"><%= health.version %></span></div>
+    </div>
+  </div>
+
+  <!-- Database -->
+  <div class="dash-card">
+    <div class="dash-card-header"><h3 class="dash-card-title">قاعدة البيانات (Neon)</h3></div>
+    <div class="dash-card-body" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="health-row">
+        <span class="health-label">الحالة</span>
+        <% if (health.dbStatus === 'connected') { %>
+          <span class="health-badge health-ok">متصل</span>
+        <% } else { %>
+          <span class="health-badge health-err">معطل</span>
+        <% } %>
+      </div>
+      <% if (health.dbLatency !== null) { %>
+      <div class="health-row"><span class="health-label">زمن الاستجابة</span><span class="health-value"><%= health.dbLatency %> ms</span></div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- R2 Storage -->
+  <div class="dash-card">
+    <div class="dash-card-header"><h3 class="dash-card-title">التخزين (Cloudflare R2)</h3></div>
+    <div class="dash-card-body" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="health-row">
+        <span class="health-label">الحالة</span>
+        <% if (health.r2Status === 'connected') { %>
+          <span class="health-badge health-ok">متصل</span>
+        <% } else if (health.r2Status === 'local (dev)') { %>
+          <span class="health-badge health-warn">محلي</span>
+        <% } else { %>
+          <span class="health-badge health-err"><%= health.r2Status %></span>
+        <% } %>
+      </div>
+      <div class="health-row"><span class="health-label">الاستخدام</span><span class="health-value"><%= health.storageUsage %></span></div>
+    </div>
+  </div>
+
+  <!-- Counts -->
+  <div class="dash-card">
+    <div class="dash-card-header"><h3 class="dash-card-title">إحصائيات</h3></div>
+    <div class="dash-card-body" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="health-row"><span class="health-label">الطلاب</span><span class="health-value"><%= health.studentCount %></span></div>
+      <div class="health-row"><span class="health-label">المدربون</span><span class="health-value"><%= health.coachCount %></span></div>
+      <div class="health-row"><span class="health-label">الاشتراكات النشطة</span><span class="health-value"><%= health.activeSubscriptions %></span></div>
+    </div>
+  </div>
+
+  <!-- Backup -->
+  <div class="dash-card">
+    <div class="dash-card-header"><h3 class="dash-card-title">النسخ الاحتياطي</h3></div>
+    <div class="dash-card-body" style="display:flex;flex-direction:column;gap:8px;">
+      <div class="health-row"><span class="health-label">آخر نسخة</span><span class="health-value"><%= health.lastBackup %></span></div>
+      <div style="margin-top:8px;font-size:0.85rem;color:#718096;">
+        النسخ الاحتياطي التلقائي غير مفعل. يمكنك إعداد نسخ يدوي من لوحة تحكم PostgreSQL (Neon).
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+.health-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f2f5;
+}
+.health-row:last-child { border-bottom: none; }
+.health-label { color: #718096; font-size: 0.9rem; }
+.health-value { font-weight: 600; font-size: 0.9rem; color: #1a202c; }
+.health-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.health-ok { background: #d1fae5; color: #065f46; }
+.health-warn { background: #fef3c7; color: #92400e; }
+.health-err { background: #fee2e2; color: #991b1b; }
+</style>

@@ -17,6 +17,7 @@ router.get('/dashboard/coaches', PageController.dashboardCoaches);
 router.get('/dashboard/gallery', PageController.dashboardGallery);
 router.get('/dashboard/settings', PageController.dashboardSettings);
 router.get('/dashboard/profile', PageController.dashboardProfile);
+router.get('/dashboard/system-health', PageController.dashboardSystemHealth);
 router.get('/student', PageController.student);
 router.get('/coach', PageController.coach);
 

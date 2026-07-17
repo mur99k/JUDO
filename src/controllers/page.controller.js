@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const ejs = require('ejs');
 const GalleryService = require('../services/gallery.service');
+const SystemService = require('../services/system.service');
 const UserRepo = require('../repositories/user.repo');
 const SettingsRepo = require('../repositories/settings.repo');
 const storage = require('../storage');
@@ -149,6 +150,17 @@ module.exports = {
     if (!req.session.userId) return res.redirect('/login');
     var d = { title: 'الملف الشخصي', user: res.locals.user, activePage: 'profile', breadcrumbs: [{url:'/dashboard',label:'لوحة التحكم'},{label:'الملف الشخصي'}] };
     renderDash('pages/dashboard/profile.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
+  },
+  dashboardSystemHealth: async function(req, res) {
+    if (!req.session.userId) return res.redirect('/login');
+    if (req.session.role !== 'admin') return res.redirect('/dashboard');
+    try {
+      const health = await SystemService.getHealth();
+      var d = { title: 'صحة النظام', user: res.locals.user, activePage: 'system-health', health, breadcrumbs: [{url:'/dashboard',label:'لوحة التحكم'},{label:'صحة النظام'}] };
+      renderDash('pages/dashboard/system-health.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
+    } catch (err) {
+      res.status(500).send(err.message);
+    }
   },
 
   /* ─── Student / Coach ─── */

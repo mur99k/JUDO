@@ -14,6 +14,12 @@ services:
     buildCommand: npm install
     startCommand: node server.js
     healthCheckPath: /api/health
+    # Persistent disk — WITHOUT this, the SQLite DB and uploads are wiped
+    # on every deploy/restart (free tier has an ephemeral filesystem).
+    disk:
+      name: kilocode-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
@@ -35,10 +41,3 @@ services:
         value: /var/data/coach-photos
       - key: LOG_LEVEL
         value: info
-
-# Persistent disk — WITHOUT this, the SQLite DB and uploads are wiped
-# on every deploy/restart (free tier has an ephemeral filesystem).
-disks:
-  - name: kilocode-data
-    mountPath: /var/data
-    sizeGB: 1

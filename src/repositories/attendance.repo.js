@@ -1,140 +1,155 @@
 const { getConnection } = require('../database/connection');
 
 const AttendanceRepo = {
-  findByDate(date) {
-    return getConnection().prepare(`
+  async findByDate(date) {
+    const db = getConnection();
+    const r = await db.query(`
       SELECT a.*, s.fullName, s.photo
       FROM attendance a
       JOIN students s ON a.studentId = s.id
-      WHERE a.date = ?
+      WHERE a.date = $1
       ORDER BY s.fullName
-    `).all(date);
+    `, [date]);
+    return r.rows;
   },
 
-  findByStudentAndDate(studentId, date) {
-    return getConnection().prepare(
-      'SELECT * FROM attendance WHERE studentId = ? AND date = ?'
-    ).get(studentId, date);
+  async findByStudentAndDate(studentId, date) {
+    const db = getConnection();
+    const r = await db.query(
+      'SELECT * FROM attendance WHERE studentId = $1 AND date = $2',
+      [studentId, date]
+    );
+    return r.rows[0] || null;
   },
 
-  upsert(studentId, date, status, notes) {
-    const existing = this.findByStudentAndDate(studentId, date);
+  async upsert(studentId, date, status, notes) {
+    const db = getConnection();
+    const existing = await this.findByStudentAndDate(studentId, date);
     if (existing) {
-      return getConnection().prepare(
-        'UPDATE attendance SET status = ?, notes = ? WHERE id = ?'
-      ).run(status, notes || null, existing.id);
+      await db.query(
+        'UPDATE attendance SET status = $1, notes = $2 WHERE id = $3',
+        [status, notes || null, existing.id]
+      );
+      return true;
     }
-    return getConnection().prepare(
-      'INSERT INTO attendance (studentId, date, status, notes) VALUES (?, ?, ?, ?)'
-    ).run(studentId, date, status, notes || null);
+    await db.query(
+      'INSERT INTO attendance (studentId, date, status, notes) VALUES ($1, $2, $3, $4)',
+      [studentId, date, status, notes || null]
+    );
+    return true;
   },
 
-  getMonthlySummary(studentId, month, year) {
+  async getMonthlySummary(studentId, month, year) {
+    const db = getConnection();
     const monthStr = String(month).padStart(2, '0');
     const start = `${year}-${monthStr}-01`;
     const end = `${year}-${monthStr}-31`;
-    return getConnection().prepare(`
+    const r = await db.query(`
       SELECT status, COUNT(*) as count
       FROM attendance
-      WHERE studentId = ? AND date BETWEEN ? AND ?
+      WHERE studentId = $1 AND date BETWEEN $2 AND $3
       GROUP BY status
-    `).all(studentId, start, end);
+    `, [studentId, start, end]);
+    return r.rows;
   },
 
-  getStudentRate(studentId) {
-    const total = getConnection().prepare(
-      'SELECT COUNT(*) as count FROM attendance WHERE studentId = ?'
-    ).get(studentId).count;
-    const present = getConnection().prepare(
-      'SELECT COUNT(*) as count FROM attendance WHERE studentId = ? AND status = ?'
-    ).get(studentId, 'حاضر').count;
+  async getStudentRate(studentId) {
+    const db = getConnection();
+    const total = (await db.query(
+      'SELECT COUNT(*) as count FROM attendance WHERE studentId = $1', [studentId]
+    )).rows[0].count;
+    const present = (await db.query(
+      'SELECT COUNT(*) as count FROM attendance WHERE studentId = $1 AND status = $2', [studentId, 'حاضر']
+    )).rows[0].count;
     return { total, present, rate: total > 0 ? Math.round((present / total) * 100) : 0 };
   },
 
-  getTodayCount() {
+  async getTodayCount() {
+    const db = getConnection();
     const today = new Date().toISOString().split('T')[0];
-    return getConnection().prepare(
-      'SELECT COUNT(*) as count FROM attendance WHERE date = ? AND status = ?'
-    ).get(today, 'حاضر').count;
+    const r = await db.query(
+      'SELECT COUNT(*) as count FROM attendance WHERE date = $1 AND status = $2', [today, 'حاضر']
+    );
+    return r.rows[0].count;
   },
 
-  getMonthlyAttendance(month, year) {
+  async getMonthlyAttendance(month, year) {
+    const db = getConnection();
     const monthStr = String(month).padStart(2, '0');
-    return getConnection().prepare(`
+    const r = await db.query(`
       SELECT a.*, s.fullName
       FROM attendance a
       JOIN students s ON a.studentId = s.id
-      WHERE a.date LIKE ?
+      WHERE a.date LIKE $1
       ORDER BY a.date, s.fullName
-    `).all(`${year}-${monthStr}%`);
+    `, [`${year}-${monthStr}%`]);
+    return r.rows;
   },
 
-  getMonthlyGrid(month, year) {
+  async getMonthlyGrid(month, year) {
+    const db = getConnection();
     const monthStr = String(month).padStart(2, '0');
-    const records = getConnection().prepare(`
+    const r = await db.query(`
       SELECT a.studentId, a.date, a.status
       FROM attendance a
-      WHERE a.date LIKE ?
-    `).all(`${year}-${monthStr}%`);
-    const students = getConnection().prepare(
-      'SELECT id, fullName FROM students ORDER BY fullName'
-    ).all();
+      WHERE a.date LIKE $1
+    `, [`${year}-${monthStr}%`]);
+    const records = r.rows;
+    const students = (await db.query('SELECT id, fullName FROM students ORDER BY fullName')).rows;
     const daysInMonth = new Date(year || new Date().getFullYear(), month, 0).getDate();
     const grid = {};
     const stats = { present: 0, absent: 0, excused: 0 };
-    for (const r of records) {
-      if (!grid[r.studentId]) grid[r.studentId] = {};
-      grid[r.studentId][r.date] = r.status;
-      if (r.status === 'حاضر') stats.present++;
-      else if (r.status === 'غائب') stats.absent++;
-      else if (r.status === 'معذر') stats.excused++;
+    for (const rec of records) {
+      if (!grid[rec.studentId]) grid[rec.studentId] = {};
+      grid[rec.studentId][rec.date] = rec.status;
+      if (rec.status === 'حاضر') stats.present++;
+      else if (rec.status === 'غائب') stats.absent++;
+      else if (rec.status === 'معذر') stats.excused++;
     }
     return { students, daysInMonth, grid, stats };
   },
 
-  getStudentReport(studentId, startDate, endDate) {
-    const records = getConnection().prepare(`
+  async getStudentReport(studentId, startDate, endDate) {
+    const db = getConnection();
+    const r = await db.query(`
       SELECT a.date, a.status, a.notes
       FROM attendance a
-      WHERE a.studentId = ? AND a.date BETWEEN ? AND ?
+      WHERE a.studentId = $1 AND a.date BETWEEN $2 AND $3
       ORDER BY a.date
-    `).all(studentId, startDate, endDate);
-    const sums = getConnection().prepare(`
+    `, [studentId, startDate, endDate]);
+    const records = r.rows;
+    const sums = (await db.query(`
       SELECT status, COUNT(*) as count
       FROM attendance
-      WHERE studentId = ? AND date BETWEEN ? AND ?
+      WHERE studentId = $1 AND date BETWEEN $2 AND $3
       GROUP BY status
-    `).all(studentId, startDate, endDate);
-    var present = 0, absent = 0, excused = 0;
-    for (var i=0; i<sums.length; i++) {
-      if (sums[i].status === 'حاضر') present = sums[i].count;
-      else if (sums[i].status === 'غائب') absent = sums[i].count;
-      else if (sums[i].status === 'معذر') excused = sums[i].count;
+    `, [studentId, startDate, endDate])).rows;
+    let present = 0, absent = 0, excused = 0;
+    for (const s of sums) {
+      if (s.status === 'حاضر') present = s.count;
+      else if (s.status === 'غائب') absent = s.count;
+      else if (s.status === 'معذر') excused = s.count;
     }
     const total = present + absent + excused;
     const rate = total > 0 ? Math.round((present / total) * 100) : 0;
     return { records, present, absent, excused, total, rate };
   },
 
-  getStudentAllTimeStats(studentId) {
-    const sums = getConnection().prepare(`
-      SELECT status, COUNT(*) as count
-      FROM attendance WHERE studentId = ? GROUP BY status
-    `).all(studentId);
-    var present = 0, absent = 0, excused = 0, total = 0;
-    for (var i=0; i<sums.length; i++) {
-      total += sums[i].count;
-      if (sums[i].status === 'حاضر') present = sums[i].count;
-      else if (sums[i].status === 'غائب') absent = sums[i].count;
-      else if (sums[i].status === 'معذر') excused = sums[i].count;
+  async getStudentAllTimeStats(studentId) {
+    const db = getConnection();
+    const sums = (await db.query(
+      'SELECT status, COUNT(*) as count FROM attendance WHERE studentId = $1 GROUP BY status', [studentId]
+    )).rows;
+    let present = 0, absent = 0, excused = 0, total = 0;
+    for (const s of sums) {
+      total += s.count;
+      if (s.status === 'حاضر') present = s.count;
+      else if (s.status === 'غائب') absent = s.count;
+      else if (s.status === 'معذر') excused = s.count;
     }
     const rate = total > 0 ? Math.round((present / total) * 100) : 0;
-    const first = getConnection().prepare(
-      'SELECT MIN(date) as d FROM attendance WHERE studentId = ?'
-    ).get(studentId);
-    const last = getConnection().prepare(
-      'SELECT MAX(date) as d FROM attendance WHERE studentId = ?'
-    ).get(studentId);
+    const first = (await db.query('SELECT MIN(date) as d FROM attendance WHERE studentId = $1', [studentId])).rows[0];
+    const last = (await db.query('SELECT MAX(date) as d FROM attendance WHERE studentId = $1', [studentId])).rows[0];
     return { present, absent, excused, total, rate, firstDate: first ? first.d : null, lastDate: last ? last.d : null };
   }
 };

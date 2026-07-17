@@ -65,8 +65,8 @@ const AuthController = {
       if (!student) return error(res, 'الطالب غير موجود', 404);
       const AttendanceService = require('../services/attendance.service');
       const SubscriptionService = require('../services/subscription.service');
-      const rate = AttendanceService.getStudentRate(userId);
-      const subs = SubscriptionService.list({ studentId: userId });
+      const rate = await AttendanceService.getStudentRate(userId);
+      const subs = await SubscriptionService.list({ studentId: userId });
       return success(res, {
         user: { ...student, role: 'student' },
         attendance: rate,

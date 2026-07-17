@@ -4,8 +4,14 @@ const crypto = require('crypto');
 
 const isProduction = (process.env.NODE_ENV || 'development') === 'production';
 
+// Database flavor: 'postgres' (Render / managed) or 'sqlite' (local dev).
+// On Render Free there is no persistent disk, so we use Render's free
+// PostgreSQL instance. Locally we keep SQLite for zero-friction development.
+const dbType = (process.env.DB_TYPE || (isProduction ? 'postgres' : 'sqlite')).toLowerCase();
+
 const config = {
   isProduction,
+  dbType,
   port: parseInt(process.env.PORT || '3000', 10),
   corsOrigin: (process.env.CORS_ORIGIN || '*').split(',').map(s => s.trim()).filter(Boolean),
   https: {
@@ -18,7 +24,27 @@ const config = {
   },
   sessionSecret: process.env.SESSION_SECRET || '',
   db: {
-    path: path.resolve(__dirname, '..', '..', process.env.DB_PATH || './data/club.db')
+    type: dbType,
+    // SQLite (dev)
+    path: path.resolve(__dirname, '..', '..', process.env.DB_PATH || './data/club.db'),
+    // PostgreSQL (prod) — filled from DATABASE_URL on Render.
+    url: process.env.DATABASE_URL || ''
+  },
+  storage: {
+    // 'r2' (Cloudflare R2, S3-compatible) for prod, 'local' for dev.
+    type: (process.env.STORAGE_TYPE || (isProduction ? 'r2' : 'local')).toLowerCase(),
+    // Local disk fallback (dev)
+    localPath: path.resolve(__dirname, '..', '..', process.env.UPLOAD_PATH || './uploads'),
+    maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '5242880', 10),
+    allowedImageTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+    // R2 / S3 settings
+    endpoint: process.env.R2_ENDPOINT || '',
+    region: process.env.R2_REGION || 'auto',
+    bucket: process.env.R2_BUCKET || '',
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+    // Public base URL used to build image URLs stored in the DB.
+    publicUrl: (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '')
   },
   upload: {
     path: path.resolve(__dirname, '..', '..', process.env.UPLOAD_PATH || './uploads'),

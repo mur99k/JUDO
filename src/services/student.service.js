@@ -1,42 +1,57 @@
+const fs = require('fs');
 const StudentRepo = require('../repositories/student.repo');
 const AttendanceRepo = require('../repositories/attendance.repo');
 const SubscriptionRepo = require('../repositories/subscription.repo');
+const storage = require('../storage');
 const { NotFoundError } = require('../utils/errors');
 
+async function persistPhoto(file) {
+  if (!file) return null;
+  const key = 'students/' + file.filename;
+  const buffer = fs.readFileSync(file.path);
+  const { url } = await storage.upload(key, buffer, file.mimetype);
+  try { fs.unlinkSync(file.path); } catch {}
+  return storage.normalizeDbValue(url);
+}
+
 const StudentService = {
-  list(filters) {
+  async list(filters) {
     return StudentRepo.findAll(filters);
   },
 
-  getById(id) {
-    const student = StudentRepo.findById(id);
+  async getById(id) {
+    const student = await StudentRepo.findById(id);
     if (!student) throw new NotFoundError('الطالب غير موجود');
-    const attendance = AttendanceRepo.getStudentRate(id);
-    const subs = SubscriptionRepo.findAll({ studentId: id });
+    student.photo = storage.normalizeDbValue(student.photo);
+    const attendance = await AttendanceRepo.getStudentRate(id);
+    const subs = await SubscriptionRepo.findAll({ studentId: id });
     return { ...student, attendance, subscriptions: subs };
   },
 
-  create(data) {
+  async create(data) {
     return StudentRepo.create(data);
   },
 
-  update(id, data, file) {
-    const student = StudentRepo.findById(id);
+  async update(id, data, file) {
+    const student = await StudentRepo.findById(id);
     if (!student) throw new NotFoundError('الطالب غير موجود');
-    if (file) data.photo = '/uploads/students/' + file.filename;
-    StudentRepo.update(id, data);
-    return StudentRepo.findById(id);
+    if (file) data.photo = await persistPhoto(file);
+    await StudentRepo.update(id, data);
+    const updated = await StudentRepo.findById(id);
+    updated.photo = storage.normalizeDbValue(updated.photo);
+    return updated;
   },
 
-  delete(id) {
-    const student = StudentRepo.findById(id);
+  async delete(id) {
+    const student = await StudentRepo.findById(id);
     if (!student) throw new NotFoundError('الطالب غير موجود');
-    StudentRepo.delete(id);
+    if (student.photo) { try { await storage.remove(storage.keyFromUrl(student.photo)); } catch {} }
+    await StudentRepo.delete(id);
   },
 
-  getStats() {
-    const total = StudentRepo.count();
-    const active = StudentRepo.count({ status: 'نشط' });
+  async getStats() {
+    const total = await StudentRepo.count();
+    const active = await StudentRepo.count({ status: 'نشط' });
     const inactive = total - active;
     return { total, active, inactive };
   }

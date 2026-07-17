@@ -1,38 +1,53 @@
-const path = require('path');
 const fs = require('fs');
-
+const path = require('path');
 const config = require('../config');
-const galleryDir = config.media.galleryDir;
+const storage = require('../storage');
 
-// Ensure a filename resolves inside galleryDir (no traversal).
-function safeFile(name) {
-  const resolved = path.resolve(galleryDir, name);
-  if (!resolved.startsWith(path.resolve(galleryDir) + path.sep) && resolved !== path.resolve(galleryDir)) {
-    return null;
-  }
-  return resolved;
-}
+const galleryPrefix = 'gallery';
+const IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
 
 const GalleryService = {
-  list() {
+  async list() {
+    const seen = new Set();
+    const out = [];
+    // 1. Repo-seeded photos (served via the /gallery-img static route from the
+    //    git checkout — always present on Render's ephemeral FS at boot).
     try {
-      if (!fs.existsSync(galleryDir)) return [];
-      return fs.readdirSync(galleryDir)
-        .filter(f => ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(path.extname(f).toLowerCase()))
-        .map(f => {
-          var stat = fs.statSync(path.join(galleryDir, f));
-          var t = stat.mtime.getTime();
-          return { name: f, url: '/gallery-img/' + encodeURIComponent(f) + '?v=' + t };
-        });
-    } catch {
-      return [];
-    }
+      const seedDir = config.media.galleryDir;
+      if (fs.existsSync(seedDir)) {
+        for (const f of fs.readdirSync(seedDir)) {
+          if (IMAGE_EXT.includes(path.extname(f).toLowerCase())) {
+            seen.add(f);
+            const stat = fs.statSync(path.join(seedDir, f));
+            out.push({ name: f, url: '/gallery-img/' + encodeURIComponent(f) + '?v=' + stat.mtime.getTime() });
+          }
+        }
+      }
+    } catch {}
+    // 2. Admin uploads persisted in cloud storage (survive restarts).
+    try {
+      const items = await storage.list(galleryPrefix);
+      for (const it of items) {
+        const f = it.key.split('/').pop();
+        if (IMAGE_EXT.includes(path.extname(f).toLowerCase()) && !seen.has(f)) {
+          out.push({ name: f, url: it.url });
+        }
+      }
+    } catch {}
+    return out;
   },
 
-  delete(filename) {
-    const filePath = safeFile(filename);
-    if (!filePath || !fs.existsSync(filePath)) throw new Error('الملف غير موجود');
-    fs.unlinkSync(filePath);
+  async upload(file) {
+    const key = galleryPrefix + '/' + file.filename;
+    const buffer = fs.readFileSync(file.path);
+    const { url } = await storage.upload(key, buffer, file.mimetype);
+    try { fs.unlinkSync(file.path); } catch {}
+    return { name: file.filename, url };
+  },
+
+  async delete(filename) {
+    const key = galleryPrefix + '/' + filename;
+    await storage.remove(key);
   }
 };
 

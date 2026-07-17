@@ -2,8 +2,11 @@
 # Usage:
 #   1. Push this repo to GitHub.
 #   2. In Render: New → Blueprint → connect the repo → use this file.
-#   3. Set the secret env vars below in the dashboard (or Render will prompt).
-#   4. After deploy, open the .onrender.com URL (HTTPS auto).
+#   3. Render provisions the free PostgreSQL DB automatically and injects
+#      DATABASE_URL. Set the remaining secret env vars in the dashboard.
+#   4. Configure Cloudflare R2 (free) and set the R2_* env vars so
+#      uploaded media persists (Render Free has no persistent disk).
+#   5. After deploy, open the .onrender.com URL (HTTPS auto).
 services:
   - type: web
     name: kilocode
@@ -14,15 +17,11 @@ services:
     buildCommand: npm install
     startCommand: node server.js
     healthCheckPath: /api/health
-    # Persistent disk — WITHOUT this, the SQLite DB and uploads are wiped
-    # on every deploy/restart (free tier has an ephemeral filesystem).
-    disk:
-      name: kilocode-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DB_TYPE
+        value: postgres
       - key: PORT               # Render injects this automatically; listed for clarity
         sync: false
       - key: SESSION_SECRET
@@ -31,13 +30,28 @@ services:
         value: "true"          # Render terminates TLS; app trusts X-Forwarded-*
       - key: CORS_ORIGIN
         value: "https://kilocode.onrender.com"   # CHANGE to your real URL
-      - key: DB_PATH
-        value: /var/data/club.db
-      - key: UPLOAD_PATH
-        value: /var/data/uploads
-      - key: GALLERY_DIR
-        value: /var/data/gallery
-      - key: COACH_DIR
-        value: /var/data/coach-photos
-      - key: LOG_LEVEL
-        value: info
+      - key: STORAGE_TYPE
+        value: r2
+      - key: R2_BUCKET
+        sync: false          # set in dashboard
+      - key: R2_ENDPOINT
+        sync: false          # set in dashboard (e.g. https://<id>.r2.cloudflarestorage.com)
+      - key: R2_REGION
+        value: auto
+      - key: R2_ACCESS_KEY_ID
+        sync: false          # set in dashboard
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false          # set in dashboard
+      - key: R2_PUBLIC_URL
+        sync: false          # set in dashboard (public bucket URL)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kilocode-db
+          property: connectionString
+databases:
+  - name: kilocode-db
+    plan: free
+    databaseName: kilocode
+    user: kilocode
+    postgresMajorVersion: "15"
+    ipAllowList: []

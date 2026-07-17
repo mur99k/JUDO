@@ -1,32 +1,30 @@
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
 const bcrypt = require('bcryptjs');
 const { getConnection } = require('./connection');
 
-const migrationsDir = path.join(__dirname, 'migrations');
-
-function runMigrations() {
+async function applySchema() {
   const db = getConnection();
-  const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
-
-  db.exec('CREATE TABLE IF NOT EXISTS _migrations (name TEXT PRIMARY KEY, runAt DATETIME DEFAULT CURRENT_TIMESTAMP)');
-  const run = new Set(db.prepare('SELECT name FROM _migrations').all().map(r => r.name));
-
-  for (const file of files) {
-    if (run.has(file)) continue;
-    const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
-    db.exec(sql);
-    db.prepare('INSERT INTO _migrations (name) VALUES (?)').run(file);
+  const flavor = db.flavor;
+  const file = path.join(__dirname, flavor === 'postgres' ? 'schema-postgres.sql' : 'schema-sqlite.sql');
+  let sql = fs.readFileSync(file, 'utf8');
+  // Strip SQL comments so the statement splitter doesn't choke on them.
+  sql = sql.replace(/--[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+  // Split on statements (works for both dialects; Postgres blocks separated by ';').
+  const statements = sql.split(';').map(s => s.trim()).filter(Boolean);
+  for (const stmt of statements) {
+    await db.query(stmt + ';');
   }
 }
 
-function seed() {
+async function seed() {
   const db = getConnection();
-  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get('admin@riyadah.com');
-  if (!existing) {
+  const existing = await db.query('SELECT id FROM users WHERE email = $1', ['admin@riyadah.com']);
+  if (existing.rows.length === 0) {
     const hash = bcrypt.hashSync('admin123', 10);
-    db.prepare('INSERT INTO users (fullName, email, password, role) VALUES (?, ?, ?, ?)').run(
-      'الكابتن معتوق', 'admin@riyadah.com', hash, 'admin'
+    await db.query(
+      'INSERT INTO users (fullName, email, password, role) VALUES ($1, $2, $3, $4)',
+      ['الكابتن معتوق', 'admin@riyadah.com', hash, 'admin']
     );
   }
 
@@ -37,24 +35,17 @@ function seed() {
     ['aiProvider', ''],
     ['aiApiKey', '']
   ];
-  const insertSetting = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
   for (const [key, value] of settingKeys) {
-    insertSetting.run(key, value);
+    await db.query(
+      'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value',
+      [key, value]
+    );
   }
 }
 
-function ensureSchemaExtras() {
-  const db = getConnection();
-  const cols = db.prepare('PRAGMA table_info(students)').all().map(c => c.name);
-  if (!cols.includes('category')) {
-    db.exec('ALTER TABLE students ADD COLUMN category TEXT');
-  }
+async function initDatabase() {
+  await applySchema();
+  await seed();
 }
 
-function initDatabase() {
-  runMigrations();
-  ensureSchemaExtras();
-  seed();
-}
-
-module.exports = { initDatabase };
+module.exports = { initDatabase, applySchema, seed };

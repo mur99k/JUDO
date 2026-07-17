@@ -1,16 +1,18 @@
 const { getConnection } = require('../database/connection');
 
 const ContactRepo = {
-  create(data) {
-    return getConnection().prepare(
-      'INSERT INTO contact_messages (name, phone, message) VALUES (?, ?, ?)'
-    ).run(data.name, data.phone || null, data.message || null);
+  async create(data) {
+    const db = getConnection();
+    await db.query(
+      'INSERT INTO contact_messages (name, phone, message) VALUES ($1, $2, $3)',
+      [data.name, data.phone || null, data.message || null]
+    );
   },
 
-  findAll() {
-    return getConnection().prepare(
-      'SELECT * FROM contact_messages ORDER BY createdAt DESC'
-    ).all();
+  async findAll() {
+    const db = getConnection();
+    const r = await db.query('SELECT * FROM contact_messages ORDER BY createdAt DESC');
+    return r.rows;
   }
 };
 

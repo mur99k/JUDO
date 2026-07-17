@@ -1,20 +1,21 @@
 const path = require('path');
 const fs = require('fs');
 const ejs = require('ejs');
-const Database = require('better-sqlite3');
 const GalleryService = require('../services/gallery.service');
+const UserRepo = require('../repositories/user.repo');
+const SettingsRepo = require('../repositories/settings.repo');
+const storage = require('../storage');
 const V = path.resolve(__dirname, '..', 'views');
 
 // Featured coaches shown on the public home page (معتوق + مروان).
-function listFeaturedCoaches() {
+async function listFeaturedCoaches() {
   try {
-    const db = new Database(path.resolve(__dirname, '..', '..', 'data', 'club.db'));
-    const rows = db.prepare("SELECT id, fullName, profileImage FROM users WHERE id IN (12,13) ORDER BY id").all();
-    const coaches = rows.map(r => {
-      const bioRow = db.prepare("SELECT value FROM settings WHERE key = ?").get('coachBio_' + r.id);
-      return { id: r.id, name: r.fullName, photo: r.profileImage || null, bio: bioRow ? bioRow.value : '' };
-    });
-    db.close();
+    const rows = await UserRepo.findByRole('coach');
+    const coaches = [];
+    for (const r of rows) {
+      const bioRow = await SettingsRepo.get('coachBio_' + r.id);
+      coaches.push({ id: r.id, name: r.fullName, photo: storage.normalizeDbValue(r.profileImage) || null, bio: bioRow || '' });
+    }
     return coaches;
   } catch { return []; }
 }
@@ -68,9 +69,11 @@ function renderDash(view, opts, cb) {
 }
 
 module.exports = {
-  home: function(req, res) {
-    var d = { title: 'الرئيسية', user: res.locals.user, activePage: 'home', photos: GalleryService.list(), backgrounds: listBackgrounds(), coaches: listFeaturedCoaches() };
-    renderPublic('pages/index.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
+  home: async function(req, res) {
+    try {
+      var d = { title: 'الرئيسية', user: res.locals.user, activePage: 'home', photos: await GalleryService.list(), backgrounds: listBackgrounds(), coaches: await listFeaturedCoaches() };
+      renderPublic('pages/index.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
+    } catch (e) { res.status(500).send(e.message); }
   },
   about: function(req, res) {
     var d = { title: 'عن النادي', user: res.locals.user, activePage: 'about', photos: GalleryService.list() };

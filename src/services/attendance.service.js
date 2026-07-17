@@ -40,7 +40,7 @@ const AttendanceService = {
     return AttendanceRepo.getMonthlyAttendance(m, y);
   },
 
-  getStudentRate(studentId) {
+  async getStudentRate(studentId) {
     return AttendanceRepo.getStudentRate(studentId);
   },
 

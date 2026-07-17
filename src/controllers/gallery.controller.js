@@ -14,12 +14,8 @@ const GalleryController = {
   async upload(req, res, next) {
     try {
       if (!req.file) return error(res, 'الملف مطلوب');
-      return success(res, {
-        photo: {
-          name: req.file.filename,
-          url: '/gallery-img/' + encodeURIComponent(req.file.filename)
-        }
-      });
+      const photo = await GalleryService.upload(req.file);
+      return success(res, { photo });
     } catch (err) {
       next(err);
     }

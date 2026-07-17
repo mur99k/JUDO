@@ -4,7 +4,7 @@ const SettingsService = require('../services/settings.service');
 const SettingsController = {
   async get(req, res, next) {
     try {
-      const settings = SettingsService.getAll();
+      const settings = await SettingsService.getAll();
       return success(res, { settings });
     } catch (err) {
       next(err);

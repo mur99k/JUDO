@@ -41,8 +41,12 @@ function check(name, cond, detail) {
 
 (async () => {
   const secret = crypto.randomBytes(48).toString('hex');
+  // Run against the real code, but on local infra (sqlite + local disk) so the
+  // test is self-contained. To exercise the live production path (postgres +
+  // Cloudflare R2) set DB_TYPE/STORAGE_TYPE in the environment before running.
   const env = { ...process.env, NODE_ENV: 'production', PORT: String(PORT),
-    SESSION_SECRET: secret, HTTPS: 'false', CORS_ORIGIN: 'http://127.0.0.1:3011' };
+    SESSION_SECRET: secret, HTTPS: 'false', CORS_ORIGIN: 'http://127.0.0.1:3011',
+    DB_TYPE: process.env.DB_TYPE || 'sqlite', STORAGE_TYPE: process.env.STORAGE_TYPE || 'local' };
 
   const child = spawn('node', ['server.js'], { env, cwd: path.resolve(__dirname, '..'), stdio: 'ignore' });
 
@@ -97,8 +101,9 @@ function check(name, cond, detail) {
   if (uploadedName) {
     const del = await req('DELETE', '/api/gallery/' + encodeURIComponent(uploadedName), { cookie: adminCookie });
     check('Gallery delete (admin)', del.status === 200, 'status ' + del.status);
+    const localDir = path.resolve(__dirname, '..', process.env.UPLOAD_PATH || './uploads', 'gallery', uploadedName);
     const galDir = path.resolve(__dirname, '..', 'بطولات وجوائز', uploadedName);
-    check('Uploaded file removed from disk', !fs.existsSync(galDir));
+    check('Uploaded file removed from disk', !fs.existsSync(localDir) && !fs.existsSync(galDir));
   }
 
   // 5. Permissions: a non-admin cookie must be denied the students list

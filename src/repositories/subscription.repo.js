@@ -1,92 +1,117 @@
 const { getConnection } = require('../database/connection');
 
+// Compute remaining days until endDate (relative to today) in JS so the
+// query stays dialect-agnostic (no julianday / datediff).
+function daysBetween(todayStr, endStr) {
+  const a = new Date(todayStr + 'T00:00:00');
+  const b = new Date(endStr + 'T00:00:00');
+  return Math.round((b - a) / 86400000);
+}
+
 const SubscriptionRepo = {
-  findAll(filters = {}) {
+  async findAll(filters = {}) {
+    const db = getConnection();
     let sql = `
-      SELECT sub.*, s.fullName as studentName,
-        CASE WHEN sub.status != 'نشط' THEN 0 ELSE CAST(julianday(sub.endDate) - julianday('now','localtime') AS INTEGER) END as remainingDays
+      SELECT sub.*, s.fullName as studentName
       FROM subscriptions sub
       JOIN students s ON sub.studentId = s.id
       WHERE 1=1
     `;
     const params = [];
-    if (filters.status) { sql += ' AND sub.status = ?'; params.push(filters.status); }
-    if (filters.studentId) { sql += ' AND sub.studentId = ?'; params.push(filters.studentId); }
+    if (filters.status) { sql += ' AND sub.status = $' + (params.length + 1); params.push(filters.status); }
+    if (filters.studentId) { sql += ' AND sub.studentId = $' + (params.length + 1); params.push(filters.studentId); }
     sql += ' ORDER BY sub.createdAt DESC';
-    return getConnection().prepare(sql).all(...params);
+    const r = await db.query(sql, params);
+    const today = new Date().toISOString().split('T')[0];
+    return r.rows.map(row => ({
+      ...row,
+      remainingDays: row.status !== 'نشط' ? 0 : daysBetween(today, row.endDate)
+    }));
   },
 
-  findById(id) {
-    return getConnection().prepare(`
-      SELECT sub.*, s.fullName as studentName,
-        CASE WHEN sub.status != 'نشط' THEN 0 ELSE CAST(julianday(sub.endDate) - julianday('now','localtime') AS INTEGER) END as remainingDays
+  async findById(id) {
+    const db = getConnection();
+    const r = await db.query(`
+      SELECT sub.*, s.fullName as studentName
       FROM subscriptions sub
       JOIN students s ON sub.studentId = s.id
-      WHERE sub.id = ?
-    `).get(id);
+      WHERE sub.id = $1
+    `, [id]);
+    const row = r.rows[0];
+    if (!row) return null;
+    const today = new Date().toISOString().split('T')[0];
+    return { ...row, remainingDays: row.status !== 'نشط' ? 0 : daysBetween(today, row.endDate) };
   },
 
-  create(data) {
-    const stmt = getConnection().prepare(
+  async create(data) {
+    const db = getConnection();
+    const r = await db.query(
       `INSERT INTO subscriptions (studentId, type, days, amount, startDate, endDate, status, paymentMethod, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+      [data.studentId, data.type, data.days, data.amount,
+       data.startDate, data.endDate, data.status || 'نشط',
+       data.paymentMethod || null, data.notes || null]
     );
-    const result = stmt.run(
-      data.studentId, data.type, data.days, data.amount,
-      data.startDate, data.endDate, data.status || 'نشط',
-      data.paymentMethod || null, data.notes || null
-    );
-    return { id: result.lastInsertRowid };
+    return { id: r.lastId || (r.rows[0] && r.rows[0].id) };
   },
 
-  update(id, data) {
+  async update(id, data) {
+    const db = getConnection();
     const fields = [];
     const values = [];
     const allowed = ['type', 'days', 'amount', 'startDate', 'endDate', 'status', 'paymentMethod', 'notes'];
     for (const key of allowed) {
       if (data[key] !== undefined) {
-        fields.push(`${key} = ?`);
+        fields.push(`${key} = $${fields.length + 1}`);
         values.push(data[key]);
       }
     }
     if (fields.length === 0) return null;
     values.push(id);
-    return getConnection().prepare(`UPDATE subscriptions SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+    await db.query(`UPDATE subscriptions SET ${fields.join(', ')} WHERE id = $${values.length}`, values);
+    return true;
   },
 
-  delete(id) {
-    return getConnection().prepare('DELETE FROM subscriptions WHERE id = ?').run(id);
+  async delete(id) {
+    const db = getConnection();
+    await db.query('DELETE FROM subscriptions WHERE id = $1', [id]);
   },
 
-  getActiveCount() {
-    return getConnection().prepare(
-      "SELECT COUNT(*) as count FROM subscriptions WHERE status = 'نشط'"
-    ).get().count;
+  async getActiveCount() {
+    const db = getConnection();
+    const r = await db.query("SELECT COUNT(*) as count FROM subscriptions WHERE status = $1", ['نشط']);
+    return r.rows[0].count;
   },
 
-  getTotalRevenue() {
-    const row = getConnection().prepare(
-      "SELECT COALESCE(SUM(amount), 0) as total FROM subscriptions WHERE status != 'ملغي'"
-    ).get();
-    return row.total;
+  async getTotalRevenue() {
+    const db = getConnection();
+    const r = await db.query(
+      "SELECT COALESCE(SUM(amount), 0) as total FROM subscriptions WHERE status != $1", ['ملغي']
+    );
+    return r.rows[0].total;
   },
 
-  getMonthlyRevenue(year) {
-    return getConnection().prepare(`
-      SELECT strftime('%m', startDate) as month, COALESCE(SUM(amount), 0) as total
+  async getMonthlyRevenue(year) {
+    const db = getConnection();
+    // Portable month/year extraction (TO_CHAR in pg, strftime in sqlite via adapter).
+    const r = await db.query(`
+      SELECT TO_CHAR(startDate::date, 'MM') as month, COALESCE(SUM(amount), 0) as total
       FROM subscriptions
-      WHERE strftime('%Y', startDate) = ? AND status != 'ملغي'
+      WHERE EXTRACT(YEAR FROM startDate::date) = $1 AND status != $2
       GROUP BY month
       ORDER BY month
-    `).all(String(year));
+    `, [String(year), 'ملغي']);
+    return r.rows;
   },
 
-  expireOverdue() {
-    return getConnection().prepare(`
-      UPDATE subscriptions
-      SET status = 'منتهي'
-      WHERE status = 'نشط' AND endDate < date('now','localtime')
-    `).run().changes;
+  async expireOverdue() {
+    const db = getConnection();
+    const today = new Date().toISOString().split('T')[0];
+    const r = await db.query(
+      `UPDATE subscriptions SET status = $1 WHERE status = $2 AND endDate < $3`,
+      ['منتهي', 'نشط', today]
+    );
+    return r.rowCount;
   }
 };
 

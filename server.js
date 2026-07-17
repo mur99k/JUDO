@@ -11,14 +11,16 @@ const SubscriptionService = require('./src/services/subscription.service');
 
 logger.info('Starting', config.app.name, '| env:', config.isProduction ? 'production' : 'development');
 
-initDatabase();
-syncMediaToDisk();
+(async () => {
+  await initDatabase();
+  syncMediaToDisk();
 
-// Auto-expire overdue subscriptions on startup and every hour.
-SubscriptionService.syncExpired();
-const syncTimer = setInterval(() => {
-  try { SubscriptionService.syncExpired(); } catch (e) { logger.warn('syncExpired failed:', e.message); }
-}, 60 * 60 * 1000);
+  // Auto-expire overdue subscriptions on startup and every hour.
+  await SubscriptionService.syncExpired();
+  setInterval(() => {
+    SubscriptionService.syncExpired().catch(e => logger.warn('syncExpired failed:', e.message));
+  }, 60 * 60 * 1000);
+})();
 
 function startServer() {
   // Optional: terminate TLS directly from Node (no reverse proxy).
@@ -46,7 +48,7 @@ function shutdown(signal) {
   logger.info('Received', signal, '- shutting down gracefully...');
   clearInterval(syncTimer);
   server.close(() => {
-    try { close(); } catch (e) { logger.error('DB close error:', e.message); }
+    Promise.resolve(close()).catch(e => logger.error('DB close error:', e.message));
     logger.info('Server stopped.');
     process.exit(0);
   });

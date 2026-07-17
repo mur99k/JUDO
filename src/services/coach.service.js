@@ -1,41 +1,56 @@
+const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const UserRepo = require('../repositories/user.repo');
+const storage = require('../storage');
 const { NotFoundError, ValidationError } = require('../utils/errors');
 
-const CoachService = {
-  list() { return UserRepo.findByRole('coach'); },
+async function persistPhoto(file, subDir) {
+  if (!file) return null;
+  const key = subDir + '/' + file.filename;
+  const buffer = fs.readFileSync(file.path);
+  const { url } = await storage.upload(key, buffer, file.mimetype);
+  try { fs.unlinkSync(file.path); } catch {}
+  return storage.normalizeDbValue(url);
+}
 
-  getById(id) {
-    const coach = UserRepo.findById(id);
+const CoachService = {
+  async list() { return UserRepo.findByRole('coach'); },
+
+  async getById(id) {
+    const coach = await UserRepo.findById(id);
     if (!coach || coach.role !== 'coach') throw new NotFoundError('المدرب غير موجود');
+    coach.profileImage = storage.normalizeDbValue(coach.profileImage);
     return coach;
   },
 
-  create(data, file) {
-    const existing = UserRepo.findByEmail(data.email);
+  async create(data, file) {
+    const existing = await UserRepo.findByEmail(data.email);
     if (existing) throw new ValidationError('البريد الإلكتروني مستخدم مسبقاً');
     const hash = bcrypt.hashSync(data.password, 10);
-    const profileImage = file ? '/uploads/coaches/' + file.filename : null;
-    const result = UserRepo.create({ ...data, password: hash, role: 'coach', profileImage });
+    const profileImage = file ? await persistPhoto(file, 'coaches') : null;
+    const result = await UserRepo.create({ ...data, password: hash, role: 'coach', profileImage });
     return result;
   },
 
-  update(id, data, file) {
-    const coach = UserRepo.findById(id);
+  async update(id, data, file) {
+    const coach = await UserRepo.findById(id);
     if (!coach || coach.role !== 'coach') throw new NotFoundError('المدرب غير موجود');
     const { password, ...profileData } = data;
-    if (file) profileData.profileImage = '/uploads/coaches/' + file.filename;
-    if (Object.keys(profileData).length > 0) UserRepo.updateProfile(id, profileData);
+    if (file) profileData.profileImage = await persistPhoto(file, 'coaches');
+    if (Object.keys(profileData).length > 0) await UserRepo.updateProfile(id, profileData);
     if (password) {
-      UserRepo.updatePassword(id, bcrypt.hashSync(password, 10));
+      await UserRepo.updatePassword(id, bcrypt.hashSync(password, 10));
     }
-    return UserRepo.findById(id);
+    const updated = await UserRepo.findById(id);
+    updated.profileImage = storage.normalizeDbValue(updated.profileImage);
+    return updated;
   },
 
-  delete(id) {
-    const coach = UserRepo.findById(id);
+  async delete(id) {
+    const coach = await UserRepo.findById(id);
     if (!coach || coach.role !== 'coach') throw new NotFoundError('المدرب غير موجود');
-    UserRepo.delete(id);
+    if (coach.profileImage) { try { await storage.remove(storage.keyFromUrl(coach.profileImage)); } catch {} }
+    await UserRepo.delete(id);
   }
 };
 

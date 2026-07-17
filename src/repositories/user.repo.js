@@ -1,44 +1,55 @@
 const { getConnection } = require('../database/connection');
 
 const UserRepo = {
-  findByEmail(email) {
-    return getConnection().prepare('SELECT * FROM users WHERE email = ?').get(email);
+  async findByEmail(email) {
+    const db = getConnection();
+    const r = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    return r.rows[0] || null;
   },
 
-  findById(id) {
-    return getConnection().prepare('SELECT id, fullName, email, phone, profileImage, role, createdAt FROM users WHERE id = ?').get(id);
+  async findById(id) {
+    const db = getConnection();
+    const r = await db.query('SELECT id, fullName, email, phone, profileImage, role, createdAt FROM users WHERE id = $1', [id]);
+    return r.rows[0] || null;
   },
 
-  findByRole(role) {
-    return getConnection().prepare('SELECT id, fullName, email, phone, profileImage, role, createdAt FROM users WHERE role = ? ORDER BY createdAt DESC').all(role);
+  async findByRole(role) {
+    const db = getConnection();
+    const r = await db.query('SELECT id, fullName, email, phone, profileImage, role, createdAt FROM users WHERE role = $1 ORDER BY createdAt DESC', [role]);
+    return r.rows;
   },
 
-  create(data) {
-    const stmt = getConnection().prepare(
-      'INSERT INTO users (fullName, email, phone, password, role) VALUES (?, ?, ?, ?, ?)'
+  async create(data) {
+    const db = getConnection();
+    const r = await db.query(
+      'INSERT INTO users (fullName, email, phone, password, role) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [data.fullName, data.email, data.phone, data.password, data.role]
     );
-    const result = stmt.run(data.fullName, data.email, data.phone, data.password, data.role);
-    return { id: result.lastInsertRowid, ...data };
+    return { id: r.lastId || (r.rows[0] && r.rows[0].id) };
   },
 
-  delete(id) {
-    return getConnection().prepare('DELETE FROM users WHERE id = ?').run(id);
+  async delete(id) {
+    const db = getConnection();
+    await db.query('DELETE FROM users WHERE id = $1', [id]);
   },
 
-  updateProfile(id, data) {
+  async updateProfile(id, data) {
+    const db = getConnection();
     const fields = [];
     const values = [];
-    if (data.fullName !== undefined) { fields.push('fullName = ?'); values.push(data.fullName); }
-    if (data.email !== undefined) { fields.push('email = ?'); values.push(data.email); }
-    if (data.phone !== undefined) { fields.push('phone = ?'); values.push(data.phone); }
-    if (data.profileImage !== undefined) { fields.push('profileImage = ?'); values.push(data.profileImage); }
+    if (data.fullName !== undefined) { fields.push('fullName = $' + (fields.length + 1)); values.push(data.fullName); }
+    if (data.email !== undefined) { fields.push('email = $' + (fields.length + 1)); values.push(data.email); }
+    if (data.phone !== undefined) { fields.push('phone = $' + (fields.length + 1)); values.push(data.phone); }
+    if (data.profileImage !== undefined) { fields.push('profileImage = $' + (fields.length + 1)); values.push(data.profileImage); }
     if (fields.length === 0) return null;
     values.push(id);
-    return getConnection().prepare(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+    await db.query(`UPDATE users SET ${fields.join(', ')} WHERE id = $${values.length}`, values);
+    return true;
   },
 
-  updatePassword(id, hash) {
-    return getConnection().prepare('UPDATE users SET password = ? WHERE id = ?').run(hash, id);
+  async updatePassword(id, hash) {
+    const db = getConnection();
+    await db.query('UPDATE users SET password = $1 WHERE id = $2', [hash, id]);
   }
 };
 

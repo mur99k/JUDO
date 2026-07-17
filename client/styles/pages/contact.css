@@ -4,6 +4,7 @@
   grid-template-columns: 1fr;
   gap: 12px;
   margin-bottom: 32px;
+  direction: ltr;
 }
 
 @media (min-width: 640px) {

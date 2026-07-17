@@ -91,8 +91,21 @@ app.use(function (req, res, next) {
   if (!filePath || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) return res.status(404).end();
   res.sendFile(filePath);
 });
-app.use('/backgrounds', express.static(path.join(__dirname, '..', 'backgrounds')));
-app.use('/background-photos', express.static(path.join(__dirname, '..', 'background-photos')));
+
+// About page images ("صور عن النادي")
+const ABOUT_PREFIX = '/about-img/';
+const ABOUT_DIR = config.media.aboutDir;
+app.use(function (req, res, next) {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  if (!req.path.startsWith(ABOUT_PREFIX)) return next();
+  const name = decodeURIComponent(req.path.slice(ABOUT_PREFIX.length));
+  const filePath = safeJoin(ABOUT_DIR, name);
+  if (!filePath || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) return res.status(404).end();
+  res.sendFile(filePath);
+});
+
+app.use('/backgrounds', express.static(path.join(__dirname, '..', 'صور الخلفية في الصفحة الرئيسية')));
+app.use('/background-photos', express.static(path.join(__dirname, '..', 'صور الخلفية في الصفحة الرئيسية')));
 app.use('/logo', express.static(path.join(__dirname, '..', 'logo')));
 
 // ─── Health / liveness probe (registered before routes so it is never

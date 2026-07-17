@@ -9,25 +9,25 @@
       <p style="margin-top:16px;color:var(--text-soft);">لديك استفسار أو تريد الانضمام للنادي؟ تواصل معنا.</p>
     </div>
 
-    <!-- 2 cards: stacked on mobile, row on desktop -->
+    <!-- Cards: RTL reverses order. To show LTR: 📍→💬→📞, HTML order must be: 📞→💬→📍 -->
     <div class="contact-grid-3">
-      <a href="tel:+966567383104" class="card contact-card-plain">
-        <div class="contact-icon-lg" style="background:#DBEAFE;">📞</div>
-        <h3 style="font-weight:700;margin-bottom:4px;">اتصال</h3>
-        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">+966 56 738 3104</p>
-        <span style="font-size:0.8rem;color:var(--color-navy-light);font-weight:600;">اضغط للاتصال</span>
-      </a>
+      <div class="card contact-card-plain">
+        <div class="contact-icon-lg" style="background:var(--color-blue-soft);">📍</div>
+        <h3 style="font-weight:700;margin-bottom:4px;">موقع النادي</h3>
+        <p style="font-size:0.82rem;color:var(--text-muted);">جدة، المملكة العربية السعودية</p>
+      </div>
       <a href="https://wa.me/966598199304" target="_blank" class="card contact-card-plain">
         <div class="contact-icon-lg" style="background:#DCFCE7;">💬</div>
         <h3 style="font-weight:700;margin-bottom:4px;">واتساب</h3>
         <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">+966 59 819 9304</p>
         <span style="font-size:0.8rem;color:var(--color-navy-light);font-weight:600;">اضغط للتواصل</span>
       </a>
-      <div class="card contact-card-plain">
-        <div class="contact-icon-lg" style="background:var(--color-blue-soft);">📍</div>
-        <h3 style="font-weight:700;margin-bottom:4px;">موقع النادي</h3>
-        <p style="font-size:0.82rem;color:var(--text-muted);">جدة، المملكة العربية السعودية</p>
-      </div>
+      <a href="tel:+966567383104" class="card contact-card-plain">
+        <div class="contact-icon-lg" style="background:#DBEAFE;">📞</div>
+        <h3 style="font-weight:700;margin-bottom:4px;">اتصال</h3>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">+966 56 738 3104</p>
+        <span style="font-size:0.8rem;color:var(--color-navy-light);font-weight:600;">اضغط للاتصال</span>
+      </a>
     </div>
 
     <!-- Info + Form: stacked on mobile, side by side on desktop -->

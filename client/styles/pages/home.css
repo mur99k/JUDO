@@ -380,8 +380,23 @@
 
 @media (max-width: 560px) {
   .coaches-row {
-    grid-template-columns: 1fr;
-    max-width: 380px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-12);
+    max-width: 100%;
+  }
+  .coach-photo {
+    width: 100px;
+    height: 100px;
+  }
+  .coach-card {
+    padding: var(--space-20) var(--space-12) var(--space-16);
+  }
+  .coach-name {
+    font-size: 1rem;
+  }
+  .coach-bio {
+    font-size: 0.8rem;
+    line-height: 1.6;
   }
 }
 

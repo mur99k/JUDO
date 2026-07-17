@@ -166,6 +166,15 @@
   font-weight: 500;
   text-decoration: none;
   transition: color var(--duration-fast) var(--ease-out);
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: fit-content;
+}
+
+@media (min-width: 768px) {
+  .footer-contact-item {
+    width: 100%;
+  }
 }
 
 .footer-contact-item:hover {
@@ -182,7 +191,9 @@
   direction: ltr;
   unicode-bidi: isolate;
   display: inline-block;
-  font-weight: 600;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
 }
 
 /* Bottom */

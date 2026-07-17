@@ -59,8 +59,9 @@ const config = {
   media: {
     galleryDir: path.resolve(__dirname, '..', '..', process.env.GALLERY_DIR || './بطولات وجوائز'),
     coachDir: path.resolve(__dirname, '..', '..', process.env.COACH_DIR || './صور المدربين'),
-    backgroundsDir: path.resolve(__dirname, '..', '..', process.env.BACKGROUNDS_DIR || './backgrounds'),
-    backgroundPhotosDir: path.resolve(__dirname, '..', '..', process.env.BGPHOTOS_DIR || './background-photos')
+    backgroundsDir: path.resolve(__dirname, '..', '..', process.env.BACKGROUNDS_DIR || './صور الخلفية في الصفحة الرئيسية'),
+    backgroundPhotosDir: path.resolve(__dirname, '..', '..', process.env.BGPHOTOS_DIR || './صور الخلفية في الصفحة الرئيسية'),
+    aboutDir: path.resolve(__dirname, '..', '..', process.env.ABOUT_DIR || './صور عن النادي')
   },
   session: {
     maxAge: 24 * 60 * 60 * 1000

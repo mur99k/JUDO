@@ -22,25 +22,32 @@ async function listFeaturedCoaches() {
 }
 
 function listBackgrounds() {
-  const dir = path.resolve(__dirname, '..', '..', 'backgrounds');
-  const extraDir = path.resolve(__dirname, '..', '..', 'background-photos');
+  const dir = path.resolve(__dirname, '..', '..', 'صور الخلفية في الصفحة الرئيسية');
   var out = [];
   try {
     if (fs.existsSync(dir)) {
-      out = out.concat(fs.readdirSync(dir)
+      out = fs.readdirSync(dir)
         .filter(f => ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(path.extname(f).toLowerCase()))
         .map(f => {
           var stat = fs.statSync(path.join(dir, f));
           return { name: f, url: '/backgrounds/' + encodeURIComponent(f) + '?v=' + stat.mtime.getTime() };
-        }));
+        });
     }
-    if (fs.existsSync(extraDir)) {
-      out = out.concat(fs.readdirSync(extraDir)
+    return out;
+  } catch { return []; }
+}
+
+function listAboutPhotos() {
+  const dir = path.resolve(__dirname, '..', '..', 'صور عن النادي');
+  var out = [];
+  try {
+    if (fs.existsSync(dir)) {
+      out = fs.readdirSync(dir)
         .filter(f => ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(path.extname(f).toLowerCase()))
+        .sort()
         .map(f => {
-          var stat = fs.statSync(path.join(extraDir, f));
-          return { name: f, url: '/background-photos/' + encodeURIComponent(f) + '?v=' + stat.mtime.getTime() };
-        }));
+          return { name: f, url: '/about-img/' + encodeURIComponent(f) };
+        });
     }
     return out;
   } catch { return []; }
@@ -76,8 +83,9 @@ module.exports = {
       renderPublic('pages/index.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
     } catch (e) { res.status(500).send(e.message); }
   },
-  about: function(req, res) {
-    var d = { title: 'عن النادي', user: res.locals.user, activePage: 'about', photos: GalleryService.list() };
+  about: async function(req, res) {
+    var photos = listAboutPhotos();
+    var d = { title: 'عن النادي', user: res.locals.user, activePage: 'about', photos: photos };
     renderPublic('pages/about.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
   },
   contact: function(req, res) {

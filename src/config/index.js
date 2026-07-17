@@ -69,7 +69,7 @@ const config = {
   app: {
     name: 'نادي الريادة للجودو',
     phone: '+966 56 738 3104',
-    whatsapp: '966567383104',
+    whatsapp: '966598199304',
     mapUrl: 'https://maps.app.goo.gl/yw3GYxyD1ndC7SUx7?g_st=ic'
   }
 };

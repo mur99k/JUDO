@@ -1,0 +1,62 @@
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="navbar-content">
+      <a href="/" class="navbar-brand">
+        <img src="/logo/logo.png" alt="نادي الريادة للجودو" class="navbar-logo" width="40" height="40">
+        <span>نادي الريادة للجودو</span>
+      </a>
+
+      <ul class="navbar-nav" id="navbarNav">
+        <li><a href="/" class="navbar-link <%= activePage === 'home' ? 'active' : '' %>">الرئيسية</a></li>
+        <li><a href="/about" class="navbar-link <%= activePage === 'about' ? 'active' : '' %>">عن النادي</a></li>
+        <li><a href="/register" class="navbar-link <%= activePage === 'register' ? 'active' : '' %>">التسجيل</a></li>
+        <li><a href="/contact" class="navbar-link <%= activePage === 'contact' ? 'active' : '' %>">تواصل معنا</a></li>
+        <% if (typeof user !== 'undefined' && user) { %>
+          <li><a href="<%= user.role === 'student' ? '/student' : '/dashboard' %>" class="navbar-link"><%= user.role === 'student' ? 'لوحة الطالب' : 'لوحة التحكم' %></a></li>
+          <li><a href="/" onclick="event.preventDefault();fetch('/api/auth/logout',{method:'POST'}).then(function(){window.location.href='/'})" class="navbar-link" style="color:#ef4444;font-weight:400;">تسجيل خروج</a></li>
+        <% } else { %>
+          <li><a href="/login" class="navbar-link <%= activePage === 'login' ? 'active' : '' %>">تسجيل الدخول</a></li>
+        <% } %>
+      </ul>
+
+      <div class="navbar-actions">
+        <a href="<%= typeof user !== 'undefined' && user ? (user.role === 'student' ? '/student' : '/dashboard') : '/register' %>" class="btn navbar-cta"><%= typeof user !== 'undefined' && user ? (user.role === 'student' ? 'لوحة الطالب' : 'لوحة التحكم') : 'انضم الآن' %></a>
+        <button class="navbar-toggle" id="navbarToggle" aria-label="القائمة">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <img src="/logo/logo.png" alt="نادي الريادة للجودو" class="navbar-logo" width="40" height="40">
+      <span>نادي الريادة للجودو</span>
+      <button class="mobile-menu-close" id="mobileMenuClose" aria-label="إغلاق">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <nav class="mobile-menu-nav">
+      <a href="/" class="mobile-link <%= activePage === 'home' ? 'active' : '' %>">الرئيسية</a>
+      <a href="/about" class="mobile-link <%= activePage === 'about' ? 'active' : '' %>">عن النادي</a>
+      <a href="/register" class="mobile-link <%= activePage === 'register' ? 'active' : '' %>">التسجيل</a>
+      <a href="/contact" class="mobile-link <%= activePage === 'contact' ? 'active' : '' %>">تواصل معنا</a>
+      <% if (typeof user !== 'undefined' && user) { %>
+        <a href="<%= user.role === 'student' ? '/student' : '/dashboard' %>" class="mobile-link"><%= user.role === 'student' ? 'لوحة الطالب' : 'لوحة التحكم' %></a>
+        <a href="/" onclick="event.preventDefault();fetch('/api/auth/logout',{method:'POST'}).then(function(){window.location.href='/'})" class="mobile-link" style="color:#ef4444;">تسجيل خروج</a>
+      <% } else { %>
+        <a href="/login" class="mobile-link <%= activePage === 'login' ? 'active' : '' %>">تسجيل الدخول</a>
+      <% } %>
+    </nav>
+    <div class="mobile-menu-footer">
+      <a href="<%= typeof user !== 'undefined' && user ? (user.role === 'student' ? '/student' : '/dashboard') : '/register' %>" class="btn"><%= typeof user !== 'undefined' && user ? (user.role === 'student' ? 'لوحة الطالب' : 'لوحة التحكم') : 'انضم الآن' %></a>
+    </div>
+  </div>
+  <div class="mobile-menu-backdrop" id="mobileBackdrop"></div>
+</nav>

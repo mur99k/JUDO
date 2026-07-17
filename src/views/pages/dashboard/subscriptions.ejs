@@ -1,0 +1,467 @@
+<% activePage = 'subscriptions'; %>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon green">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    </div>
+    <div class="stat-body">
+      <span class="stat-label">اشتراكات نشطة</span>
+      <span class="stat-value" id="statActiveSubs">-</span>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div class="stat-body">
+      <span class="stat-label">تنتهي قريباً</span>
+      <span class="stat-value" id="statExpiring">-</span>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon gold">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+    </div>
+    <div class="stat-body">
+      <span class="stat-label">إجمالي الإيرادات</span>
+      <span class="stat-value" id="statRevenue">-</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-header">
+  <h2>الاشتراكات</h2>
+  <button class="btn btn-primary" id="addSubBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    إضافة اشتراك
+  </button>
+</div>
+
+<div class="table-wrap" id="subTableWrap">
+  <table>
+    <thead>
+      <tr>
+        <th>الطالب</th>
+        <th>المدة</th>
+        <th>المبلغ</th>
+        <th>البداية</th>
+        <th>النهاية</th>
+        <th>المتبقي</th>
+        <th>الحالة</th>
+        <th style="width:40px;"></th>
+      </tr>
+    </thead>
+    <tbody id="subscriptionsBody">
+      <tr><td colspan="8" class="table-empty">جاري التحميل...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Subscription Modal -->
+<div class="modal-overlay" id="addSubModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h2 id="addSubTitle" class="modal-title">إضافة اشتراك</h2>
+      <button class="modal-close" onclick="document.getElementById('addSubModal').classList.remove('active')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="addSubForm" class="form" style="padding:0 4px;">
+      <div class="form-group">
+        <label class="form-label">الطالب</label>
+        <div class="sub-student-picker">
+          <input type="text" id="subStudentSearch" placeholder="اكتب اسم الطالب للبحث..." class="form-input" autocomplete="off">
+          <select class="form-input" id="subStudent" name="studentId" required size="4" style="margin-top:6px;">
+            <option value="">اختر طالب...</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="subDuration">المدة</label>
+          <input type="hidden" id="subDuration" name="duration" value="30">
+          <div class="custom-select" id="subDurationSelect">
+            <div class="custom-select-trigger" onclick="toggleCustomSelect('subDurationSelect')">
+              <span class="custom-select-text" id="subDurationText">شهر</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="custom-select-options">
+              <div class="custom-select-option active" data-value="30" onclick="selectSubDuration(30,'شهر')">شهر</div>
+              <div class="custom-select-option" data-value="90" onclick="selectSubDuration(90,'ربع سنوي (90 يوم)')">ربع سنوي (90 يوم)</div>
+              <div class="custom-select-option" data-value="180" onclick="selectSubDuration(180,'نصف سنة (6 شهور)')">نصف سنة (6 شهور)</div>
+              <div class="custom-select-option" data-value="365" onclick="selectSubDuration(365,'سنة')">سنة</div>
+              <div class="custom-select-option" data-value="custom" onclick="selectSubDuration('custom','مدة مخصصة')">مدة مخصصة</div>
+            </div>
+          </div>
+          <input type="number" class="form-input" id="subCustomDuration" name="customDuration" min="1" max="999" placeholder="عدد الأيام..." style="display:none;margin-top:6px;font-size:0.9rem;">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="subAmount">المبلغ</label>
+          <div style="position:relative;">
+            <input type="number" class="form-input" id="subAmount" name="amount" min="0" step="0.01" value="0" required style="padding-left:32px;font-size:1rem;font-weight:600;">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.78rem;color:#94a3b8;pointer-events:none;">ر.س</span>
+          </div>
+        </div>
+      </div>
+      <div class="sub-exempt-card" onclick="document.getElementById('subExempt').click();">
+        <label class="sub-exempt-toggle">
+          <input type="checkbox" id="subExempt">
+          <span class="sub-exempt-check">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </label>
+        <div class="sub-exempt-text">
+          <div class="sub-exempt-title">ظروف شخصية</div>
+          <div class="sub-exempt-desc">إعفاء كامل من رسوم الاشتراك</div>
+        </div>
+        <span class="sub-exempt-badge">إعفاء</span>
+      </div>
+      <input type="hidden" id="subStartDate" name="startDate">
+      <div class="sub-end-date-bar">
+        <span style="display:flex;align-items:center;gap:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          تاريخ الانتهاء
+        </span>
+        <div style="display:flex;align-items:center;gap:8px;position:relative;">
+          <span id="subEndDateHijri" style="font-size:0.85rem;color:var(--color-navy);font-weight:600;"></span>
+          <input type="date" id="subEndDate" name="endDate" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:1;">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px;">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('addSubModal').classList.remove('active')">إلغاء</button>
+        <button type="button" class="btn btn-primary" id="saveSubBtn">حفظ الاشتراك</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+/* Subscriptions page — refined */
+/* Premium custom select (matches site design) */
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  font-size: 0.95rem;
+  color: var(--color-navy);
+  transition: all 0.2s;
+}
+.custom-select-trigger:hover {
+  border-color: var(--color-navy);
+}
+.custom-select.open .custom-select-trigger {
+  border-color: var(--color-navy);
+  box-shadow: 0 0 0 3px rgba(27,47,79,0.1);
+}
+.custom-select-text {
+  flex: 1;
+  text-align: right;
+}
+.custom-select svg {
+  width: 16px;
+  height: 16px;
+  color: #94a3b8;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.custom-select.open svg {
+  transform: rotate(180deg);
+}
+.custom-select-options {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(27,47,79,0.12);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  display: none;
+}
+.custom-select.open .custom-select-options {
+  display: block;
+}
+.custom-select-option {
+  padding: 11px 14px;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  font-size: 0.92rem;
+  color: var(--color-navy);
+  transition: background 0.15s;
+}
+.custom-select-option:hover {
+  background: #f8fafc;
+}
+.custom-select-option.active {
+  background: var(--color-blue-soft);
+  color: var(--color-navy);
+  font-weight: 600;
+}
+.sub-student-picker select {
+  font-size: 0.92rem;
+  padding: 8px 12px;
+  height: auto;
+  min-height: 44px;
+}
+.sub-exempt-toggle {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.sub-exempt-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.sub-exempt-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.sub-exempt-check svg {
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sub-exempt-toggle input:checked + .sub-exempt-check {
+  background: var(--color-gold);
+  border-color: var(--color-gold);
+  box-shadow: 0 2px 8px rgba(201,168,76,0.35);
+}
+.sub-exempt-toggle input:checked + .sub-exempt-check svg {
+  opacity: 1;
+  transform: scale(1);
+}
+.sub-exempt-text {
+  flex: 1;
+  text-align: right;
+}
+.sub-exempt-title {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-navy);
+  line-height: 1.3;
+}
+.sub-exempt-desc {
+  font-family: var(--font-primary);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+.sub-exempt-badge {
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f59e0b;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 20px;
+  padding: 3px 10px;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 0.25s;
+}
+.sub-exempt-card:has(input:checked) .sub-exempt-badge {
+  opacity: 1;
+  transform: translateX(0);
+}
+.sub-exempt-card:has(input:checked) .sub-exempt-title {
+  color: var(--color-gold);
+}
+.sub-end-date-bar {
+  background: var(--bg-alt);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sub-end-date-bar span {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.sub-end-date-bar input {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-family: var(--font-primary);
+  color: var(--color-navy);
+  font-weight: 600;
+}
+.sub-amount-wrap {
+  margin: 14px 0 0;
+}
+.sub-exempt-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #fffdf7 0%, #fffbeb 100%);
+  border: 1.5px solid #fde68a;
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.sub-exempt-card:hover {
+  border-color: #fcd34d;
+  box-shadow: 0 4px 12px rgba(201,168,76,0.15);
+  transform: translateY(-1px);
+}
+.sub-exempt-card:has(input:checked) {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border-color: var(--color-gold);
+  box-shadow: 0 4px 16px rgba(201,168,76,0.25);
+}
+
+/* Mobile: stack form-row vertically */
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+  }
+  .form-row .form-group {
+    width: 100% !important;
+  }
+}
+
+/* Subscription row */
+.sub-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sub-name-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-blue-soft);
+  color: var(--color-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+.sub-name-text { font-weight: 600; }
+
+.sub-amount {
+  font-weight: 700;
+  color: var(--color-navy);
+}
+.sub-amount.exempt {
+  color: var(--color-gold);
+  font-size: 0.78rem;
+}
+
+.sub-remaining {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.sub-remaining.ok { background: var(--success-soft); color: var(--success); }
+.sub-remaining.warn { background: var(--warning-soft); color: var(--warning); }
+.sub-remaining.crit { background: var(--danger-soft); color: var(--danger); }
+.sub-remaining.expired { background: var(--gray-100); color: var(--text-muted); }
+
+.sub-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.73rem;
+  font-weight: 600;
+}
+.sub-status .sub-status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* Actions menu */
+.sub-actions-btn {
+  background: none;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.sub-actions-btn:hover {
+  border-color: var(--color-navy);
+  color: var(--color-navy);
+}
+.sub-actions-menu {
+  position: absolute;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 4px;
+  min-width: 150px;
+  z-index: 200;
+  display: none;
+}
+.sub-actions-menu.open { display: block; }
+.sub-actions-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  font-family: var(--font-primary);
+  font-size: 0.83rem;
+  color: var(--text-body);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  text-align: right;
+}
+.sub-actions-menu button:hover { background: var(--gray-100); }
+.sub-actions-menu button.danger { color: var(--danger); }
+.sub-actions-menu button.danger:hover { background: var(--danger-soft); }
+
+/* Mobile cards */
+@media (max-width: 768px) {
+  #subTableWrap table { min-width: 700px; }
+}
+</style>

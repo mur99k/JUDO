@@ -1,0 +1,11 @@
+node_modules/
+.env
+data/
+uploads/students/*
+uploads/admins/*
+!uploads/students/.gitkeep
+!uploads/admins/.gitkeep
+*.db
+logs/
+backups/
+*.log

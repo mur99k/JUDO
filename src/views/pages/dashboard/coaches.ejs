@@ -1,0 +1,75 @@
+<% activePage = 'coaches'; %>
+
+<div class="page-header">
+  <h2>المدربون</h2>
+  <button class="btn btn-primary" id="addCoachBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    إضافة مدرب
+  </button>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>البريد الإلكتروني</th>
+        <th>رقم الجوال</th>
+        <th>كلمة المرور</th>
+        <th>الإجراءات</th>
+      </tr>
+    </thead>
+    <tbody id="coachesBody">
+      <tr><td colspan="5" class="table-empty">جاري التحميل...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Coach Modal -->
+<div class="modal-overlay" id="coachModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">إضافة مدرب جديد</h2>
+      <button class="modal-close" onclick="document.getElementById('coachModal').classList.remove('active')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="coachForm" class="form">
+      <div style="text-align:center;margin-bottom:16px;">
+        <label style="display:inline-block;cursor:pointer;">
+          <input type="file" id="coachPhoto" name="photo" accept="image/*" hidden>
+          <img id="coachPhotoPreview" src="" alt="" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--color-gold);display:none;">
+          <div id="coachPhotoPlaceholder" style="width:80px;height:80px;border-radius:50%;background:var(--color-blue-soft);display:flex;align-items:center;justify-content:center;color:var(--color-navy);font-size:0.75rem;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+        </label>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="coachName">الاسم الكامل</label>
+        <input type="text" class="form-input" id="coachName" name="fullName" required placeholder="الاسم الكامل للمدرب">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="coachEmail">البريد الإلكتروني</label>
+        <input type="email" class="form-input" id="coachEmail" name="email" required placeholder="example@domain.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="coachPhone">رقم الجوال</label>
+        <input type="tel" class="form-input" id="coachPhone" name="phone" placeholder="05xxxxxxxx">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="coachPass">كلمة المرور</label>
+        <div style="position:relative;">
+          <input type="password" class="form-input" id="coachPass" name="password" required minlength="6" placeholder="كلمة المرور" style="padding-left:40px;">
+          <button type="button" id="togglePass" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:6px;color:#94a3b8;line-height:0;z-index:5;border-radius:6px;" tabindex="-1" aria-label="إظهار/إخفاء كلمة المرور">
+            <svg id="eyeVisible" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="eyeHidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('coachModal').classList.remove('active')">إلغاء</button>
+        <button type="button" class="btn btn-primary" id="saveCoachBtn">حفظ</button>
+      </div>
+    </form>
+  </div>
+</div>

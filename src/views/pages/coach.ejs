@@ -1,0 +1,45 @@
+<% activePage = 'coach'; %>
+<%
+  var coachPhoto = (typeof coach !== 'undefined' && coach && coach.profileImage) ? coach.profileImage : '';
+  var coachName = (typeof coach !== 'undefined' && coach && coach.fullName) ? coach.fullName : (typeof user !== 'undefined' && user ? user.name : 'المدرب');
+%>
+
+<div class="coach-profile-bar">
+  <div class="coach-profile-avatar">
+    <% if (coachPhoto) { %>
+      <img src="<%= coachPhoto %>" alt="<%= coachName %>" onerror="this.style.display='none';this.parentNode.innerHTML='<svg width=\\'34\' height=\\'34\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><path d=\'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2\'/><circle cx=\'12\' cy=\'7\' r=\'4\'/></svg>'">
+    <% } else { %>
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <% } %>
+  </div>
+  <div class="coach-profile-info">
+    <div class="coach-profile-name"><%= coachName %></div>
+    <div class="coach-profile-role">مدرب - نادي الريادة للجودو</div>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+    <div class="stat-body"><span class="stat-label">إجمالي الطلاب</span><span class="stat-value" id="coachTotalStudents">-</span></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+    <div class="stat-body"><span class="stat-label">حضور اليوم</span><span class="stat-value" id="coachTodayAttendance">-</span></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon gold"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+    <div class="stat-body"><span class="stat-label">اشتراكات نشطة</span><span class="stat-value" id="coachActiveSubs">-</span></div>
+  </div>
+</div>
+
+<div class="dash-card">
+  <div class="dash-card-header">
+    <h3 class="dash-card-title">تسجيل الحضور - اليوم</h3>
+    <span style="font-size:0.85rem;color:var(--text-muted);" id="coachDateDisplay"></span>
+  </div>
+  <div class="dash-card-body" id="coachAttendanceContainer">
+    <div style="text-align:center;padding:20px;color:#a0aec0;">جاري التحميل...</div>
+  </div>
+  <button class="btn btn-primary" id="saveCoachAttendance" style="margin-top:12px;">حفظ الحضور</button>
+</div>

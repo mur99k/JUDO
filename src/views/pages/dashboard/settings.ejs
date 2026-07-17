@@ -1,0 +1,50 @@
+<% activePage = 'settings'; %>
+
+<div class="page-header"><h2>الإعدادات</h2></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+  <div class="dash-card">
+    <div class="dash-card-header"><h3 class="dash-card-title">معلومات المدير</h3></div>
+    <div class="dash-card-body">
+      <form id="settingsForm" class="form">
+        <div class="form-group">
+          <label class="form-label" for="settingsAdminName">اسم المدير</label>
+          <input type="text" class="form-input" id="settingsAdminName" name="adminName" placeholder="اسم المدير">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="settingsAdminPhone">رقم الجوال</label>
+          <input type="tel" class="form-input" id="settingsAdminPhone" name="adminPhone" placeholder="05xxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="settingsClubWhatsapp">واتساب النادي</label>
+          <input type="tel" class="form-input" id="settingsClubWhatsapp" name="clubWhatsapp" placeholder="+966 56 738 3104">
+        </div>
+        <button type="submit" class="btn btn-primary" id="saveSettingsBtn">حفظ التغييرات</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <div class="dash-card-header"><h3 class="dash-card-title">حالة النظام</h3></div>
+    <div class="dash-card-body" style="display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f2f5;"><span style="color:#718096;">قاعدة البيانات</span><span style="color:#059669;font-weight:600;">SQLite</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f2f5;"><span style="color:#718096;">المنفذ</span><span style="font-weight:600;">3000</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f2f5;"><span style="color:#718096;">المستخدم الحالي</span><span style="font-weight:600;"><%= typeof user !== 'undefined' && user ? user.name : '' %></span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;"><span style="color:#718096;">الصلاحية</span><span style="font-weight:600;"><%= typeof user !== 'undefined' && user ? (user.role === 'admin' ? 'مدير' : 'مدرب') : '' %></span></div>
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <div class="dash-card-header"><h3 class="dash-card-title">إعدادات الذكاء الاصطناعي</h3></div>
+    <div class="dash-card-body">
+      <div class="form-group">
+        <label class="form-label" for="settingsAiProvider">مزود الذكاء الاصطناعي</label>
+        <input type="text" class="form-input" id="settingsAiProvider" name="aiProvider" placeholder="مثال: openai">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="settingsAiApiKey">مفتاح API</label>
+        <input type="password" class="form-input" id="settingsAiApiKey" name="aiApiKey" placeholder="مفتاح الـ API">
+      </div>
+    </div>
+  </div>
+</div>

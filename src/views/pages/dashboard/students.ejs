@@ -1,0 +1,301 @@
+<% activePage = 'students'; %>
+
+<div class="page-header">
+  <h2>الطلاب</h2>
+  <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+  <button class="btn btn-primary" id="addStudentBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    إضافة طالب
+  </button>
+  <% } %>
+</div>
+
+<div class="toolbar">
+  <div class="toolbar-search">
+    <input type="text" class="form-input" id="searchInput" placeholder="بحث عن طالب...">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  </div>
+  <div class="custom-select" id="categoryFilterSelect" style="width:160px;">
+    <input type="hidden" id="categoryFilter" value="">
+    <div class="custom-select-trigger" onclick="toggleCustomSelect('categoryFilterSelect')">
+      <span class="custom-select-text">كل التصنيفات</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="custom-select-options no-scroll">
+      <div class="custom-select-option active" data-value="" onclick="selectFilterOption('categoryFilterSelect', '', 'كل التصنيفات')">كل التصنيفات</div>
+      <div class="custom-select-option" data-value="براعم" onclick="selectFilterOption('categoryFilterSelect', 'براعم', 'براعم')">براعم</div>
+      <div class="custom-select-option" data-value="أشبال" onclick="selectFilterOption('categoryFilterSelect', 'أشبال', 'أشبال')">أشبال</div>
+      <div class="custom-select-option" data-value="ناشئين" onclick="selectFilterOption('categoryFilterSelect', 'ناشئين', 'ناشئين')">ناشئين</div>
+      <div class="custom-select-option" data-value="شباب" onclick="selectFilterOption('categoryFilterSelect', 'شباب', 'شباب')">شباب</div>
+      <div class="custom-select-option" data-value="فريق أول" onclick="selectFilterOption('categoryFilterSelect', 'فريق أول', 'فريق أول')">فريق أول</div>
+    </div>
+  </div>
+  <div class="custom-select" id="statusFilterSelect" style="width:140px;">
+    <input type="hidden" id="statusFilter" value="all">
+    <div class="custom-select-trigger" onclick="toggleCustomSelect('statusFilterSelect')">
+      <span class="custom-select-text">الكل</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="custom-select-options no-scroll">
+      <div class="custom-select-option active" data-value="all" onclick="selectFilterOption('statusFilterSelect', 'all', 'الكل')">الكل</div>
+      <div class="custom-select-option" data-value="active" onclick="selectFilterOption('statusFilterSelect', 'active', 'نشط')">نشط</div>
+      <div class="custom-select-option" data-value="inactive" onclick="selectFilterOption('statusFilterSelect', 'inactive', 'غير نشط')">غير نشط</div>
+    </div>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>التصنيف</th>
+        <th>رقم الهوية</th>
+        <th>العمر</th>
+        <th>الجوال</th>
+        <th>الحالة</th>
+        <th>الإجراءات</th>
+      </tr>
+    </thead>
+    <tbody id="studentsBody">
+      <tr><td colspan="7" class="table-empty">جاري التحميل...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal-overlay" id="addStudentModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="addStudentTitle" class="modal-title">إضافة طالب جديد</h2>
+      <button class="modal-close" onclick="document.getElementById('addStudentModal').classList.remove('active')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="addStudentForm" class="form">
+      <div class="form-group">
+        <label class="form-label" for="addFullName">الاسم الكامل</label>
+        <input type="text" class="form-input" id="addFullName" name="fullName" required placeholder="الاسم الثلاثي">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="addNationalId">رقم الهوية</label>
+          <input type="text" class="form-input" id="addNationalId" name="nationalId" required inputmode="numeric" pattern="\d{10}" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="addAge">العمر</label>
+          <input type="number" class="form-input" id="addAge" name="age" required min="4" max="99">
+        </div>
+      </div>
+      <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+      <div class="form-group" id="addCategoryGroup">
+        <label class="form-label">التصنيف</label>
+        <input type="hidden" name="category" id="addCategoryValue">
+        <div class="custom-select" id="addCategorySelect">
+          <div class="custom-select-trigger" onclick="toggleCustomSelect('addCategorySelect')">
+            <span class="custom-select-text">بدون تصنيف</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="custom-select-options">
+            <div class="custom-select-option active" data-value="" onclick="selectOption('addCategorySelect', '', 'بدون تصنيف')">بدون تصنيف</div>
+            <div class="custom-select-option" data-value="براعم" onclick="selectOption('addCategorySelect', 'براعم', 'براعم')">براعم</div>
+            <div class="custom-select-option" data-value="أشبال" onclick="selectOption('addCategorySelect', 'أشبال', 'أشبال')">أشبال</div>
+            <div class="custom-select-option" data-value="ناشئين" onclick="selectOption('addCategorySelect', 'ناشئين', 'ناشئين')">ناشئين</div>
+            <div class="custom-select-option" data-value="شباب" onclick="selectOption('addCategorySelect', 'شباب', 'شباب')">شباب</div>
+            <div class="custom-select-option" data-value="فريق أول" onclick="selectOption('addCategorySelect', 'فريق أول', 'فريق أول')">فريق أول</div>
+          </div>
+        </div>
+      </div>
+      <% } %>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="addPhone">رقم الجوال</label>
+          <input type="tel" class="form-input" id="addPhone" name="phone">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="addParentPhone">رقم ولي الأمر</label>
+          <input type="tel" class="form-input" id="addParentPhone" name="parentPhone">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('addStudentModal').classList.remove('active')">إلغاء</button>
+        <button type="submit" class="btn btn-primary">حفظ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Student Modal -->
+<div class="modal-overlay" id="editStudentModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="editStudentTitle" class="modal-title">تعديل بيانات الطالب</h2>
+      <button class="modal-close" onclick="document.getElementById('editStudentModal').classList.remove('active')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="editStudentForm" class="form">
+      <input type="hidden" id="editStudentId" name="id">
+      <div class="form-group">
+        <label class="form-label" for="editFullName">الاسم الكامل</label>
+        <input type="text" class="form-input" id="editFullName" name="fullName" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="editNationalId">رقم الهوية</label>
+          <input type="text" class="form-input" id="editNationalId" name="nationalId" required inputmode="numeric" pattern="\d{10}" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editAge">العمر</label>
+          <input type="number" class="form-input" id="editAge" name="age" required min="4" max="99">
+        </div>
+      </div>
+      <div class="form-group" id="editCategoryGroup">
+        <label class="form-label">التصنيف</label>
+        <input type="hidden" name="category" id="editCategoryValue">
+        <div class="custom-select" id="editCategorySelect" <%= typeof user !== 'undefined' && user && user.role !== 'admin' ? 'data-disabled="true"' : '' %>>
+          <div class="custom-select-trigger" onclick="toggleCustomSelect('editCategorySelect')">
+            <span class="custom-select-text">بدون تصنيف</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="custom-select-options">
+            <div class="custom-select-option active" data-value="" onclick="selectOption('editCategorySelect', '', 'بدون تصنيف')">بدون تصنيف</div>
+            <div class="custom-select-option" data-value="براعم" onclick="selectOption('editCategorySelect', 'براعم', 'براعم')">براعم</div>
+            <div class="custom-select-option" data-value="أشبال" onclick="selectOption('editCategorySelect', 'أشبال', 'أشبال')">أشبال</div>
+            <div class="custom-select-option" data-value="ناشئين" onclick="selectOption('editCategorySelect', 'ناشئين', 'ناشئين')">ناشئين</div>
+            <div class="custom-select-option" data-value="شباب" onclick="selectOption('editCategorySelect', 'شباب', 'شباب')">شباب</div>
+            <div class="custom-select-option" data-value="فريق أول" onclick="selectOption('editCategorySelect', 'فريق أول', 'فريق أول')">فريق أول</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="editPhone">رقم الجوال</label>
+          <input type="tel" class="form-input" id="editPhone" name="phone">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editParentPhone">رقم ولي الأمر</label>
+          <input type="tel" class="form-input" id="editParentPhone" name="parentPhone">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('editStudentModal').classList.remove('active')">إلغاء</button>
+        <button type="submit" class="btn btn-primary">تحديث</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+/* Custom Select Dropdown */
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  font-size: 0.95rem;
+  color: var(--color-navy);
+  transition: all 0.2s;
+}
+.custom-select-trigger:hover {
+  border-color: var(--color-navy);
+}
+.custom-select.open .custom-select-trigger {
+  border-color: var(--color-navy);
+  box-shadow: 0 0 0 3px rgba(27,47,79,0.1);
+}
+.custom-select-text {
+  flex: 1;
+  text-align: right;
+}
+.custom-select svg {
+  width: 16px;
+  height: 16px;
+  color: #94a3b8;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.custom-select.open svg {
+  transform: rotate(180deg);
+}
+.custom-select-options {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(27,47,79,0.12);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  display: none;
+}
+.custom-select-options.no-scroll {
+  max-height: none;
+  overflow-y: visible;
+}
+.custom-select.open .custom-select-options {
+  display: block;
+}
+.custom-select-option {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  font-size: 0.9rem;
+  color: var(--color-navy);
+  transition: background 0.15s;
+}
+.custom-select-option:hover {
+  background: #f8fafc;
+}
+.custom-select-option.active {
+  background: var(--color-blue-soft);
+  color: var(--color-navy);
+  font-weight: 600;
+}
+.custom-select[data-disabled="true"] .custom-select-trigger {
+  background: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.custom-select[data-disabled="true"] .custom-select-trigger:hover {
+  border-color: #e2e8f0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .custom-select-options {
+    max-height: 150px;
+  }
+  .custom-select-option {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+}
+</style>
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" style="max-width:400px;margin:16px;">
+    <div style="text-align:center;padding:8px 0;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      <h2 style="font-size:1.1rem;font-weight:700;margin:8px 0 4px;">تأكيد الحذف</h2>
+      <p style="font-size:0.85rem;color:var(--text-muted);">هل أنت متأكد من حذف هذا الطالب؟</p>
+      <input type="hidden" id="deleteTargetId">
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:16px;">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('deleteModal').classList.remove('active')">إلغاء</button>
+        <button type="button" class="btn btn-primary" id="confirmDelete" style="background:#EF4444;">حذف</button>
+      </div>
+    </div>
+  </div>
+</div>

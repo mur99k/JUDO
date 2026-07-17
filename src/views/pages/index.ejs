@@ -1,0 +1,170 @@
+<% activePage = 'home'; %>
+
+<!-- ═══════════════════════════════════════════════ HERO SLIDER ═══════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-slider" id="heroSlider">
+    <% const heroImages = (typeof backgrounds !== 'undefined' && backgrounds.length > 0) ? backgrounds : ((typeof photos !== 'undefined' && photos.length > 0) ? photos.slice(0, 6) : []); %>
+    <% if (heroImages.length > 0) { %>
+      <% heroImages.forEach(function(p, i) { %>
+      <div class="hero-slide <%= i === 0 ? 'active' : '' %>" data-index="<%= i %>">
+        <img src="<%= p.url %>" alt="" <%= i === 0 ? 'fetchpriority="high"' : 'loading="lazy"' %>>
+      </div>
+      <% }); %>
+    <% } else { %>
+      <div class="hero-slide active">
+        <div style="width:100%;height:100%;background:var(--color-navy);"></div>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="hero-overlay"></div>
+  <div class="hero-overlay-gradient"></div>
+
+  <div class="hero-body">
+    <div class="hero-emblem">
+      <img src="/logo/logo.png" alt="نادي الريادة للجودو" class="hero-emblem-img" width="220" height="220">
+    </div>
+
+    <h1 class="hero-title">نادي <span class="accent">الريادة</span> للجودو</h1>
+    <p class="hero-tagline">انضباط • قوة • احترام</p>
+    <p class="hero-desc">تعلم فنون الدفاع عن النفس مع أفضل المدربين المعتمدين. ابنِ ثقتك بنفسك في بيئة احترافية وآمنة.</p>
+
+    <div class="hero-actions">
+      <a href="/register" class="btn btn-accent btn-lg hero-btn">ابدأ رحلتك الآن</a>
+      <a href="#features" class="hero-btn-ghost btn btn-lg hero-btn">اكتشف المزيد</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-num counter" data-target="500">0</span>
+        <span class="hero-stat-label">لاعب ولاعبة</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num counter" data-target="25">0</span>
+        <span class="hero-stat-label">مدرب معتمد</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num counter" data-target="30">0</span>
+        <span class="hero-stat-label">سنة خبرة</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num counter" data-target="50">0</span>
+        <span class="hero-stat-label">بطولة محلية</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll" id="heroScroll">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ FEATURES ═══════════════════════════════════════════════ -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">الخدمات</span>
+      <h2 class="section-title">رياضة تشكل العقل والجسد</h2>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="grid-3">
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background:var(--color-blue-soft);">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1B2F4F" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3 style="font-size:1.1rem;font-weight:700;color:var(--color-navy);margin-bottom:8px;">دفاع عن النفس</h3>
+        <p style="font-size:0.9rem;color:var(--text-soft);line-height:1.75;">تقنيات دفاع فعالة مع مدربين معتمدين دولياً. تدريب عملي يناسب المبتدئين والمحترفين.</p>
+        <a href="/register" class="card-link">ابدأ الآن</a>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon" style="background:var(--color-gold-soft);">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 18V6"/></svg>
+        </div>
+        <h3 style="font-size:1.1rem;font-weight:700;color:var(--color-navy);margin-bottom:8px;">لياقة بدنية</h3>
+        <p style="font-size:0.9rem;color:var(--text-soft);line-height:1.75;">برامج تدريب متكاملة لتقوية العضلات والمرونة والتحمل. مصممة خصيصاً لكل مستوى.</p>
+        <a href="/register" class="card-link">ابدأ الآن</a>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon" style="background:var(--color-blue-soft);">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1B2F4F" stroke-width="1.8"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 000-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 22V2h4v20"/></svg>
+        </div>
+        <h3 style="font-size:1.1rem;font-weight:700;color:var(--color-navy);margin-bottom:8px;">روح رياضية</h3>
+        <p style="font-size:0.9rem;color:var(--text-soft);line-height:1.75;">تعليم قيم الاحترام والانضباط والروح الرياضية في بيئة إيجابية وداعمة.</p>
+        <a href="/register" class="card-link">ابدأ الآن</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ ACHIEVEMENTS ═══════════════════════════════════════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">الإنجازات</span>
+      <h2 class="section-title">بطولات وجوائز</h2>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="gallery-grid" id="achievementsGrid">
+      <% if (typeof photos !== 'undefined' && photos.length > 0) { %>
+        <% photos.forEach(function(p, i) { %>
+        <div class="gallery-item" data-index="<%= i %>">
+          <img src="<%= p.url %>" alt="إنجاز <%= i + 1 %>" loading="lazy">
+          <div class="gallery-overlay"><span>معاينة</span></div>
+        </div>
+        <% }); %>
+      <% } else { %>
+        <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--text-muted);">سيتم إضافة صور البطولات والجوائز قريباً</div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ COACHES ═══════════════════════════════════════════════ -->
+<section class="section section-alt" id="coaches">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">المدربون</span>
+      <h2 class="section-title">طاقمنا التدريبي</h2>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="coaches-row" id="coachesGrid">
+      <% if (typeof coaches !== 'undefined' && coaches.length > 0) { %>
+        <% coaches.forEach(function(c) { %>
+        <div class="coach-card">
+          <div class="coach-photo">
+            <% if (c.photo) { %>
+              <img src="<%= c.photo %>" alt="<%= c.name %>" loading="lazy">
+            <% } else { %>
+              <div class="coach-photo-placeholder"><%= c.name.charAt(0) %></div>
+            <% } %>
+          </div>
+          <h3 class="coach-name"><%= c.name %></h3>
+          <% if (c.bio) { %><p class="coach-bio"><%= c.bio %></p><% } %>
+        </div>
+        <% }); %>
+      <% } else { %>
+        <div class="coaches-empty">سيتم إضافة بيانات المدربين قريباً</div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ LIGHTBOX ═══════════════════════════════════════════════ -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-btn lightbox-close" id="lightboxClose">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <button class="lightbox-btn lightbox-prev" id="lightboxPrev">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="">
+  <button class="lightbox-btn lightbox-next" id="lightboxNext">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+</div>
+

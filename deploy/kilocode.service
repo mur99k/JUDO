@@ -1,0 +1,24 @@
+[Unit]
+Description=Kilocode — Judo Club Management (beta)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/kilocode
+ExecStart=/usr/bin/node /opt/kilocode/server.js
+Restart=on-failure
+RestartSec=5
+# Production environment
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=SESSION_SECRET=REPLACE_WITH_GENERATED_SECRET
+Environment=CORS_ORIGIN=https://your-domain.com
+Environment=HTTPS=true
+Environment=DB_PATH=./data/club.db
+Environment=UPLOAD_PATH=./uploads
+Environment=LOG_LEVEL=info
+Environment=LOG_DIR=./logs
+
+[Install]
+WantedBy=multi-user.target

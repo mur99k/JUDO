@@ -1,0 +1,26 @@
+<% activePage = 'gallery'; %>
+
+<div class="page-header">
+  <h2>معرض الصور</h2>
+  <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+  <button class="btn btn-primary" id="addGalleryBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    رفع صورة
+  </button>
+  <% } %>
+</div>
+
+<div class="dash-card">
+  <div class="dash-card-header">
+    <h3 class="dash-card-title">الصور (<span id="photoCount">0</span>)</h3>
+  </div>
+  <input type="file" id="galleryUpload" accept="image/*" style="display:none;">
+  <div class="dash-card-body" id="galleryGrid">
+    <div style="text-align:center;padding:40px;color:#a0aec0;">جاري التحميل...</div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="modal-overlay" id="lightbox" style="z-index:3000;" onclick="this.classList.remove('active')">
+  <img id="lightboxImg" src="" alt="" style="max-width:90vw;max-height:90vh;border-radius:12px;">
+</div>

@@ -1,0 +1,47 @@
+<% activePage = 'profile'; %>
+
+<div class="page-header"><h2>الملف الشخصي</h2></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+  <div class="dash-card">
+    <div class="dash-card-header"><h3 class="dash-card-title">المعلومات الشخصية</h3></div>
+    <div class="dash-card-body">
+      <form id="profileForm" class="form">
+        <div class="form-group">
+          <label class="form-label" for="profileName">الاسم</label>
+          <input type="text" class="form-input" id="profileName" name="name" value="<%= typeof user !== 'undefined' && user ? user.name : '' %>">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="profileEmail">البريد الإلكتروني</label>
+          <input type="email" class="form-input" id="profileEmail" name="email" value="<%= typeof user !== 'undefined' && user ? user.email : '' %>">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="profilePhone">رقم الجوال</label>
+          <input type="tel" class="form-input" id="profilePhone" name="phone" value="<%= typeof user !== 'undefined' && user ? user.phone : '' %>">
+        </div>
+        <button type="submit" class="btn btn-primary" id="saveProfileBtn">تحديث المعلومات</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <div class="dash-card-header"><h3 class="dash-card-title">تغيير كلمة المرور</h3></div>
+    <div class="dash-card-body">
+      <form id="passwordForm" class="form">
+        <div class="form-group">
+          <label class="form-label" for="currentPassword">كلمة المرور الحالية</label>
+          <input type="password" class="form-input" id="currentPassword" name="currentPassword" required placeholder="كلمة المرور الحالية">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="newPassword">كلمة المرور الجديدة</label>
+          <input type="password" class="form-input" id="newPassword" name="newPassword" required minlength="6" placeholder="أدخل كلمة المرور الجديدة">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">تأكيد كلمة المرور</label>
+          <input type="password" class="form-input" id="confirmPassword" name="confirmPassword" required placeholder="أعد إدخال كلمة المرور الجديدة">
+        </div>
+        <button type="submit" class="btn btn-primary" id="changePasswordBtn">تغيير كلمة المرور</button>
+      </form>
+    </div>
+  </div>
+</div>

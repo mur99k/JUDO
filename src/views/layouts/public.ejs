@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title + ' | ' : '' %>نادي الريادة للجودو</title>
+  <meta name="description" content="نادي الريادة للجودو - انضباط، قوة، احترام">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles/tokens.css?v=5">
+  <link rel="stylesheet" href="/styles/base.css?v=5">
+  <link rel="stylesheet" href="/styles/components/navbar.css?v=5">
+  <link rel="stylesheet" href="/styles/components/buttons.css?v=5">
+  <link rel="stylesheet" href="/styles/components/cards.css?v=5">
+  <link rel="stylesheet" href="/styles/components/forms.css?v=5">
+  <link rel="stylesheet" href="/styles/components/toast.css?v=5">
+  <link rel="stylesheet" href="/styles/components/modal.css?v=5">
+  <link rel="stylesheet" href="/styles/components/gallery.css?v=5">
+  <link rel="stylesheet" href="/styles/components/footer.css?v=5">
+  <link rel="stylesheet" href="/styles/utilities/animations.css?v=5">
+  <link rel="stylesheet" href="/styles/utilities/helpers.css?v=5">
+  <link rel="stylesheet" href="/styles/pages/home.css?v=5">
+  <link rel="stylesheet" href="/styles/pages/about.css?v=5">
+  <link rel="stylesheet" href="/styles/pages/contact.css?v=5">
+  <link rel="stylesheet" href="/styles/pages/auth.css?v=5">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+  <%- typeof headExtra !== 'undefined' ? headExtra : '' %>
+</head>
+<body>
+  <%- include('../components/navbar') %>
+
+  <main class="main">
+    <%- body %>
+  </main>
+
+  <%- include('../components/footer') %>
+  <%- include('../components/whatsapp') %>
+  <%- include('../components/toast-container') %>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+  <script src="/scripts/modules/api.js?v=5"></script>
+  <script src="/scripts/modules/toast.js?v=5"></script>
+  <script src="/scripts/modules/modal.js?v=5"></script>
+  <script src="/scripts/pages/main.js?v=5"></script>
+  <script src="/scripts/pages/login.js?v=5"></script>
+  <script src="/scripts/pages/register.js?v=5"></script>
+  <script src="/scripts/pages/student.js?v=5"></script>
+</body>
+</html>

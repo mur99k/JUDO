@@ -1,0 +1,87 @@
+/* 3 cards — 1 col mobile, 3 cols desktop */
+.contact-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+@media (min-width: 640px) {
+  .contact-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.contact-card-plain {
+  padding: 16px;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+}
+
+.contact-icon-lg {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+  font-size: 18px;
+}
+
+/* Split — 1 col mobile, 2 cols desktop */
+.contact-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .contact-split {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+}
+
+.contact-info-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--bg-alt);
+  border-radius: 10px;
+}
+
+.contact-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  font-family: var(--font-primary);
+  font-size: 0.9rem;
+  text-align: right;
+  direction: rtl;
+}
+
+.contact-input:focus {
+  outline: none;
+  border-color: var(--color-navy-light);
+  box-shadow: 0 0 0 3px rgba(42, 74, 122, 0.1);
+}
+
+/* Map frame */
+.map-frame {
+  margin-top: 32px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(27, 47, 79, 0.12);
+  border: 3px solid var(--color-navy);
+  position: relative;
+}
+
+.map-frame iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+}

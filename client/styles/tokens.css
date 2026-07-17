@@ -1,0 +1,75 @@
+:root {
+  /* Brand — هادئة، احترافية */
+  --color-navy:       #1B2F4F;
+  --color-navy-light: #2A4A7A;
+  --color-blue-soft:  #EAF4FF;
+  --color-blue-mist:  #F0F7FF;
+
+  --color-gold:       #C9A84C;
+  --color-gold-soft:  #F5EDD6;
+  --color-gold-light: #DFC478;
+
+  /* Neutrals — البيض هو المسيطر */
+  --white:       #FFFFFF;
+  --gray-50:     #F8FAFB;
+  --gray-100:    #F1F4F7;
+  --gray-200:    #E4E8ED;
+  --gray-300:    #CDD2D9;
+  --gray-400:    #A0A6B0;
+  --gray-500:    #6B7280;
+  --gray-600:    #4B5563;
+  --gray-700:    #374151;
+  --gray-800:    #1F2937;
+  --gray-900:    #111827;
+
+  /* Semantic */
+  --success:       #16A34A;
+  --success-soft:  #DCFCE7;
+  --warning:       #D97706;
+  --warning-soft:  #FEF3C7;
+  --danger:        #DC2626;
+  --danger-soft:   #FEE2E2;
+  --info:          #2563EB;
+  --info-soft:     #DBEAFE;
+
+  /* Backgrounds */
+  --bg-body:       var(--white);
+  --bg-alt:        var(--gray-50);
+  --bg-card:       var(--white);
+  --bg-navy:       var(--color-navy);
+
+  /* Text */
+  --text-body:     var(--color-navy);
+  --text-soft:     var(--gray-600);
+  --text-muted:    var(--gray-400);
+  --text-inverse:  var(--white);
+
+  /* Typography */
+  --font-primary:  'IBM Plex Sans Arabic', 'Tajawal', system-ui, -apple-system, sans-serif;
+
+  /* Spacing */
+  --space-4: 4px;   --space-8: 8px;    --space-12: 12px;
+  --space-16: 16px; --space-20: 20px;  --space-24: 24px;
+  --space-28: 28px; --space-32: 32px;  --space-40: 40px;
+  --space-48: 48px; --space-56: 56px;  --space-64: 64px;
+  --space-80: 80px; --space-96: 96px;  --space-120: 120px;
+
+  /* Radii */
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  20px;
+  --radius-xl:  28px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(27, 47, 79, 0.06);
+  --shadow-md: 0 4px 14px rgba(27, 47, 79, 0.08);
+  --shadow-lg: 0 12px 32px rgba(27, 47, 79, 0.10);
+  --shadow-xl: 0 24px 48px rgba(27, 47, 79, 0.12);
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 200ms;
+  --duration-base: 300ms;
+  --duration-slow: 500ms;
+}

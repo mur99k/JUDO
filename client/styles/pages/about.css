@@ -1,0 +1,38 @@
+.about-story {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.about-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+@media (min-width: 640px) {
+  .about-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.about-row img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+.about-row:hover img {
+  transform: scale(1.03);
+}
+
+.about-goal {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: var(--text-soft);
+  line-height: 1.7;
+}

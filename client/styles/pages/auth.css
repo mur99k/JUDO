@@ -1,0 +1,32 @@
+.auth-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all var(--duration-fast) var(--ease-out);
+  font-family: var(--font-primary);
+}
+
+.auth-tab.active {
+  background: var(--color-navy);
+  color: white;
+}
+
+.auth-tab:not(.active) {
+  background: var(--gray-50);
+  color: var(--text-soft);
+}
+
+.auth-tab:not(.active):hover {
+  background: var(--gray-100);
+}
+
+.auth-error {
+  display: none;
+}
+
+.auth-error.show {
+  display: block;
+}

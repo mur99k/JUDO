@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS students (
   parentPhone TEXT,
   photo TEXT,
   password TEXT,
+  category TEXT,
   status TEXT DEFAULT 'نشط' CHECK (status IN ('نشط', 'منتهي', 'موقوف', 'بانتظار الدفع', 'ملغي')),
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP

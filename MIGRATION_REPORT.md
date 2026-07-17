@@ -1,11 +1,12 @@
-# Migration Report — Judo Club → Render Free (PostgreSQL + Cloudflare R2)
+# Migration Report — Judo Club → Render Free (Neon PostgreSQL + Cloudflare R2)
 
 **Date:** 2026-07-17
 **Goal:** Make the Al-Riyadah Judo Club web app deployable on **Render Free** so a
 public beta persists data across server restarts, replacing the two things the
 free tier does not support:
 
-1. **SQLite** (no persistent disk) → **Render Free PostgreSQL**
+1. **SQLite** (no persistent disk) → **Neon serverless PostgreSQL** (500 MB free,
+   no 90-day expiry, <1s cold wake)
 2. **Local-disk media** (ephemeral FS) → **Cloudflare R2** (S3-compatible, free 10 GB, no egress fees)
 
 ---
@@ -47,9 +48,10 @@ free tier does not support:
 - `src/config/index.js`: `dbType`/`storage.type` default by environment
   (`postgres`/`r2` in prod, `sqlite`/`local` in dev). Production safety guards
   fail-fast on a weak `SESSION_SECRET` or wildcard `CORS_ORIGIN`.
-- `render.yaml`: free **web service** + free **PostgreSQL** database
-  (`kilocode-db`), with `DB_TYPE=postgres`, `STORAGE_TYPE=r2`, and `R2_*`
-  env vars (`sync:false`). No persistent disk needed.
+- `render.yaml`: free **web service** only (no built-in database). `DATABASE_URL`
+  is a manual env var set in the Render dashboard, pointing to an external
+  **Neon** serverless PostgreSQL. `DB_TYPE=postgres`, `STORAGE_TYPE=r2`,
+  and `R2_*` env vars.
 - `.env.example` documents `DATABASE_URL`, `DB_TYPE`, `STORAGE_TYPE`, `R2_*`.
 - `package.json`: added `pg` and `@aws-sdk/client-s3`; kept `better-sqlite3`
   for dev. `build` script awaits `initDatabase()`.
@@ -80,40 +82,57 @@ asserts removal from the active backend.
 ## What persists after a restart (Render Free)
 
 - **Users, students, attendance, subscriptions, settings, contact messages,
-  coach groups** — in managed PostgreSQL. ✅
+  coach groups** — in Neon serverless PostgreSQL. ✅
 - **All uploaded media** (gallery, student/coach/admin photos) — in Cloudflare
   R2. ✅
 - **Repo-seeded gallery photos & coach photos** present in the git checkout
   (ephemeral FS) are re-uploaded to R2 by `sync-media.js` on first boot. ✅
 
 ## Known Free-tier limits / watch-items
-- Render Free PostgreSQL **spins down after 90 days of inactivity**; the web
-  service also sleeps after 15 min idle (cold start ~30–60 s).
-- Free Postgres has a **1 GB** row limit — fine for this club's scale.
+- Render free web service **sleeps after 15 min idle** (cold start ~30–60 s).
+- **Neon free tier:** 500 MB storage, auto-suspends after inactivity, wakes in
+  <1 s on first query. **No 90-day expiry** (unlike Render free PG).
 - R2 free tier: **10 GB storage, 1 M Class A / 10 M Class B ops/mo**.
-- No custom domain email; use the R2 public bucket URL for media.
-- `DATABASE_URL` is auto-injected by Render; do **not** hardcode it.
+- If you add custom domain later, update `CORS_ORIGIN` accordingly.
 
 ---
 
-## Deployment checklist (Render)
+## Deployment checklist (Render Free + Neon + Cloudflare R2)
 
-1. **Cloudflare R2**
-   - Create a bucket (e.g. `kilocode-media`); enable **public access** (or a
-     public.dev.dev R2.dev URL) so images are served without signed URLs.
-   - Generate **API token** (Access Key ID + Secret) with Object Read/Write.
-   - Note the **S3-compatible endpoint** (`https://<id>.r2.cloudflarestorage.com`)
-     and the **public URL** (`https://pub-<id>.r2.dev` or your custom domain).
-2. **Push code** to GitHub (this branch).
-3. **New → Blueprint** on Render, connect the repo (uses `render.yaml`).
-4. **Environment** (auto from `render.yaml`): set `R2_ENDPOINT`, `R2_REGION`
-   (`auto`), `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
-   `R2_PUBLIC_URL`, `CORS_ORIGIN` (your real origin, **not** `*`),
-   and a strong `SESSION_SECRET` (32+ random chars).
-   `DATABASE_URL` and `DB_TYPE=postgres` are wired by the Blueprint.
-5. **Deploy** — the build step runs `initDatabase()` (creates tables, seeds admin
-   + settings). First boot runs `sync-media.js` to backfill seed photos to R2.
-6. **Verify:** `GET /api/health` returns `200`; log in as
-   `admin@riyadah.com` / `admin123`; upload a gallery photo and confirm it
-   survives a manual restart (Redeploy).
-7. **Optional:** change the admin password immediately after first login.
+### Step 1 — Neon PostgreSQL
+1. Go to **https://neon.tech** and sign up (free, no credit card).
+2. Create a **project** (pick region close to Render: US East or US West).
+3. Copy the **project-pooler connection string** (the one that does NOT say
+   "direct"). It looks like:
+   `postgresql://user:pass@ep-xyz.us-east-2.aws.neon.tech/neondb?sslmode=require`
+
+### Step 2 — Cloudflare R2
+1. Go to **https://r2.cloudflare.com** (requires Cloudflare account).
+2. Create a bucket (e.g. `kilocode-media`); enable **public access** (or note
+   the `.r2.dev` public URL).
+3. Generate **API token** (Access Key ID + Secret) with Object Read/Write.
+4. Note the **S3-compatible endpoint** (`https://<id>.r2.cloudflarestorage.com`)
+   and the **public URL** (`https://pub-<id>.r2.dev` or your custom domain).
+
+### Step 3 — Render
+1. **Push this repo** to GitHub.
+2. In Render: **New → Blueprint**, connect the repo (uses `render.yaml`).
+3. After the Blueprint creates the web service, **stop the service** (it will
+   fail on first start because env vars are missing).
+4. In the service dashboard, set these **Environment Variables** (manual):
+   - `DATABASE_URL` — the Neon connection string from Step 1
+   - `CORS_ORIGIN` — your Render URL `https://your-app.onrender.com`
+     (or your custom domain later)
+   - `R2_ENDPOINT`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
+     `R2_PUBLIC_URL` — from Step 2
+   - `SESSION_SECRET` was auto-generated by Render; verify it is set.
+5. **Deploy** (manual or auto) — the build step runs `initDatabase()` which
+   creates all tables, the admin user, and settings. First boot also runs
+   `sync-media.js` to backfill seed photos to R2.
+
+### Step 4 — Verify
+1. Open `https://your-app.onrender.com/api/health` — expect `200`.
+2. Log in at `/login` as `admin@riyadah.com` / `admin123`.
+3. Upload a gallery photo, then trigger a **manual Redeploy** in Render
+   dashboard. Confirm the photo is still visible after restart.
+4. **Change the admin password** immediately.

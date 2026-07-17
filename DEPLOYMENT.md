@@ -29,7 +29,7 @@ nano .env                   # fill real values
 | `UPLOAD_PATH` | `./uploads` (default) |
 
 > On first boot `initDatabase()` runs migrations + seeds the admin
-> (`admin@riyadah.com` / `admin123`) and the 5 settings keys.
+> (`Matoq701@gmail.com` / `Ma123456`) and the 5 settings keys.
 
 ## 3. Run with pm2
 ```bash
@@ -86,7 +86,7 @@ monitoring.
 
 ## 8. Pre-launch verification
 - [ ] App boots (`pm2 logs kilocode` clean, no FATAL).
-- [ ] Admin login works (`admin@riyadah.com` / `admin123`).
+- [ ] Admin login works (`Matoq701@gmail.com` / `Ma123456`).
 - [ ] Student login works (by national ID).
 - [ ] DB connection stable (check `logs/app.log`).
 - [ ] Image upload works (gallery + student/admin photos).

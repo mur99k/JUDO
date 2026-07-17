@@ -24,7 +24,7 @@ free tier does not support:
     Date math (`julianday`) is computed in JS where needed.
 - Authored **one Postgres-native SQL** (`schema-postgres.sql`) and a mirror
   (`schema-sqlite.sql`). `src/database/migrate.js` applies the correct flavor
-  idempotently and seeds the admin (`admin@riyadah.com`) + settings.
+  idempotently and seeds the admin (`Matoq701@gmail.com`) + settings.
 - All repositories (`student`, `user`, `contact`, `settings`, `attendance`,
   `subscription`) and services/controllers were converted to **async** and now
   await every DB call. `subscription` computes `remainingDays` in JS;
@@ -132,7 +132,7 @@ asserts removal from the active backend.
 
 ### Step 4 — Verify
 1. Open `https://your-app.onrender.com/api/health` — expect `200`.
-2. Log in at `/login` as `admin@riyadah.com` / `admin123`.
+2. Log in at `/login` as `Matoq701@gmail.com` / `Ma123456`.
 3. Upload a gallery photo, then trigger a **manual Redeploy** in Render
    dashboard. Confirm the photo is still visible after restart.
 4. **Change the admin password** immediately.

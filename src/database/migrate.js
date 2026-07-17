@@ -19,12 +19,15 @@ async function applySchema() {
 
 async function seed() {
   const db = getConnection();
-  const existing = await db.query('SELECT id FROM users WHERE email = $1', ['admin@riyadah.com']);
+  // Remove old default admin account.
+  await db.query('DELETE FROM users WHERE email = $1', ['admin@riyadah.com']);
+  // Create new admin if not already present.
+  const existing = await db.query('SELECT id FROM users WHERE email = $1', ['Matoq701@gmail.com']);
   if (existing.rows.length === 0) {
-    const hash = bcrypt.hashSync('admin123', 10);
+    const hash = bcrypt.hashSync('Ma123456', 10);
     await db.query(
       'INSERT INTO users (fullName, email, password, role) VALUES ($1, $2, $3, $4)',
-      ['الكابتن معتوق', 'admin@riyadah.com', hash, 'admin']
+      ['الكابتن معتوق', 'Matoq701@gmail.com', hash, 'admin']
     );
   }
 

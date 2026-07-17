@@ -72,7 +72,7 @@ function check(name, cond, detail) {
   }
 
   // 3. Admin login + permission
-  const login = await req('POST', '/api/auth/login', { body: { email: 'admin@riyadah.com', password: 'admin123' } });
+  const login = await req('POST', '/api/auth/login', { body: { email: 'Matoq701@gmail.com', password: 'Ma123456' } });
   const adminCookie = login.cookie ? login.cookie[0].split(';')[0] : null;
   check('Admin login', login.status === 200 && adminCookie, 'cookie ' + (adminCookie ? 'set' : 'MISSING'));
   const noAuth = await req('GET', '/api/students');

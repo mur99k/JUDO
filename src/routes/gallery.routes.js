@@ -19,11 +19,10 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: config.upload.maxFileSize },
   fileFilter: (req, file, cb) => {
-    const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (allowed.includes(ext)) return cb(null, true);
+    // Validate real content type, not just the client-supplied extension.
+    if (config.upload.allowedImageTypes.includes(file.mimetype)) return cb(null, true);
     cb(new Error('صيغة الملف غير مدعومة. الصيغ المسموحة: JPG, PNG, GIF, WebP'));
   }
 });

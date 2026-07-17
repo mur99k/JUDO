@@ -58,14 +58,24 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 // Manual static route for the gallery folder (folder name is Arabic on disk:
 // "بطولات وجوائز", but served via an ASCII route to avoid Windows URL
 // decoding issues with express.static / path-to-regexp).
+// Resolve a name relative to a base dir and ensure it stays inside it
+// (prevents path traversal like ../../etc/passwd).
+function safeJoin(baseDir, name) {
+  const resolved = path.resolve(baseDir, name);
+  if (!resolved.startsWith(path.resolve(baseDir) + path.sep) && resolved !== path.resolve(baseDir)) {
+    return null;
+  }
+  return resolved;
+}
+
 const GALLERY_PREFIX = '/gallery-img/';
 const GALLERY_DIR = config.media.galleryDir;
 app.use(function (req, res, next) {
   if (req.method !== 'GET' && req.method !== 'HEAD') return next();
   if (!req.path.startsWith(GALLERY_PREFIX)) return next();
   const name = decodeURIComponent(req.path.slice(GALLERY_PREFIX.length));
-  const filePath = path.join(GALLERY_DIR, name);
-  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) return res.status(404).end();
+  const filePath = safeJoin(GALLERY_DIR, name);
+  if (!filePath || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) return res.status(404).end();
   res.sendFile(filePath);
 });
 
@@ -77,8 +87,8 @@ app.use(function (req, res, next) {
   if (req.method !== 'GET' && req.method !== 'HEAD') return next();
   if (!req.path.startsWith(COACH_PREFIX)) return next();
   const name = decodeURIComponent(req.path.slice(COACH_PREFIX.length));
-  const filePath = path.join(COACH_DIR, name);
-  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) return res.status(404).end();
+  const filePath = safeJoin(COACH_DIR, name);
+  if (!filePath || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) return res.status(404).end();
   res.sendFile(filePath);
 });
 app.use('/backgrounds', express.static(path.join(__dirname, '..', 'backgrounds')));

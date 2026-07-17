@@ -42,7 +42,7 @@ function check(name, cond, detail) {
 (async () => {
   const secret = crypto.randomBytes(48).toString('hex');
   const env = { ...process.env, NODE_ENV: 'production', PORT: String(PORT),
-    SESSION_SECRET: secret, HTTPS: 'false', CORS_ORIGIN: '*' };
+    SESSION_SECRET: secret, HTTPS: 'false', CORS_ORIGIN: 'http://127.0.0.1:3011' };
 
   const child = spawn('node', ['server.js'], { env, cwd: path.resolve(__dirname, '..'), stdio: 'ignore' });
 

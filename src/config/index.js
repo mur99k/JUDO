@@ -61,6 +61,12 @@ if (isProduction) {
   if (!config.https.behindProxy && !config.https.direct) {
     console.warn('WARN: NODE_ENV=production but no HTTPS mode enabled (set HTTPS=true for a proxy, or HTTPS_DIRECT=true with cert paths).');
   }
+  if (config.corsOrigin.includes('*')) {
+    // A wildcard CORS origin in production exposes authenticated APIs to any
+    // website. Require an explicit origin list in prod (matches session guard).
+    console.error('FATAL: CORS_ORIGIN is "*" in production. Set it to your real origin(s), e.g. CORS_ORIGIN=https://yourdomain.com');
+    process.exit(1);
+  }
 }
 
 module.exports = config;

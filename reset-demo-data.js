@@ -51,9 +51,10 @@ const tx = db.transaction(() => {
   const stu = count('students');
   db.prepare('DELETE FROM students').run();
 
-  // 4. Coaches (demo users with role = 'coach')
-  const coaches = count("users WHERE role = 'coach'");
-  db.prepare("DELETE FROM users WHERE role = 'coach'").run();
+  // 4. Coaches (demo users with role = 'coach') — PRESERVE the two real
+  //    coaches (معتوق id=12, كبتن مروان id=13) so the public site keeps them.
+  const coaches = count("users WHERE role = 'coach' AND id NOT IN (12, 13)");
+  db.prepare("DELETE FROM users WHERE role = 'coach' AND id NOT IN (12, 13)").run();
 
   // 5. Contact messages (all)
   const msgs = count('contact_messages');

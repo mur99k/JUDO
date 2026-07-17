@@ -4,6 +4,15 @@ const fs = require('fs');
 const config = require('../config');
 const galleryDir = config.media.galleryDir;
 
+// Ensure a filename resolves inside galleryDir (no traversal).
+function safeFile(name) {
+  const resolved = path.resolve(galleryDir, name);
+  if (!resolved.startsWith(path.resolve(galleryDir) + path.sep) && resolved !== path.resolve(galleryDir)) {
+    return null;
+  }
+  return resolved;
+}
+
 const GalleryService = {
   list() {
     try {
@@ -21,8 +30,8 @@ const GalleryService = {
   },
 
   delete(filename) {
-    const filePath = path.join(galleryDir, filename);
-    if (!fs.existsSync(filePath)) throw new Error('الملف غير موجود');
+    const filePath = safeFile(filename);
+    if (!filePath || !fs.existsSync(filePath)) throw new Error('الملف غير موجود');
     fs.unlinkSync(filePath);
   }
 };

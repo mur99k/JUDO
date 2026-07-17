@@ -1,8 +1,12 @@
 const { getConnection } = require('../database/connection');
 
+// Explicit column list — never SELECT * so the password column is never
+// returned to clients (it exists only for schema compatibility).
+const COLUMNS = 'id, fullName, nationalId, age, phone, parentPhone, photo, status, createdAt, updatedAt, category';
+
 const StudentRepo = {
   findAll(filters = {}) {
-    let sql = 'SELECT * FROM students WHERE 1=1';
+    let sql = `SELECT ${COLUMNS} FROM students WHERE 1=1`;
     const params = [];
     if (filters.search) {
       sql += ' AND (fullName LIKE ? OR nationalId LIKE ? OR phone LIKE ?)';
@@ -46,11 +50,11 @@ const StudentRepo = {
   },
 
   findById(id) {
-    return getConnection().prepare('SELECT * FROM students WHERE id = ?').get(id);
+    return getConnection().prepare(`SELECT ${COLUMNS} FROM students WHERE id = ?`).get(id);
   },
 
   findByNationalId(nationalId) {
-    return getConnection().prepare('SELECT * FROM students WHERE nationalId = ?').get(nationalId);
+    return getConnection().prepare(`SELECT ${COLUMNS} FROM students WHERE nationalId = ?`).get(nationalId);
   },
 
   create(data) {

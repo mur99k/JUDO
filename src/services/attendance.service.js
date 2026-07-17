@@ -44,11 +44,6 @@ const AttendanceService = {
     return AttendanceRepo.getStudentRate(studentId);
   },
 
-  getDashboardStats() {
-    const todayCount = AttendanceRepo.getTodayCount();
-    return { todayCount };
-  },
-
   getMonthlyGrid(month, year) {
     const m = month || (new Date().getMonth() + 1);
     const y = year || new Date().getFullYear();

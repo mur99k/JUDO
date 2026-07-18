@@ -2,6 +2,7 @@ const StudentRepo = require('../repositories/student.repo');
 const AttendanceRepo = require('../repositories/attendance.repo');
 const SubscriptionRepo = require('../repositories/subscription.repo');
 const UserRepo = require('../repositories/user.repo');
+const hijri = require('../utils/hijri');
 
 const ReportService = {
   async getDashboard() {
@@ -18,8 +19,8 @@ const ReportService = {
       id: s.id, fullName: s.fullName, status: s.status, createdAt: s.createdAt
     }));
 
-    const now = new Date();
-    const monthlyRevenue = await SubscriptionRepo.getMonthlyRevenue(now.getFullYear());
+    const now = hijri.parseHijri(hijri.todayHijri()).hy;
+    const monthlyRevenue = await SubscriptionRepo.getMonthlyRevenue(now);
 
     return {
       totalStudents, activeStudents, totalCoaches,

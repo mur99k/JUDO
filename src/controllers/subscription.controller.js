@@ -1,5 +1,6 @@
 const { success, error } = require('../utils/response');
 const SubscriptionService = require('../services/subscription.service');
+const hijri = require('../utils/hijri');
 
 const SubscriptionController = {
   async list(req, res, next) {
@@ -28,10 +29,8 @@ const SubscriptionController = {
       const d = Number(days) || 30;
       var computedEndDate = endDate;
       if (!computedEndDate && startDate) {
-        const parts = startDate.split('-');
-        const dt = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
-        dt.setUTCDate(dt.getUTCDate() + d);
-        computedEndDate = dt.toISOString().split('T')[0];
+        // Add Hijri days to the Hijri start date (not Gregorian).
+        computedEndDate = hijri.addHijriDays(startDate, d);
       }
       const result = await SubscriptionService.create({ studentId: Number(studentId), type: type || 'عادي', days: d, amount: Number(amount) || 0, startDate, endDate: computedEndDate, paymentMethod, notes });
       return success(res, { id: result.id });

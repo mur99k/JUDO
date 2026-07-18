@@ -4,11 +4,11 @@
   var statsEl = document.getElementById('coachStats');
   if (!container) return;
 
-  function getToday() { return new Date().toISOString().split('T')[0]; }
+  function getToday() { return Hijri.today(); }
 
   function displayArabicDate() {
     var el = document.getElementById('coachDateDisplay');
-    if (el) el.textContent = new Date().toLocaleDateString('ar-SA-u-ca-islamic-umalqura', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    if (el) el.textContent = Hijri.format(getToday());
   }
   displayArabicDate();
 

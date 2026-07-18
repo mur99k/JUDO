@@ -8,24 +8,19 @@
   var customDurationInput = document.getElementById('subCustomDuration');
   var amountInput = document.getElementById('subAmount');
   var exemptCheck = document.getElementById('subExempt');
+  var startDateInput = document.getElementById('subStartDateInput');
+  var startDateHidden = document.getElementById('subStartDate');
   var endDateInput = document.getElementById('subEndDate');
   var endDateHijri = document.getElementById('subEndDateHijri');
   var modalTitle = document.getElementById('addSubTitle');
   var editingId = null;
   var manualDate = false;
   var allStudents = [];
+  var currentStart = Hijri.today();
 
-  function todayStr() { var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
-  function calcEnd(startStr, days) { var d=new Date(startStr); d.setDate(d.getDate()+(days||0)); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
   function formatArabic(dateStr) {
     if (!dateStr) return '--';
-    var d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '--';
-    return d.toLocaleDateString('ar-SA-u-ca-islamic-umalqura', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return Hijri.format(dateStr);
   }
 
   window.toggleCustomSelect = function(id) {
@@ -61,25 +56,45 @@
     updatePreview();
   };
 
+  function durationDays() {
+    if (durationInput.value === 'custom') return parseInt(customDurationInput.value) || 0;
+    return parseInt(durationInput.value) || 0;
+  }
+
   function updatePreview() {
-    var start = todayStr();
-    document.getElementById('subStartDate').value = start;
-    if (endDateInput && !manualDate) {
-      var days;
-      if (durationInput.value === 'custom') {
-        days = parseInt(customDurationInput.value) || 0;
-      } else {
-        days = parseInt(durationInput.value) || 0;
+    if (startDateHidden) startDateHidden.value = currentStart;
+    if (endDateInput) {
+      if (!manualDate) {
+        var days = durationDays();
+        if (days < 1) days = 30;
+        var end = Hijri.addDays(currentStart, days);
+        endDateInput.value = end;
+        if (endDateInput._hijriSet) endDateInput._hijriSet(end);
       }
-      if (days < 1) days = 30;
-      endDateInput.value = calcEnd(start, days);
-    }
-    if (endDateInput && endDateHijri) {
-      endDateHijri.textContent = formatArabic(endDateInput.value);
+      if (endDateHijri) endDateHijri.textContent = formatArabic(endDateInput.value);
     }
   }
 
-  if (endDateInput) endDateInput.addEventListener('change', function() { manualDate = true; if (endDateHijri) endDateHijri.textContent = formatArabic(endDateInput.value); });
+  if (startDateInput) {
+    HijriPicker.create(startDateInput, {
+      value: currentStart,
+      onChange: function (v) {
+        currentStart = v;
+        if (startDateHidden) startDateHidden.value = v;
+        manualDate = false;
+        updatePreview();
+      }
+    });
+  }
+  if (endDateInput) {
+    HijriPicker.create(endDateInput, {
+      value: Hijri.addDays(currentStart, 30),
+      onChange: function (v) {
+        manualDate = true;
+        if (endDateHijri) endDateHijri.textContent = formatArabic(v);
+      }
+    });
+  }
 
   if (customDurationInput) customDurationInput.addEventListener('input', function() {
     manualDate = false;
@@ -183,8 +198,13 @@
         }
         if (amountInput) { amountInput.value = s.amount||'0'; amountInput.disabled=false; amountInput.style.background=''; }
         if (exemptCheck) { exemptCheck.checked = false; amountInput.disabled=false; amountInput.style.background=''; }
-        document.getElementById('subStartDate').value=s.startDate||todayStr();
-        if (endDateInput) { endDateInput.value=s.endDate||calcEnd(s.startDate||todayStr(), s.days||30); if (endDateHijri) endDateHijri.textContent = formatArabic(endDateInput.value); }
+        currentStart = s.startDate || Hijri.today();
+        if (startDateHidden) startDateHidden.value = currentStart;
+        if (startDateInput && startDateInput._hijriSet) startDateInput._hijriSet(currentStart);
+        if (endDateInput) {
+          if (endDateInput._hijriSet) endDateInput._hijriSet(s.endDate || Hijri.addDays(currentStart, s.days||30));
+          if (endDateHijri) endDateHijri.textContent = formatArabic(s.endDate || Hijri.addDays(currentStart, s.days||30));
+        }
         if (modal) modal.classList.add('active');
       }).catch(function(e){alert(e.message)});
       return;
@@ -195,8 +215,8 @@
     var data = { status: newStatus };
     if (action==='renew') {
       var days = parseInt(prompt('المدة بالأيام:', '30'))||30;
-      data.startDate = todayStr();
-      data.endDate = calcEnd(data.startDate, days);
+      data.startDate = Hijri.today();
+      data.endDate = Hijri.addDays(data.startDate, days);
       data.days = days;
     }
     API.put('/api/subscriptions/'+id, data).then(function(r) {
@@ -211,8 +231,10 @@
     manualDate=false;
     if (modalTitle) modalTitle.textContent='إضافة اشتراك';
     if (form) form.reset();
-    document.getElementById('subStartDate').value='';
-    if (endDateInput) endDateInput.value='';
+    currentStart = Hijri.today();
+    if (startDateHidden) startDateHidden.value='';
+    if (startDateInput && startDateInput._hijriSet) startDateInput._hijriSet(currentStart);
+    if (endDateInput) { if (endDateInput._hijriSet) endDateInput._hijriSet(Hijri.addDays(currentStart, 30)); }
     if (endDateHijri) endDateHijri.textContent='';
     selectSubDuration(30, 'شهر');
     if (customDurationInput) { customDurationInput.value = ''; customDurationInput.style.display = 'none'; }
@@ -239,7 +261,8 @@
   if (submitBtn) submitBtn.addEventListener('click', function() {
     var data={}, fields=form.querySelectorAll('input,select');
     for (var i=0;i<fields.length;i++) { if (fields[i].name) data[fields[i].name]=fields[i].value; }
-    data.startDate = todayStr();
+    data.startDate = currentStart;
+    if (startDateHidden && startDateHidden.value) data.startDate = startDateHidden.value;
 
     var dur;
     if (durationInput.value === 'custom') {
@@ -253,7 +276,7 @@
     if (endDateInput && endDateInput.value) {
       data.endDate = endDateInput.value;
     } else {
-      data.endDate = calcEnd(data.startDate, data.days);
+      data.endDate = Hijri.addDays(data.startDate, data.days);
     }
 
     if (parseInt(data.days) < 1) data.days = 30;

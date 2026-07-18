@@ -1,5 +1,6 @@
 const { success, error } = require('../utils/response');
 const AttendanceService = require('../services/attendance.service');
+const hijri = require('../utils/hijri');
 
 const AttendanceController = {
   async getByDate(req, res, next) {
@@ -15,7 +16,7 @@ const AttendanceController = {
   async getToday(req, res, next) {
     try {
       const records = await AttendanceService.getToday();
-      const today = require('../utils/date').today();
+      const today = hijri.todayHijri();
       return success(res, { records, date: today });
     } catch (err) {
       next(err);

@@ -1,11 +1,11 @@
 const AttendanceRepo = require('../repositories/attendance.repo');
 const StudentRepo = require('../repositories/student.repo');
-const { today } = require('../utils/date');
+const hijri = require('../utils/hijri');
 const { withTransaction } = require('../utils/transaction');
 
 const AttendanceService = {
   async getByDate(date) {
-    date = date || today();
+    date = date || hijri.todayHijri();
     const students = await StudentRepo.findAll({ status: 'نشط' });
     const records = await AttendanceRepo.findByDate(date);
     const recordMap = {};
@@ -26,7 +26,7 @@ const AttendanceService = {
   },
 
   async getToday() {
-    return this.getByDate(today());
+    return this.getByDate(hijri.todayHijri());
   },
 
   async save(records) {
@@ -38,8 +38,9 @@ const AttendanceService = {
   },
 
   async getSummary(month, year) {
-    const m = month || (new Date().getMonth() + 1);
-    const y = year || new Date().getFullYear();
+    const today = hijri.parseHijri(hijri.todayHijri());
+    const m = month || today.hm;
+    const y = year || today.hy;
     return AttendanceRepo.getMonthlyAttendance(m, y);
   },
 
@@ -48,8 +49,9 @@ const AttendanceService = {
   },
 
   async getMonthlyGrid(month, year) {
-    const m = month || (new Date().getMonth() + 1);
-    const y = year || new Date().getFullYear();
+    const today = hijri.parseHijri(hijri.todayHijri());
+    const m = month || today.hm;
+    const y = year || today.hy;
     return AttendanceRepo.getMonthlyGrid(m, y);
   },
 

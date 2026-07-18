@@ -121,11 +121,18 @@
       <div class="sub-end-date-bar">
         <span style="display:flex;align-items:center;gap:6px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          تاريخ الانتهاء
+          تاريخ البداية (هجري)
         </span>
-        <div style="display:flex;align-items:center;gap:8px;position:relative;">
+        <input type="text" id="subStartDateInput" class="form-input" placeholder="اختر تاريخ البداية الهجري" style="max-width:200px;cursor:pointer;">
+      </div>
+      <div class="sub-end-date-bar" style="margin-top:10px;">
+        <span style="display:flex;align-items:center;gap:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          تاريخ الانتهاء (هجري)
+        </span>
+        <div style="display:flex;align-items:center;gap:8px;">
           <span id="subEndDateHijri" style="font-size:0.85rem;color:var(--color-navy);font-weight:600;"></span>
-          <input type="date" id="subEndDate" name="endDate" style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:1;">
+          <input type="text" id="subEndDate" name="endDate" class="form-input" placeholder="اختر تاريخ الانتهاء" style="max-width:200px;cursor:pointer;">
         </div>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px;">

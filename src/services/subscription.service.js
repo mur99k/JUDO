@@ -1,6 +1,7 @@
 const SubscriptionRepo = require('../repositories/subscription.repo');
 const { NotFoundError } = require('../utils/errors');
 const { withTransaction } = require('../utils/transaction');
+const hijri = require('../utils/hijri');
 
 const SubscriptionService = {
   async list(filters) {
@@ -39,7 +40,7 @@ const SubscriptionService = {
   async getStats() {
     const active = await SubscriptionRepo.getActiveCount();
     const revenue = await SubscriptionRepo.getTotalRevenue();
-    const year = new Date().getFullYear();
+    const year = hijri.parseHijri(hijri.todayHijri()).hy;
     const monthlyRevenue = await SubscriptionRepo.getMonthlyRevenue(year);
     return { active, revenue, monthlyRevenue };
   },

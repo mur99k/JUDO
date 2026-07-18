@@ -5,29 +5,24 @@
   var saveBtn = document.getElementById('saveAttendanceBtn');
   var allStudents = [];
 
-  function today() { var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+  // Current selected Hijri date (YYYY-MM-DD).
+  var currentHijri = Hijri.today();
+
   function fmtAr(ds) {
-    if(!ds) return '';
-    var d=new Date(ds);
-    if(isNaN(d.getTime())) return ds;
-    return d.toLocaleDateString('ar-SA-u-ca-islamic-umalqura', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    if (!ds) return '';
+    return Hijri.format(ds);
   }
 
   function load() {
-    var date = dateInput ? dateInput.value : today(); if(!date) date=today();
-    if(arabicDateEl) arabicDateEl.textContent = fmtAr(date);
-    if(tableBody) tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:#a0aec0;">جاري التحميل...</td></tr>';
-    API.get('/api/attendance?date='+date).then(function(r){
-      if(!r.success) throw new Error(r.error||'فشل');
+    var date = currentHijri;
+    if (arabicDateEl) arabicDateEl.textContent = fmtAr(date);
+    if (tableBody) tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:#a0aec0;">جاري التحميل...</td></tr>';
+    API.get('/api/attendance?date=' + date).then(function (r) {
+      if (!r.success) throw new Error(r.error || 'فشل');
       allStudents = r.records || [];
       render();
-    }).catch(function(e){
-      if(tableBody) tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:#ef4444;">خطأ: '+e.message+'</td></tr>';
+    }).catch(function (e) {
+      if (tableBody) tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:#ef4444;">خطأ: ' + e.message + '</td></tr>';
     });
   }
 
@@ -109,7 +104,7 @@
 
   if(saveBtn) {
     saveBtn.addEventListener('click', function(){
-      var date = dateInput ? dateInput.value : today();
+      var date = currentHijri;
       var rows = tableBody ? tableBody.querySelectorAll('tr') : [];
       var records = [];
       for(var i=0; i<rows.length; i++) {
@@ -136,6 +131,11 @@
     });
   }
 
-  if(dateInput) { dateInput.value=today(); dateInput.addEventListener('change',load); }
-  if(document.getElementById('attendanceBody')) load();
+  if (dateInput) {
+    HijriPicker.create(dateInput, {
+      value: currentHijri,
+      onChange: function (v) { currentHijri = v; load(); }
+    });
+  }
+  if (document.getElementById('attendanceBody')) load();
 })();

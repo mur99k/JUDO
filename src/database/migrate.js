@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const { getConnection } = require('./connection');
+const hijri = require('../utils/hijri');
 
 async function applySchema() {
   const db = getConnection();
@@ -79,9 +80,58 @@ async function seed() {
   }
 }
 
+// Convert any stored GREGORIAN YYYY-MM-DD dates (attendance.date,
+// subscriptions.startDate/endDate) into HIJRI YYYY-MM-DD strings.
+// Idempotent: only touches values whose year looks Gregorian (>=1600);
+// Hijri years (1300-1500) are left alone. Runs once, tracked via a setting.
+async function migrateDatesToHijri() {
+  const db = getConnection();
+  try {
+    const flag = await db.query("SELECT value FROM settings WHERE key = $1", ['datesMigratedToHijri']);
+    if (flag.rows.length && flag.rows[0].value === '1') return;
+  } catch (e) { /* settings table may not exist yet on first boot */ }
+
+  const isGregorian = (str) => {
+    if (!str) return false;
+    const m = String(str).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return false;
+    const y = Number(m[1]);
+    return y >= 1600 && y <= 2999;
+  };
+
+  try {
+    const att = await db.query('SELECT id, date FROM attendance');
+    for (const row of att.rows) {
+      if (isGregorian(row.date)) {
+        await db.query('UPDATE attendance SET date = $1 WHERE id = $2', [hijri.gregorianToHijriISO(row.date), row.id]);
+      }
+    }
+    const subs = await db.query('SELECT id, startDate, endDate FROM subscriptions');
+    for (const row of subs.rows) {
+      const sets = [];
+      const params = [];
+      let i = 1;
+      if (isGregorian(row.startDate)) { sets.push('startDate = $' + i); params.push(hijri.gregorianToHijriISO(row.startDate)); i++; }
+      if (isGregorian(row.endDate)) { sets.push('endDate = $' + i); params.push(hijri.gregorianToHijriISO(row.endDate)); i++; }
+      if (sets.length) { params.push(row.id); await db.query('UPDATE subscriptions SET ' + sets.join(', ') + ' WHERE id = $' + i, params); }
+    }
+  } catch (e) {
+    console.error('[migrateDatesToHijri] skipped:', e.message);
+  }
+
+  try {
+    await db.query(
+      "INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+      ['datesMigratedToHijri', '1']
+    );
+  } catch (e) { /* ignore */ }
+  console.log('[migrateDatesToHijri] done');
+}
+
 async function initDatabase() {
   await applySchema();
   await seed();
+  await migrateDatesToHijri();
 }
 
 module.exports = { initDatabase, applySchema, seed };

@@ -1,4 +1,5 @@
 const { getConnection } = require('../database/connection');
+const hijri = require('../utils/hijri');
 
 const AttendanceRepo = {
   async findByDate(date) {
@@ -66,7 +67,7 @@ const AttendanceRepo = {
 
   async getTodayStats() {
     const db = getConnection();
-    const today = new Date().toISOString().split('T')[0];
+    const today = hijri.todayHijri();
     const r = await db.query(
       'SELECT status, COUNT(*) as count FROM attendance WHERE date = $1 GROUP BY status', [today]
     );
@@ -83,7 +84,7 @@ const AttendanceRepo = {
 
   async getTodayCount() {
     const db = getConnection();
-    const today = new Date().toISOString().split('T')[0];
+    const today = hijri.todayHijri();
     const r = await db.query(
       'SELECT COUNT(*) as count FROM attendance WHERE date = $1 AND status = $2', [today, 'حاضر']
     );
@@ -113,7 +114,7 @@ const AttendanceRepo = {
     `, [`${year}-${monthStr}%`]);
     const records = r.rows;
     const students = (await db.query('SELECT id, fullName FROM students ORDER BY fullName')).rows;
-    const daysInMonth = new Date(year || new Date().getFullYear(), month, 0).getDate();
+    const daysInMonth = hijri.daysInHijriMonth(Number(year) || hijri.parseHijri(hijri.todayHijri()).hy, Number(month) || 1);
     const grid = {};
     const stats = { present: 0, absent: 0, excused: 0 };
     for (const rec of records) {

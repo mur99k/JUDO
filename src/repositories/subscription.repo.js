@@ -1,11 +1,9 @@
 const { getConnection } = require('../database/connection');
+const hijri = require('../utils/hijri');
 
-// Compute remaining days until endDate (relative to today) in JS so the
-// query stays dialect-agnostic (no julianday / datediff).
+// Compute remaining days until endDate (relative to today) using Hijri dates.
 function daysBetween(todayStr, endStr) {
-  const a = new Date(todayStr + 'T00:00:00');
-  const b = new Date(endStr + 'T00:00:00');
-  return Math.round((b - a) / 86400000);
+  return hijri.hijriDaysBetween(todayStr, endStr);
 }
 
 const SubscriptionRepo = {
@@ -22,7 +20,7 @@ const SubscriptionRepo = {
     if (filters.studentId) { sql += ' AND sub.studentId = $' + (params.length + 1); params.push(filters.studentId); }
     sql += ' ORDER BY sub.createdAt DESC';
     const r = await db.query(sql, params);
-    const today = new Date().toISOString().split('T')[0];
+    const today = hijri.todayHijri();
     return r.rows.map(row => ({
       ...row,
       remainingDays: row.status !== 'نشط' ? 0 : daysBetween(today, row.endDate)
@@ -39,7 +37,7 @@ const SubscriptionRepo = {
     `, [id]);
     const row = r.rows[0];
     if (!row) return null;
-    const today = new Date().toISOString().split('T')[0];
+    const today = hijri.todayHijri();
     return { ...row, remainingDays: row.status !== 'نشط' ? 0 : daysBetween(today, row.endDate) };
   },
 
@@ -93,11 +91,12 @@ const SubscriptionRepo = {
 
   async getMonthlyRevenue(year) {
     const db = getConnection();
-    // Portable month/year extraction (TO_CHAR in pg, strftime in sqlite via adapter).
+    // startDate is stored as Hijri YYYY-MM-DD TEXT, so a simple prefix match
+    // groups by the Hijri month/year (portable across pg/sqlite).
     const r = await db.query(`
-      SELECT TO_CHAR(startDate::date, 'MM') as month, COALESCE(SUM(amount), 0) as total
+      SELECT SUBSTR(startDate, 1, 7) as month, COALESCE(SUM(amount), 0) as total
       FROM subscriptions
-      WHERE EXTRACT(YEAR FROM startDate::date) = $1 AND status != $2
+      WHERE SUBSTR(startDate, 1, 4) = $1 AND status != $2
       GROUP BY month
       ORDER BY month
     `, [String(year), 'ملغي']);
@@ -124,7 +123,7 @@ const SubscriptionRepo = {
 
   async expireOverdue() {
     const db = getConnection();
-    const today = new Date().toISOString().split('T')[0];
+    const today = hijri.todayHijri();
     const r = await db.query(
       'UPDATE subscriptions SET status = $1 WHERE status = $2 AND endDate < $3',
       ['منتهي', 'نشط', today]

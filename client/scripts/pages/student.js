@@ -83,7 +83,7 @@ async function studentLogout() {
         html += '  <div style="margin-top:4px;"><div style="display:flex;justify-content:space-between;font-size:0.72rem;color:#94a3b8;margin-bottom:6px;"><span>انتهى '+usedPct+'%</span><span>باقي '+(100-usedPct)+'%</span></div>';
         html += '  <div style="height:10px;background:#f0f2f5;border-radius:5px;overflow:hidden;"><div style="height:100%;width:'+usedPct+'%;background:linear-gradient(90deg,'+rc+','+rc+'aa);border-radius:5px;transition:width 0.6s;"></div></div></div>';
         // Dates
-        function fmt(d) { if(!d) return '--'; var dt=new Date(d); if(isNaN(dt)) return '--'; return dt.toLocaleDateString('ar-SA-u-ca-islamic-umalqura', { year: 'numeric', month: 'long', day: 'numeric' }); }
+        function fmt(d) { if(!d) return '--'; return Hijri.format(d); }
         html += '  <div style="display:flex;justify-content:space-between;margin-top:14px;font-size:0.82rem;">';
         html += '    <div style="color:#94a3b8;">تاريخ الانتهاء: <strong style="color:var(--color-navy);">'+fmt(sub.endDate)+'</strong></div>';
         html += '  </div></div>';

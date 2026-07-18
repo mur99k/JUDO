@@ -39,15 +39,27 @@ const GalleryService = {
 
   async upload(file) {
     const key = galleryPrefix + '/' + file.filename;
-    const buffer = fs.readFileSync(file.path);
-    const { url } = await storage.upload(key, buffer, file.mimetype);
-    try { fs.unlinkSync(file.path); } catch {}
-    return { name: file.filename, url };
+    try {
+      const buffer = fs.readFileSync(file.path);
+      const { url } = await storage.upload(key, buffer, file.mimetype);
+      try { fs.unlinkSync(file.path); } catch {}
+      return { name: file.filename, url };
+    } catch (remoteErr) {
+      // Fallback: serve from local filesystem via /gallery-img/
+      const stat = fs.statSync(file.path);
+      const url = '/gallery-img/' + encodeURIComponent(file.filename) + '?v=' + stat.mtime.getTime();
+      return { name: file.filename, url };
+    }
   },
 
   async delete(filename) {
     const key = galleryPrefix + '/' + filename;
-    await storage.remove(key);
+    try {
+      await storage.remove(key);
+    } catch {}
+    // Also remove local copy if present
+    const localPath = path.join(config.media.galleryDir, filename);
+    try { if (fs.existsSync(localPath)) fs.unlinkSync(localPath); } catch {}
   }
 };
 

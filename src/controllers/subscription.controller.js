@@ -25,7 +25,14 @@ const SubscriptionController = {
     try {
       const { studentId, type, days, amount, startDate, endDate, paymentMethod, notes } = req.body;
       if (!studentId || amount === undefined || amount === null || !startDate) return error(res, 'الطالب والمبلغ وتاريخ البداية مطلوبون');
-      const result = await SubscriptionService.create({ studentId: Number(studentId), type: type || 'عادي', days: Number(days) || 30, amount: Number(amount) || 0, startDate, endDate, paymentMethod, notes });
+      const d = Number(days) || 30;
+      var computedEndDate = endDate;
+      if (!computedEndDate && startDate) {
+        const dt = new Date(startDate);
+        dt.setDate(dt.getDate() + d);
+        computedEndDate = dt.toISOString().split('T')[0];
+      }
+      const result = await SubscriptionService.create({ studentId: Number(studentId), type: type || 'عادي', days: d, amount: Number(amount) || 0, startDate, endDate: computedEndDate, paymentMethod, notes });
       return success(res, { id: result.id });
     } catch (err) {
       next(err);

@@ -10,6 +10,8 @@ async function applySchema() {
   let sql = fs.readFileSync(file, 'utf8');
   // Strip SQL comments so the statement splitter doesn't choke on them.
   sql = sql.replace(/--[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+  // Strip DO $$...$$ blocks (PL/pgSQL) that contain internal semicolons.
+  sql = sql.replace(/DO\s+\$\$[\s\S]*?\$\$/gi, '');
   // Split on statements (works for both dialects; Postgres blocks separated by ';').
   const statements = sql.split(';').map(s => s.trim()).filter(Boolean);
   for (const stmt of statements) {

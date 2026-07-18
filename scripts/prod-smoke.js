@@ -87,10 +87,10 @@ function check(name, cond, detail) {
     check('Student registration', reg.status === 200 || reg.status === 201, 'status ' + reg.status);
   } catch (e) { check('Student registration', false, e.message); }
 
-  // 9. Contact form
+  // 9. Contact form (endpoint is /api/auth/contact)
   try {
-    const msg = await req('POST', '/api/contact', { body: { name: 'Smoke Test', phone: '0500000000', message: 'Production smoke test' } });
-    check('Contact form', msg.status === 200 || msg.status === 201, 'status ' + msg.status);
+    const msg = await req('POST', '/api/auth/contact', { body: { name: 'Smoke Test', phone: '0500000000', message: 'Production smoke test' } });
+    check('Contact form', msg.status === 200 || msg.status === 201, 'status ' + msg.status + ' ' + msg.body.substring(0, 100));
   } catch (e) { check('Contact form', false, e.message); }
 
   // 10. HTTPS check

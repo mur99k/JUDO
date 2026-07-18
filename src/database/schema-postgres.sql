@@ -71,14 +71,3 @@ CREATE TABLE IF NOT EXISTS coach_groups (
   FOREIGN KEY (coachId) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (studentId) REFERENCES students(id) ON DELETE CASCADE
 );
-
--- Backfill students.category if missing (ALTER is safe to re-run).
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name='students' AND column_name='category'
-  ) THEN
-    ALTER TABLE students ADD COLUMN category TEXT;
-  END IF;
-END $$;

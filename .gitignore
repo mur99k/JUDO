@@ -9,3 +9,4 @@ uploads/admins/*
 logs/
 backups/
 *.log
+database.sqlite

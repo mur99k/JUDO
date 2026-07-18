@@ -21,14 +21,16 @@ async function seed() {
   const db = getConnection();
   // Remove old default admin account.
   await db.query('DELETE FROM users WHERE email = $1', ['admin@riyadah.com']);
-  // Create new admin if not already present.
+  // Upsert admin — always set correct password hash.
+  const hash = bcrypt.hashSync('Ma123456', 10);
   const existing = await db.query('SELECT id FROM users WHERE email = $1', ['Matoq701@gmail.com']);
   if (existing.rows.length === 0) {
-    const hash = bcrypt.hashSync('Ma123456', 10);
     await db.query(
       'INSERT INTO users (fullName, email, password, role) VALUES ($1, $2, $3, $4)',
       ['الكابتن معتوق', 'Matoq701@gmail.com', hash, 'admin']
     );
+  } else {
+    await db.query('UPDATE users SET password = $1, role = $2 WHERE email = $3', [hash, 'admin', 'Matoq701@gmail.com']);
   }
 
   // Seed coaches if not present

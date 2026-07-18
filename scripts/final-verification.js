@@ -275,16 +275,22 @@ async function adminReq(method, path, body) {
 
   // ─── 8. REPORTS ───
   console.log('\n─── Reports ───');
-  const repStats = await adminReq('GET', '/api/reports/stats');
-  check('reports', 'Stats endpoint', repStats.status === 200, `status ${repStats.status}`);
+  const repStats = await adminReq('GET', '/api/reports/dashboard');
+  check('reports', 'Dashboard endpoint', repStats.status === 200, `status ${repStats.status}`);
   try {
     const stats = JSON.parse(repStats.body);
-    check('reports', 'Stats has students count', stats.students !== undefined);
-    check('reports', 'Stats has subscriptions count', stats.subscriptions !== undefined);
-    check('reports', 'Stats has attendance rate', stats.attendanceRate !== undefined);
+    check('reports', 'Dashboard has totalStudents', stats.totalStudents !== undefined);
+    check('reports', 'Dashboard has activeSubscriptions', stats.activeSubscriptions !== undefined);
+    check('reports', 'Dashboard has todayAttendance', stats.todayAttendance !== undefined);
   } catch (e) {
     check('reports', 'Stats JSON parse', false, e.message);
   }
+
+  const repStudents = await adminReq('GET', '/api/reports/students');
+  check('reports', 'Students stats endpoint', repStudents.status === 200, `status ${repStudents.status}`);
+
+  const repSubs = await adminReq('GET', '/api/reports/subscriptions');
+  check('reports', 'Subscriptions stats endpoint', repSubs.status === 200, `status ${repSubs.status}`);
 
   // ─── 9. GALLERY ───
   console.log('\n─── Gallery ───');

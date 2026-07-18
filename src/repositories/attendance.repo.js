@@ -55,12 +55,12 @@ const AttendanceRepo = {
 
   async getStudentRate(studentId) {
     const db = getConnection();
-    const total = (await db.query(
+    const total = Number((await db.query(
       'SELECT COUNT(*) as count FROM attendance WHERE studentId = $1', [studentId]
-    )).rows[0].count;
-    const present = (await db.query(
+    )).rows[0].count);
+    const present = Number((await db.query(
       'SELECT COUNT(*) as count FROM attendance WHERE studentId = $1 AND status = $2', [studentId, 'حاضر']
-    )).rows[0].count;
+    )).rows[0].count);
     return { total, present, rate: total > 0 ? Math.round((present / total) * 100) : 0 };
   },
 
@@ -70,7 +70,7 @@ const AttendanceRepo = {
     const r = await db.query(
       'SELECT COUNT(*) as count FROM attendance WHERE date = $1 AND status = $2', [today, 'حاضر']
     );
-    return r.rows[0].count;
+    return Number(r.rows[0].count);
   },
 
   async getMonthlyAttendance(month, year) {
@@ -126,9 +126,9 @@ const AttendanceRepo = {
     `, [studentId, startDate, endDate])).rows;
     let present = 0, absent = 0, excused = 0;
     for (const s of sums) {
-      if (s.status === 'حاضر') present = s.count;
-      else if (s.status === 'غائب') absent = s.count;
-      else if (s.status === 'معذر') excused = s.count;
+      if (s.status === 'حاضر') present = Number(s.count);
+      else if (s.status === 'غائب') absent = Number(s.count);
+      else if (s.status === 'معذر') excused = Number(s.count);
     }
     const total = present + absent + excused;
     const rate = total > 0 ? Math.round((present / total) * 100) : 0;
@@ -142,10 +142,11 @@ const AttendanceRepo = {
     )).rows;
     let present = 0, absent = 0, excused = 0, total = 0;
     for (const s of sums) {
-      total += s.count;
-      if (s.status === 'حاضر') present = s.count;
-      else if (s.status === 'غائب') absent = s.count;
-      else if (s.status === 'معذر') excused = s.count;
+      const c = Number(s.count);
+      total += c;
+      if (s.status === 'حاضر') present = c;
+      else if (s.status === 'غائب') absent = c;
+      else if (s.status === 'معذر') excused = c;
     }
     const rate = total > 0 ? Math.round((present / total) * 100) : 0;
     const first = (await db.query('SELECT MIN(date) as d FROM attendance WHERE studentId = $1', [studentId])).rows[0];

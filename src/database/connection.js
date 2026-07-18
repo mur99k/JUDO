@@ -20,7 +20,8 @@ const PG_CAMEL_MAP = {
   fullname: 'fullName', nationalid: 'nationalId', parentphone: 'parentPhone',
   profileimage: 'profileImage', studentid: 'studentId', coachid: 'coachId',
   createdat: 'createdAt', updatedat: 'updatedAt', startdate: 'startDate',
-  enddate: 'endDate', paymentmethod: 'paymentMethod', coachgroups: 'coachGroups'
+  enddate: 'endDate', paymentmethod: 'paymentMethod', coachgroups: 'coachGroups',
+  studentname: 'studentName', remainingdays: 'remainingDays', coachname: 'coachName'
 };
 
 function mapRow(row) {

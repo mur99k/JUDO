@@ -50,7 +50,7 @@ const StudentRepo = {
       params.push(filters.category);
     }
     const r = await db.query(sql, params);
-    return r.rows[0].count;
+    return Number(r.rows[0].count);
   },
 
   async findById(id) {
@@ -106,7 +106,7 @@ const StudentRepo = {
       params.push(filters.status);
     }
     const r = await db.query(sql, params);
-    return r.rows[0].count;
+    return Number(r.rows[0].count);
   }
 };
 

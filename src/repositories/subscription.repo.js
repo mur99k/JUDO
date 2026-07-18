@@ -80,7 +80,7 @@ const SubscriptionRepo = {
   async getActiveCount() {
     const db = getConnection();
     const r = await db.query("SELECT COUNT(*) as count FROM subscriptions WHERE status = $1", ['نشط']);
-    return r.rows[0].count;
+    return Number(r.rows[0].count);
   },
 
   async getTotalRevenue() {
@@ -88,7 +88,7 @@ const SubscriptionRepo = {
     const r = await db.query(
       "SELECT COALESCE(SUM(amount), 0) as total FROM subscriptions WHERE status != $1", ['ملغي']
     );
-    return r.rows[0].total;
+    return Number(r.rows[0].total);
   },
 
   async getMonthlyRevenue(year) {
@@ -101,7 +101,7 @@ const SubscriptionRepo = {
       GROUP BY month
       ORDER BY month
     `, [String(year), 'ملغي']);
-    return r.rows;
+    return r.rows.map(row => ({ ...row, total: Number(row.total) }));
   },
 
   async expireOverdue() {

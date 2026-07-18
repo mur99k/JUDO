@@ -113,10 +113,10 @@
         </div>
         <div class="dash-header-right">
           <div class="dash-user-badge">
-            <div class="dash-user-avatar"><%= typeof user !== 'undefined' && user ? user.name.charAt(0) : '?' %></div>
+            <div class="dash-user-avatar"><%= user ? (user.name || '?').charAt(0) : '?' %></div>
             <div class="dash-user-meta">
-              <span class="dash-user-name"><%= typeof user !== 'undefined' && user ? user.name : '' %></span>
-              <span class="dash-user-role"><%= typeof user !== 'undefined' && user ? (user.role === 'admin' ? 'مدير' : 'مدرب') : '' %></span>
+              <span class="dash-user-name"><%= user ? (user.name || '') : '' %></span>
+              <span class="dash-user-role"><%= user ? (user.role === 'admin' ? 'مدير' : 'مدرب') : '' %></span>
             </div>
           </div>
         </div>

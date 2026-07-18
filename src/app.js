@@ -37,8 +37,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: config.sessionSecret,
-  resave: false,
-  saveUninitialized: false,
+  resave: true,
+  saveUninitialized: true,
   cookie: {
     // Secure cookies only when served over HTTPS (directly or via proxy).
     secure: config.https.behindProxy || config.https.direct,

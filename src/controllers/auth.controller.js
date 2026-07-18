@@ -56,12 +56,13 @@ const AuthController = {
   async me(req, res, next) {
     try {
       const userId = req.session.userId;
+      if (!userId) return error(res, 'غير مصرح', 401);
       if (req.session.role === 'admin' || req.session.role === 'coach') {
-        const user = require('../repositories/user.repo').findById(userId);
+        const user = await require('../repositories/user.repo').findById(userId);
         if (!user) return error(res, 'المستخدم غير موجود', 404);
         return success(res, { user });
       }
-      const student = require('../repositories/student.repo').findById(userId);
+      const student = await require('../repositories/student.repo').findById(userId);
       if (!student) return error(res, 'الطالب غير موجود', 404);
       const AttendanceService = require('../services/attendance.service');
       const SubscriptionService = require('../services/subscription.service');

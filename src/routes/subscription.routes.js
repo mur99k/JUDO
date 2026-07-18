@@ -8,7 +8,6 @@ router.get('/summary', requireAdminOrCoach, SubscriptionController.stats);
 router.use(requireAdmin);
 
 router.get('/', SubscriptionController.list);
-router.get('/stats', SubscriptionController.stats);
 router.get('/:id', SubscriptionController.getById);
 router.post('/', SubscriptionController.create);
 router.put('/:id', SubscriptionController.update);

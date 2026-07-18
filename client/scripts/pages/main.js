@@ -104,6 +104,8 @@
       images = Array.from(allItems).map(function(i) { return i.src; });
       currentIdx = idx;
       lbImg.src = images[currentIdx];
+      lbImg.onerror = function(){ this.style.display='none'; };
+      lbImg.onload = function(){ this.style.display=''; };
       lb.classList.add('active');
       document.body.style.overflow = 'hidden';
     });

@@ -7,7 +7,7 @@
     <% if (heroImages.length > 0) { %>
       <% heroImages.forEach(function(p, i) { %>
       <div class="hero-slide <%= i === 0 ? 'active' : '' %>" data-index="<%= i %>">
-        <img src="<%= p.url %>" alt="" <%= i === 0 ? 'fetchpriority="high"' : 'loading="lazy"' %>>
+        <img src="<%= p.url %>" alt="" onerror="this.onerror=null;this.style.display='none';" <%= i === 0 ? 'fetchpriority="high"' : 'loading="lazy"' %>>
       </div>
       <% }); %>
     <% } else { %>
@@ -112,7 +112,7 @@
       <% if (typeof photos !== 'undefined' && photos.length > 0) { %>
         <% photos.forEach(function(p, i) { %>
         <div class="gallery-item" data-index="<%= i %>">
-          <img src="<%= p.url %>" alt="إنجاز <%= i + 1 %>" loading="lazy">
+          <img src="<%= p.url %>" alt="إنجاز <%= i + 1 %>" onerror="this.onerror=null;this.outerHTML='<div style=\'width:100%;aspect-ratio:1;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:0.8rem;\'>صورة</div>';" loading="lazy">
           <div class="gallery-overlay"><span>معاينة</span></div>
         </div>
         <% }); %>
@@ -138,7 +138,8 @@
         <div class="coach-card">
           <div class="coach-photo">
             <% if (c.photo) { %>
-              <img src="<%= c.photo %>" alt="<%= c.name %>" loading="lazy">
+              <img src="<%= c.photo %>" alt="<%= c.name %>" onerror="this.onerror=null;this.style.display='none';this.parentNode.querySelector('.coach-photo-placeholder').style.display='flex';" loading="lazy">
+              <div class="coach-photo-placeholder" style="display:none;"><%= (c.name || '?').charAt(0) %></div>
             <% } else { %>
               <div class="coach-photo-placeholder"><%= (c.name || '?').charAt(0) %></div>
             <% } %>

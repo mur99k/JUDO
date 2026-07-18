@@ -112,6 +112,7 @@ module.exports = {
   },
   dashboardStudents: function(req, res) {
     if (!req.session.userId) return res.redirect('/login');
+    if (req.session.role === 'student') return res.redirect('/student');
     var d = { title: 'الطلاب', user: res.locals.user, activePage: 'students', breadcrumbs: [{url:'/dashboard',label:'لوحة التحكم'},{label:'الطلاب'}] };
     renderDash('pages/dashboard/students.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
   },
@@ -123,11 +124,13 @@ module.exports = {
   },
   dashboardAttendance: function(req, res) {
     if (!req.session.userId) return res.redirect('/login');
+    if (req.session.role === 'student') return res.redirect('/student');
     var d = { title: 'الحضور', user: res.locals.user, activePage: 'attendance', breadcrumbs: [{url:'/dashboard',label:'لوحة التحكم'},{label:'الحضور'}] };
     renderDash('pages/dashboard/attendance.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
   },
   dashboardStudentReport: function(req, res) {
     if (!req.session.userId) return res.redirect('/login');
+    if (req.session.role === 'student') return res.redirect('/student');
     var d = { title: 'تقرير طالب', user: res.locals.user, activePage: 'attendance', studentId: req.params.id, month: req.query.month, year: req.query.year, breadcrumbs: [{url:'/dashboard',label:'لوحة التحكم'},{url:'/dashboard/attendance',label:'الحضور'},{label:'تقرير الطالب'}] };
     renderDash('pages/dashboard/student-report.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
   },
@@ -145,6 +148,7 @@ module.exports = {
   },
   dashboardGallery: async function(req, res) {
     if (!req.session.userId) return res.redirect('/login');
+    if (req.session.role === 'student') return res.redirect('/student');
     try {
       var photos = await GalleryService.list();
       var d = { title: 'معرض الصور', user: res.locals.user, activePage: 'gallery', photos, breadcrumbs: [{url:'/dashboard',label:'لوحة التحكم'},{label:'معرض الصور'}] };

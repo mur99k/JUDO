@@ -40,7 +40,7 @@
     for (var i=0;i<coaches.length;i++) {
       var c=coaches[i];
       var pwd = c.password_plain || null;
-      var avatar = c.profileImage ? '<img src="'+c.profileImage+'" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">' : '<div style="width:30px;height:30px;border-radius:50%;background:var(--color-navy);color:var(--color-gold-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;">'+(c.fullName||c.name||'?').charAt(0)+'</div>';
+      var avatar = c.profileImage ? '<img src="'+c.profileImage+'" onerror="this.onerror=null;var d=document.createElement(\'div\');d.style.cssText=\'width:30px;height:30px;border-radius:50%;background:var(--color-navy);color:var(--color-gold-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;\';d.textContent=\''+(c.fullName||'?').charAt(0)+'\';this.parentNode.replaceChild(d,this);" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">' : '<div style="width:30px;height:30px;border-radius:50%;background:var(--color-navy);color:var(--color-gold-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;">'+(c.fullName||c.name||'?').charAt(0)+'</div>';
       html+='<tr>'+
         '<td><div style="display:flex;align-items:center;gap:8px;">'+avatar+'<span style="font-weight:600;">'+(c.fullName||c.name||'')+'</span></div></td>'+
         '<td style="color:#718096;">'+(c.email||'')+'</td>'+
@@ -124,6 +124,7 @@
         photoPreview.src = c.profileImage;
         photoPreview.style.display = 'block';
         photoPlaceholder.style.display = 'none';
+        photoPreview.onerror = function(){ this.style.display='none'; if(photoPlaceholder) photoPlaceholder.style.display='flex'; };
       }
       if (modal) modal.classList.add('active');
     }).catch(function(err){

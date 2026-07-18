@@ -27,7 +27,7 @@
     for (var i = 0; i < photos.length; i++) {
       var p = photos[i];
       html += '<div style="position:relative;border-radius:12px;overflow:hidden;border:1px solid #e9edf2;aspect-ratio:1;cursor:pointer;background:#f8fafc;" onclick="openLightbox(\'' + p.url + '\')">';
-      html += '<img src="' + p.url + '" alt="" style="width:100%;height:100%;object-fit:cover;" loading="lazy">';
+      html += '<img src="' + p.url + '" alt="" onerror="this.onerror=null;this.outerHTML=\'<div style=\\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f1f5f9;color:#94a3b8;font-size:0.75rem;\\\'>صورة</div>\'" style="width:100%;height:100%;object-fit:cover;" loading="lazy">';
       html += '<button type="button" onclick="event.stopPropagation();deletePhoto(\'' + p.name + '\')" title="حذف" style="position:absolute;top:6px;left:6px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(220,38,38,0.9);color:#fff;cursor:pointer;font-size:0.9rem;line-height:1;display:flex;align-items:center;justify-content:center;">×</button>';
       html += '</div>';
     }
@@ -38,6 +38,8 @@
   window.openLightbox = function(url) {
     if (lightbox && lightboxImg) {
       lightboxImg.src = url;
+      lightboxImg.onerror = function(){ this.style.display='none'; };
+      lightboxImg.onload = function(){ this.style.display=''; };
       lightbox.classList.add('active');
     }
   };

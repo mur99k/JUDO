@@ -23,7 +23,7 @@ async function studentLogout() {
       html += '<div style="background:linear-gradient(135deg,var(--color-navy),#1e3a5f);border-radius:20px;padding:28px 22px;color:#fff;margin-bottom:18px;">';
       html += '  <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">';
       if (user.photo) {
-        html += '<img src="'+user.photo+'" alt="" style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:4px solid rgba(201,168,76,0.4);flex-shrink:0;">';
+        html += '<img src="'+user.photo+'" alt="" onerror="this.onerror=null;var d=document.createElement(\'div\');d.style.cssText=\'width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:var(--color-gold-light);border:4px solid rgba(201,168,76,0.3);flex-shrink:0;\';d.textContent=\''+(user.fullName?user.fullName.charAt(0):'?')+'\';this.parentNode.replaceChild(d,this);" style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:4px solid rgba(201,168,76,0.4);flex-shrink:0;">';
       } else {
         html += '<div style="width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:var(--color-gold-light);border:4px solid rgba(201,168,76,0.3);flex-shrink:0;">'+(user.fullName?user.fullName.charAt(0):'?')+'</div>';
       }
@@ -133,6 +133,7 @@ async function studentLogout() {
         preview.src = user.photo;
         preview.style.display = 'block';
         placeholder.style.display = 'none';
+        preview.onerror = function(){ this.style.display='none'; if(placeholder) placeholder.style.display='flex'; };
       } else if (preview) {
         preview.style.display = 'none';
         if (placeholder) placeholder.style.display = 'flex';

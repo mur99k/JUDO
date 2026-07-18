@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const AttendanceController = require('../controllers/attendance.controller');
-const { requireAuth } = require('../middleware/auth');
+const { requireAdminOrCoach, requireAuth } = require('../middleware/auth');
 
-router.use(requireAuth);
+router.use(requireAdminOrCoach);
 
 router.get('/', AttendanceController.getByDate);
 router.get('/today', AttendanceController.getToday);

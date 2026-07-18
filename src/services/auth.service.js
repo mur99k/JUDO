@@ -47,11 +47,21 @@ const AuthService = {
 
   async changePassword(userId, currentPassword, newPassword) {
     const user = await UserRepo.findById(userId);
-    if (!user) throw new AuthError('المستخدم غير موجود');
-    const fullUser = await UserRepo.findByEmail(user.email);
-    if (!bcrypt.compareSync(currentPassword, fullUser.password)) throw new AuthError('كلمة المرور الحالية غير صحيحة');
+    if (user) {
+      const fullUser = await UserRepo.findByEmail(user.email);
+      if (!fullUser || !bcrypt.compareSync(currentPassword, fullUser.password)) throw new AuthError('كلمة المرور الحالية غير صحيحة');
+      const hash = bcrypt.hashSync(newPassword, 10);
+      await UserRepo.updatePassword(userId, hash);
+      return;
+    }
+    const student = await require('../repositories/student.repo').findById(userId);
+    if (!student) throw new AuthError('المستخدم غير موجود');
+    const studentWithPwd = await require('../repositories/student.repo').findByNationalIdWithPassword(student.nationalId);
+    if (!studentWithPwd || !studentWithPwd.password || !bcrypt.compareSync(currentPassword, studentWithPwd.password)) {
+      throw new AuthError('كلمة المرور الحالية غير صحيحة');
+    }
     const hash = bcrypt.hashSync(newPassword, 10);
-    await UserRepo.updatePassword(userId, hash);
+    await require('../repositories/student.repo').update(userId, { password: hash });
   },
 
   async updateProfile(userId, data, file) {

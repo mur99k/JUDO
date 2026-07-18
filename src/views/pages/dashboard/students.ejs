@@ -178,9 +178,12 @@
           <input type="tel" class="form-input" id="editParentPhone" name="parentPhone">
         </div>
       </div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
-        <button type="button" class="btn btn-outline" onclick="document.getElementById('editStudentModal').classList.remove('active')">إلغاء</button>
-        <button type="submit" class="btn btn-primary">تحديث</button>
+      <div style="display:flex;gap:8px;justify-content:space-between;margin-top:16px;">
+        <button type="button" class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger);" onclick="resetStudentPassword()">إعادة تعيين كلمة المرور</button>
+        <div style="display:flex;gap:8px;">
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('editStudentModal').classList.remove('active')">إلغاء</button>
+          <button type="submit" class="btn btn-primary">تحديث</button>
+        </div>
       </div>
     </form>
   </div>

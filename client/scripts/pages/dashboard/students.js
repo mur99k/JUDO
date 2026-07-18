@@ -209,3 +209,15 @@
 
   loadStudents();
 })();
+
+function resetStudentPassword() {
+  var id = document.getElementById('editStudentId').value;
+  var name = document.getElementById('editFullName').value;
+  if (!confirm('إعادة تعيين كلمة المرور للطالب "' + name + '" إلى "' + id + '"؟')) return;
+  API.post('/api/students/' + id + '/reset-password', {}).then(function(res) {
+    if (!res.success) throw new Error(res.error || 'فشل');
+    Toast.success('تم', 'تم إعادة تعيين كلمة المرور إلى ' + id);
+  }).catch(function(err) {
+    Toast.error('خطأ', err.message);
+  });
+}

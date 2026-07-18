@@ -11,5 +11,6 @@ router.get('/:id', requireAdminOrCoach, StudentController.getById);
 router.post('/', requireAdmin, StudentController.create);
 router.put('/:id', requireAdminOrCoach, upload.single('photo'), StudentController.update);
 router.delete('/:id', requireAdmin, StudentController.delete);
+router.post('/:id/reset-password', requireAdminOrCoach, StudentController.resetPassword);
 
 module.exports = router;

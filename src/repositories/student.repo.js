@@ -104,7 +104,12 @@ const StudentRepo = {
     }
     const r = await db.query(sql, params);
     return Number(r.rows[0].count);
-  }
+  },
+
+  async updatePassword(id, hashedPassword, conn) {
+    const db = conn || getConnection();
+    await db.query('UPDATE students SET password = $1, updatedAt = NOW() WHERE id = $2', [hashedPassword, id]);
+  },
 };
 
 module.exports = StudentRepo;

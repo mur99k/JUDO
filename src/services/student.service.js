@@ -59,6 +59,15 @@ const StudentService = {
     });
   },
 
+  async resetPassword(id) {
+    const student = await StudentRepo.findById(id);
+    if (!student) throw new NotFoundError('الطالب غير موجود');
+    const defaultPassword = student.nationalId || 'student123';
+    const hash = require('bcryptjs').hashSync(defaultPassword, 10);
+    await StudentRepo.updatePassword(id, hash);
+    return defaultPassword;
+  },
+
   async getStats() {
     const total = await StudentRepo.count();
     const active = await StudentRepo.count({ status: 'نشط' });

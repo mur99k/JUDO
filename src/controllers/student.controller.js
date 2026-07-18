@@ -49,6 +49,15 @@ const StudentController = {
     }
   },
 
+  async resetPassword(req, res, next) {
+    try {
+      const newPassword = await StudentService.resetPassword(req.params.id);
+      return success(res, { password: newPassword });
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async delete(req, res, next) {
     try {
       await StudentService.delete(req.params.id);

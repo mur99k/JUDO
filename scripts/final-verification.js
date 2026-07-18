@@ -224,16 +224,22 @@ async function adminReq(method, path, body) {
   if (attStudentId) {
     const today = new Date().toISOString().split('T')[0];
     const record = await adminReq('POST', '/api/attendance', {
-      studentId: attStudentId,
-      date: today,
-      status: 'حاضر'
+      records: [{
+        studentId: attStudentId,
+        date: today,
+        status: 'حاضر',
+        notes: ''
+      }]
     });
     check('attendance', 'Mark present', record.status === 200 || record.status === 201, `status ${record.status}`);
 
     const record2 = await adminReq('POST', '/api/attendance', {
-      studentId: attStudentId,
-      date: today,
-      status: 'غائب'
+      records: [{
+        studentId: attStudentId,
+        date: today,
+        status: 'غائب',
+        notes: ''
+      }]
     });
     check('attendance', 'Update to absent', record2.status === 200 || record2.status === 201, `status ${record2.status}`);
 

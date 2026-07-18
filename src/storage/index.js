@@ -111,6 +111,7 @@ function keyFromUrl(value) {
 module.exports = {
   upload: (key, buffer, mimeType) => detect().upload(key, buffer, mimeType),
   remove: (key) => detect().remove(key),
+  list: (prefix) => detect().list(prefix),
   publicUrl: (key) => detect().publicUrl(key),
   normalizeDbValue,
   keyFromUrl,

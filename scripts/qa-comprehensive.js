@@ -201,8 +201,18 @@ function getPage(path) {
 
   // ── SECTION 10: CSRF PROTECTION ──
   console.log('\n--- 10. CSRF PROTECTION ---');
-  const csrf1 = await authed('POST', '/api/students', ac, JSON.stringify({ fullName: 'CSRF Test', nationalId: 'CSRF' + ts.toString().slice(-5), age: 10 }), 'https://evil.com');
-  check('CSRF: blocks wrong origin', csrf1.status === 403 || csrf1.status === 401);
+  // Test CSRF with raw request (authed always sends valid Origin)
+  const csrfNatId = 'CSRF' + ts.toString().slice(-5);
+  const csrf1 = await new Promise((resolve) => {
+    const d = JSON.stringify({ fullName: 'CSRF Test', nationalId: csrfNatId, age: 10 });
+    const opts = { hostname: HOST, path: '/api/students', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(d), 'Cookie': ac, 'Origin': 'https://evil.com' }, timeout: 30000 };
+    const r = https.request(opts, (res) => {
+      let b = ''; res.on('data', c => b += c);
+      res.on('end', () => resolve({ status: res.statusCode }));
+    }); r.write(d); r.end();
+  });
+  check('CSRF: blocks wrong origin', csrf1.status === 403);
 
   // ── SECTION 11: GALLERY ──
   console.log('\n--- 11. GALLERY ---');

@@ -55,7 +55,7 @@ app.use('/api', csrfProtection);
 app.use('/styles', express.static(path.join(__dirname, '..', 'client', 'styles')));
 app.use('/scripts', express.static(path.join(__dirname, '..', 'client', 'scripts')));
 app.use('/assets', express.static(path.join(__dirname, '..', 'client', 'assets')));
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+app.use('/uploads', express.static(config.storage.localPath));
 
 // Manual static route for the gallery folder (folder name is Arabic on disk:
 // "بطولات وجوائز", but served via an ASCII route to avoid Windows URL

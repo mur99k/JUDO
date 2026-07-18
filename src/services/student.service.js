@@ -16,7 +16,7 @@ async function persistPhoto(file) {
     return storage.normalizeDbValue(url);
   } catch (err) {
     console.error('R2 upload failed (falling back to local):', err.message);
-    return '/uploads/' + file.filename;
+    return '/uploads/students/' + file.filename;
   }
 }
 

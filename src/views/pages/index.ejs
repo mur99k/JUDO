@@ -140,7 +140,7 @@
             <% if (c.photo) { %>
               <img src="<%= c.photo %>" alt="<%= c.name %>" loading="lazy">
             <% } else { %>
-              <div class="coach-photo-placeholder"><%= c.name.charAt(0) %></div>
+              <div class="coach-photo-placeholder"><%= (c.name || '?').charAt(0) %></div>
             <% } %>
           </div>
           <h3 class="coach-name"><%= c.name %></h3>

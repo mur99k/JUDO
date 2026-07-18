@@ -261,7 +261,7 @@
 
     if (exemptCheck && exemptCheck.checked) {
       data.amount = '0';
-      data.notes = 'إعفاء - ظروف شخصية';
+      data.notes = 'إعفاء كامل من رسوم الاشتراك';
       data.paymentMethod = 'إعفاء';
     }
 

@@ -3,15 +3,20 @@
     totalStudents: document.getElementById('repTotalStudents'),
     activeSubs: document.getElementById('repActiveSubscriptions'),
     totalCoaches: document.getElementById('repTotalCoaches'),
-    todayAttendance: document.getElementById('repTodayAttendance')
+    todayAttendance: document.getElementById('repTodayAttendance'),
+    revenue: document.getElementById('repRevenue'),
+    exemptions: document.getElementById('repExemptions')
   };
-  var barContainer = document.getElementById('repStudentsBar');
-  var pieContainer = document.getElementById('repSubsPie');
+  var containers = {
+    students: document.getElementById('repStudentsBar'),
+    categories: document.getElementById('repCategoriesBar'),
+    subsStatus: document.getElementById('repSubsStatus'),
+    attendance: document.getElementById('repAttendance')
+  };
 
   function loadReports() {
     for (var k in cards) { if (cards[k]) cards[k].textContent = '--'; }
-    if (barContainer) barContainer.innerHTML = '<p style="color:#a0aec0;">جاري التحميل...</p>';
-    if (pieContainer) pieContainer.innerHTML = '<p style="color:#a0aec0;">جاري التحميل...</p>';
+    for (var k in containers) { if (containers[k]) containers[k].innerHTML = '<p style="color:#a0aec0;text-align:center;">جاري التحميل...</p>'; }
 
     Promise.all([
       API.get('/api/reports/dashboard'),
@@ -23,29 +28,68 @@
       if (cards.activeSubs) cards.activeSubs.textContent = dash.activeSubscriptions || 0;
       if (cards.totalCoaches) cards.totalCoaches.textContent = dash.totalCoaches || 0;
       if (cards.todayAttendance) cards.todayAttendance.textContent = dash.todayAttendance || 0;
+      if (cards.revenue) cards.revenue.textContent = (dash.revenue || 0) + ' ر.س';
+      if (cards.exemptions) cards.exemptions.textContent = dash.exemptions || 0;
 
-      // Student chart
-      if (barContainer && students) {
-        var sTotal = students.total || 0;
-        var sActive = students.active || 0;
-        var sInactive = students.inactive || 0;
-        renderBarChart(barContainer, [
-          { label: 'نشط', count: sActive, color: 'var(--color-navy)' },
-          { label: 'غير نشط', count: sInactive, color: '#94a3b8' }
-        ], sTotal);
+      // Student status chart
+      if (containers.students && students) {
+        var sItems = [];
+        if (students.statusBreakdown && students.statusBreakdown.length) {
+          for (var i = 0; i < students.statusBreakdown.length; i++) {
+            var sb = students.statusBreakdown[i];
+            var color = '#94a3b8';
+            if (sb.status === 'نشط') color = 'var(--color-navy)';
+            else if (sb.status === 'غير نشط') color = '#f59e0b';
+            sItems.push({ label: sb.status, count: sb.count, color: color });
+          }
+        } else {
+          sItems = [
+            { label: 'نشط', count: students.active || 0, color: 'var(--color-navy)' },
+            { label: 'غير نشط', count: students.inactive || 0, color: '#94a3b8' }
+          ];
+        }
+        renderBarChart(containers.students, sItems, students.total || 1);
       }
 
-      // Subscription chart
-      if (pieContainer && subs) {
-        var sAct = subs.active || 0;
-        var total = (sAct || 0) + 1; // avoid divide by zero
-        renderBarChart(pieContainer, [
-          { label: 'نشطة', count: sAct, color: '#059669' },
-          { label: 'غير نشطة', count: 0, color: '#94a3b8' }
-        ], total);
-        if (subs.revenue !== undefined) {
-          pieContainer.innerHTML += '<div style="margin-top:12px;text-align:center;font-weight:700;color:var(--color-navy);">إجمالي الإيرادات: ' + (subs.revenue||0) + ' ر.س</div>';
+      // Category breakdown
+      if (containers.categories && students && students.categoryBreakdown) {
+        var catItems = [];
+        var catColors = ['#059669','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316'];
+        for (var i = 0; i < students.categoryBreakdown.length; i++) {
+          var c = students.categoryBreakdown[i];
+          catItems.push({ label: c.category, count: c.count, color: catColors[i % catColors.length] });
         }
+        renderBarChart(containers.categories, catItems, students.total || 1);
+      }
+
+      // Subscription status breakdown
+      if (containers.subsStatus && subs && subs.statusBreakdown) {
+        var stItems = [];
+        var stColors = { 'نشط':'#059669', 'منتهي':'#94a3b8', 'موقوف':'#f59e0b', 'ملغي':'#ef4444', 'بانتظار الدفع':'#3b82f6' };
+        var totalSubs = 0;
+        for (var i = 0; i < subs.statusBreakdown.length; i++) {
+          totalSubs += subs.statusBreakdown[i].count;
+        }
+        for (var i = 0; i < subs.statusBreakdown.length; i++) {
+          var s = subs.statusBreakdown[i];
+          stItems.push({ label: s.status, count: s.count, color: stColors[s.status] || '#94a3b8' });
+        }
+        renderBarChart(containers.subsStatus, stItems, totalSubs || 1);
+        if (subs.exemptions !== undefined) {
+          var exHtml = '<div style="margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:0.85rem;"><span style="color:#475569;">إجمالي الإيرادات</span><span style="font-weight:700;color:var(--color-navy);">' + (subs.revenue||0) + ' ر.س</span></div>';
+          containers.subsStatus.innerHTML += exHtml;
+        }
+      }
+
+      // Attendance today
+      if (containers.attendance && dash.todayStats) {
+        var ats = dash.todayStats;
+        var atItems = [
+          { label: 'حاضر', count: ats.present||0, color: '#059669' },
+          { label: 'غائب', count: ats.absent||0, color: '#ef4444' },
+          { label: 'معذر', count: ats.excused||0, color: '#f59e0b' }
+        ];
+        renderBarChart(containers.attendance, atItems, ats.total || 1);
       }
     }).catch(function(err) {
       for (var k in cards) { if (cards[k]) cards[k].textContent = '0'; }

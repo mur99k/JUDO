@@ -11,6 +11,8 @@ const ReportService = {
     const activeSubscriptions = await SubscriptionRepo.getActiveCount();
     const revenue = await SubscriptionRepo.getTotalRevenue();
     const todayAttendance = await AttendanceRepo.getTodayCount();
+    const exemptions = await SubscriptionRepo.getExemptionCount();
+    const todayStats = await AttendanceRepo.getTodayStats();
 
     const recentStudents = (await StudentRepo.findAll()).slice(0, 5).map(s => ({
       id: s.id, fullName: s.fullName, status: s.status, createdAt: s.createdAt
@@ -22,6 +24,7 @@ const ReportService = {
     return {
       totalStudents, activeStudents, totalCoaches,
       activeSubscriptions, revenue, todayAttendance,
+      exemptions, todayStats,
       recentStudents, monthlyRevenue, attendanceData: { total: 0, present: 0 }
     };
   },
@@ -29,14 +32,18 @@ const ReportService = {
   async getStudentStats() {
     const total = await StudentRepo.count();
     const active = await StudentRepo.count({ status: 'نشط' });
-    return { total, active, inactive: total - active };
+    const statusBreakdown = await StudentRepo.getStatusBreakdown();
+    const categoryBreakdown = await StudentRepo.getCategoryBreakdown();
+    return { total, active, inactive: total - active, statusBreakdown, categoryBreakdown };
   },
 
   async getSubscriptionStats() {
-    return {
-      active: await SubscriptionRepo.getActiveCount(),
-      revenue: await SubscriptionRepo.getTotalRevenue()
-    };
+    const active = await SubscriptionRepo.getActiveCount();
+    const revenue = await SubscriptionRepo.getTotalRevenue();
+    const statusBreakdown = await SubscriptionRepo.getStatusBreakdown();
+    const typeBreakdown = await SubscriptionRepo.getTypeBreakdown();
+    const exemptions = await SubscriptionRepo.getExemptionCount();
+    return { active, revenue, statusBreakdown, typeBreakdown, exemptions };
   }
 };
 

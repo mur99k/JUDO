@@ -76,6 +76,18 @@ const StudentRepo = {
     await db.query('DELETE FROM students WHERE id = $1', [id]);
   },
 
+  async getStatusBreakdown() {
+    const db = getConnection();
+    const r = await db.query('SELECT status, COUNT(*) as count FROM students GROUP BY status ORDER BY status');
+    return r.rows.map(row => ({ status: row.status, count: Number(row.count) }));
+  },
+
+  async getCategoryBreakdown() {
+    const db = getConnection();
+    const r = await db.query('SELECT COALESCE(category, \'بدون تصنيف\') as category, COUNT(*) as count FROM students GROUP BY category ORDER BY count DESC');
+    return r.rows.map(row => ({ category: row.category, count: Number(row.count) }));
+  },
+
   async count(filters = {}) {
     const db = getConnection();
     let sql = 'SELECT COUNT(*) as count FROM students WHERE 1=1';

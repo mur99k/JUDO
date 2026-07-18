@@ -64,6 +64,23 @@ const AttendanceRepo = {
     return { total, present, rate: total > 0 ? Math.round((present / total) * 100) : 0 };
   },
 
+  async getTodayStats() {
+    const db = getConnection();
+    const today = new Date().toISOString().split('T')[0];
+    const r = await db.query(
+      'SELECT status, COUNT(*) as count FROM attendance WHERE date = $1 GROUP BY status', [today]
+    );
+    const stats = { present: 0, absent: 0, excused: 0, total: 0 };
+    for (const row of r.rows) {
+      const c = Number(row.count);
+      stats.total += c;
+      if (row.status === 'حاضر') stats.present = c;
+      else if (row.status === 'غائب') stats.absent = c;
+      else if (row.status === 'معذر') stats.excused = c;
+    }
+    return stats;
+  },
+
   async getTodayCount() {
     const db = getConnection();
     const today = new Date().toISOString().split('T')[0];

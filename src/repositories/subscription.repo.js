@@ -104,6 +104,24 @@ const SubscriptionRepo = {
     return r.rows.map(row => ({ ...row, total: Number(row.total) }));
   },
 
+  async getExemptionCount() {
+    const db = getConnection();
+    const r = await db.query("SELECT COUNT(*) as count FROM subscriptions WHERE paymentMethod = 'إعفاء'");
+    return Number(r.rows[0].count);
+  },
+
+  async getStatusBreakdown() {
+    const db = getConnection();
+    const r = await db.query('SELECT status, COUNT(*) as count FROM subscriptions GROUP BY status ORDER BY status');
+    return r.rows.map(row => ({ status: row.status, count: Number(row.count) }));
+  },
+
+  async getTypeBreakdown() {
+    const db = getConnection();
+    const r = await db.query('SELECT type, COUNT(*) as count FROM subscriptions GROUP BY type ORDER BY count DESC');
+    return r.rows.map(row => ({ type: row.type, count: Number(row.count) }));
+  },
+
   async expireOverdue() {
     const db = getConnection();
     const today = new Date().toISOString().split('T')[0];

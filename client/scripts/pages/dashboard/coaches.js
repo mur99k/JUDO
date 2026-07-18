@@ -126,12 +126,19 @@
         photoPlaceholder.style.display = 'none';
       }
       if (modal) modal.classList.add('active');
-    }).catch(function(err){alert(err.message)});
+    }).catch(function(err){
+      if (typeof Toast!=='undefined') Toast.error('خطأ',err.message);
+    });
   };
 
   window.delCoach = function(id) {
     if (!confirm('حذف المدرب؟')) return;
-    API.del('/api/coaches/'+id).then(function(){loadCoaches()}).catch(function(e){alert(e.message)});
+    API.del('/api/coaches/'+id).then(function(){
+      loadCoaches();
+      if (typeof Toast!=='undefined') Toast.success('تم','تم حذف المدرب');
+    }).catch(function(e){
+      if (typeof Toast!=='undefined') Toast.error('خطأ',e.message);
+    });
   };
 
   function showAddForm() {
@@ -156,9 +163,9 @@
     saveBtn.addEventListener('click', function() {
       var data={}, fields=form.querySelectorAll('input,select,textarea');
       for (var i=0;i<fields.length;i++) { if (fields[i].name) data[fields[i].name]=fields[i].value; }
-      if (!data.fullName) { alert('الاسم مطلوب'); return; }
-      if (!data.email) { alert('البريد مطلوب'); return; }
-      if (!editingId && !data.password) { alert('كلمة المرور مطلوبة'); return; }
+      if (!data.fullName) { if (typeof Toast!=='undefined') Toast.error('خطأ','الاسم مطلوب'); return; }
+      if (!data.email) { if (typeof Toast!=='undefined') Toast.error('خطأ','البريد مطلوب'); return; }
+      if (!editingId && !data.password) { if (typeof Toast!=='undefined') Toast.error('خطأ','كلمة المرور مطلوبة'); return; }
       if (editingId && !data.password) delete data.password;
       var self=this;
       self.disabled=true; self.textContent='جاري...';
@@ -177,7 +184,10 @@
         if (!r.success) throw new Error(r.error||'فشل');
         if (modal) modal.classList.remove('active');
         loadCoaches();
-      }).catch(function(e){alert(e.message)}).finally(function(){
+        if (typeof Toast!=='undefined') Toast.success('تم','تم حفظ بيانات المدرب بنجاح');
+      }).catch(function(e){
+        if (typeof Toast!=='undefined') Toast.error('خطأ',e.message);
+      }).finally(function(){
         self.disabled=false; self.textContent='حفظ';
       });
     });

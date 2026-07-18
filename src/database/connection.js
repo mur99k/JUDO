@@ -85,13 +85,26 @@ function detect() {
         return { rows, rowCount: rows.length, lastId };
       },
       async transaction(fn) {
-        const run = (s, p) => {
-          const stmt = db.prepare(translateToSqlite(s));
-          const rows = stmt.all(...(p || []));
-          return { rows, rowCount: rows.length };
-        };
-        const res = db.transaction(() => fn({ query: run }))();
-        return res;
+        db.exec('BEGIN');
+        try {
+          const run = (s, p) => {
+            const stmt = db.prepare(translateToSqlite(s));
+            const isSelect = /^select\b/i.test(translateToSqlite(s).trim());
+            if (isSelect) {
+              const rows = stmt.all(...(p || []));
+              return { rows, rowCount: rows.length };
+            }
+            stmt.run(...(p || []));
+            const lastId = db.prepare('SELECT last_insert_rowid() AS id').get().id;
+            return { rows: [], rowCount: stmt.changes, lastId };
+          };
+          const res = await fn({ query: run });
+          db.exec('COMMIT');
+          return res;
+        } catch (e) {
+          db.exec('ROLLBACK');
+          throw e;
+        }
       },
       async close() { db.close(); }
     };
@@ -121,6 +134,8 @@ function translateToSqlite(sql) {
   s = s.replace(/TO_CHAR\(\s*([^,]+?)::date\s*,\s*'MM'\s*\)/gi, "strftime('%m', $1)");
   // EXTRACT(YEAR FROM col) -> strftime('%Y', col)
   s = s.replace(/EXTRACT\(\s*YEAR\s+FROM\s+([^)]+?)\s*\)/gi, "strftime('%Y', $1)");
+  // Strip PostgreSQL type casts (::date, ::text, etc.) left after translation.
+  s = s.replace(/::\w+/g, '');
   return s;
 }
 

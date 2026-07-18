@@ -34,7 +34,7 @@ nano .env                   # fill real values
 ## 3. Run with pm2
 ```bash
 npm install -g pm2
-pm2 start server.js --name kilocode
+pm2 start server.js --name riyadah-judo
 pm2 save
 pm2 startup                  # auto-start on boot
 ```
@@ -85,7 +85,7 @@ monitoring.
 - `logs/backup.log` — backup runs.
 
 ## 8. Pre-launch verification
-- [ ] App boots (`pm2 logs kilocode` clean, no FATAL).
+- [ ] App boots (`pm2 logs riyadah-judo` clean, no FATAL).
 - [ ] Admin login works (`Matoq701@gmail.com` / `Ma123456`).
 - [ ] Student login works (by national ID).
 - [ ] DB connection stable (check `logs/app.log`).

@@ -4,7 +4,7 @@
  * Keeps only the admin user, seeded coaches, and core settings.
  */
 const https = require('https');
-const BASE = process.argv[2] || 'https://kilocode.onrender.com';
+const BASE = process.argv[2] || 'https://riyadah-judo.onrender.com';
 const ADMIN = { email: 'Matoq701@gmail.com', password: 'Ma123456' };
 
 let sessionCookie = null;
@@ -13,7 +13,7 @@ function req(method, path, body, cookie) {
   return new Promise((resolve, reject) => {
     const data = body ? JSON.stringify(body) : null;
     const opts = {
-      method, hostname: 'kilocode.onrender.com', port: 443, path,
+      method, hostname: 'riyadah-judo.onrender.com', port: 443, path,
       headers: {
         'Content-Type': 'application/json',
         ...(cookie ? { Cookie: cookie } : {}),

@@ -15,7 +15,7 @@
 #   6. After deploy, open the .onrender.com URL (HTTPS auto).
 services:
   - type: web
-    name: kilocode
+    name: riyadah-judo
     runtime: node
     plan: free
     region: oregon          # pick the region closest to you
@@ -35,7 +35,7 @@ services:
       - key: HTTPS
         value: "true"          # Render terminates TLS; app trusts X-Forwarded-*
       - key: CORS_ORIGIN
-        sync: false          # set in dashboard to your .onrender.com URL
+        value: https://riyadah-judo.onrender.com
       - key: STORAGE_TYPE
         value: r2
       - key: R2_BUCKET

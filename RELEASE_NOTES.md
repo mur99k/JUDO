@@ -4,7 +4,7 @@
 
 **Release Date:** July 18, 2026  
 **Version:** 1.0.0-beta  
-**Live URL:** https://kilocode.onrender.com  
+**Live URL:** https://riyadah-judo.onrender.com  
 **Status:** ✅ Production-ready beta — 112/112 acceptance tests passed (100%)
 
 ---

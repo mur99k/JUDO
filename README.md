@@ -1,7 +1,7 @@
 # نادي الريادة للجودو — Al-Riyadah Judo Club
 
 > Arabic (RTL) web application for managing a Saudi judo club.  
-> **Live:** https://kilocode.onrender.com  
+> **Live:** https://riyadah-judo.onrender.com  
 > **Version:** 1.0.0-beta
 
 ---

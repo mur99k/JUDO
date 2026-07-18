@@ -5,7 +5,7 @@
  */
 const https = require('https');
 const crypto = require('crypto');
-const BASE = process.argv[2] || 'https://kilocode.onrender.com';
+const BASE = process.argv[2] || 'https://riyadah-judo.onrender.com';
 const ADMIN = { email: 'Matoq701@gmail.com', password: 'Ma123456' };
 
 let sessionCookie = null;
@@ -22,7 +22,7 @@ function req(method, path, body, cookie) {
   return new Promise((resolve, reject) => {
     const data = body ? JSON.stringify(body) : null;
     const opts = {
-      method, hostname: 'kilocode.onrender.com', port: 443, path,
+      method, hostname: 'riyadah-judo.onrender.com', port: 443, path,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'text/html,application/json,*/*',
@@ -316,7 +316,7 @@ async function adminReq(method, path, body) {
       Buffer.from('\r\n--' + boundary + '--\r\n')
     ]);
     const opts = {
-      method: 'POST', hostname: 'kilocode.onrender.com', port: 443, path: '/api/gallery',
+      method: 'POST', hostname: 'riyadah-judo.onrender.com', port: 443, path: '/api/gallery',
       headers: {
         'Content-Type': 'multipart/form-data; boundary=' + boundary,
         'Cookie': sessionCookie,

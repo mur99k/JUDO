@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const http = require('http');
-const BASE = process.argv[2] || 'https://kilocode.onrender.com';
+const BASE = process.argv[2] || 'https://riyadah-judo.onrender.com';
 const https = BASE.startsWith('https') ? require('https') : http;
 
 function req(method, urlPath, { body, headers, cookie } = {}) {

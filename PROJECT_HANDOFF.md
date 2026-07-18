@@ -2,7 +2,7 @@
 
 > **Version:** 1.0.0-beta  
 > **Release Date:** July 18, 2026  
-> **Live URL:** https://kilocode.onrender.com  
+> **Live URL:** https://riyadah-judo.onrender.com  
 > **Repository:** https://github.com/mur99k/JUDO
 
 ---
@@ -296,7 +296,7 @@ See `.env.example` for defaults and descriptions.
 | `NODE_ENV` | Yes | `production` | Enables view cache, secure cookies, file logging |
 | `SESSION_SECRET` | Yes | Auto-generated (Render) | Session encryption key |
 | `HTTPS` | Yes | `true` | Trust proxy headers, secure cookies |
-| `CORS_ORIGIN` | Yes | `https://kilocode.onrender.com` | Allowed CORS origins (comma-separated) |
+| `CORS_ORIGIN` | Yes | `https://riyadah-judo.onrender.com` | Allowed CORS origins (comma-separated) |
 | `DB_TYPE` | Yes | `postgres` | Database flavor |
 | `DATABASE_URL` | Yes | Neon connection string | PostgreSQL connection |
 | `DB_PATH` | No | `./data/club.db` | SQLite path (dev only) |

@@ -7,7 +7,7 @@
  */
 const https = require('https');
 const http = require('http');
-const BASE = 'https://kilocode.onrender.com';
+const BASE = 'https://riyadah-judo.onrender.com';
 
 let adminCookie, coachCookie, studentCookie;
 let coachId, studentId, subscriptionId;
@@ -46,7 +46,7 @@ function req(method, path, body, cookie, userAgent) {
   return new Promise((resolve, reject) => {
     const data = body ? (typeof body === 'string' ? body : JSON.stringify(body)) : null;
     const opts = {
-      method, hostname: 'kilocode.onrender.com', port: 443, path,
+      method, hostname: 'riyadah-judo.onrender.com', port: 443, path,
       headers: {
         ...(data ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) } : {}),
         ...(cookie ? { Cookie: cookie } : {}),

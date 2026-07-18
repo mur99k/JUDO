@@ -10,13 +10,9 @@ function csrfProtection(req, res, next) {
       return h === allowed || h.endsWith('.' + allowed) || h === 'localhost' || h.endsWith('.localhost');
     } catch { return false; }
   };
-  if (origin && !isAllowed(origin)) {
-    return res.status(403).json({ error: 'طلب مرفوض: مصدر غير مصرح' });
-  }
-  if (!origin && referer && !isAllowed(referer)) {
-    return res.status(403).json({ error: 'طلب مرفوض: مصدر غير مصرح' });
-  }
-  next();
+  if (origin && isAllowed(origin)) return next();
+  if (!origin && referer && isAllowed(referer)) return next();
+  return res.status(403).json({ error: 'طلب مرفوض: مصدر غير مصرح' });
 }
 
 module.exports = { csrfProtection };

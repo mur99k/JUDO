@@ -26,9 +26,12 @@ const StudentController = {
 
   async create(req, res, next) {
     try {
-      const { fullName, nationalId, age, phone, parentPhone, category, status } = req.body;
+      const { fullName, nationalId, age, phone, parentPhone, category, status, password } = req.body;
       if (!fullName) return error(res, 'اسم الطالب مطلوب');
-      var data = { fullName, nationalId, age, phone, parentPhone, status };
+      const pwd = password || nationalId;
+      if (!pwd || pwd.length < 6) return error(res, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      const hashedPassword = require('bcryptjs').hashSync(pwd, 10);
+      var data = { fullName, nationalId, age, phone, parentPhone, status, password: hashedPassword };
       if (req.session.role === 'admin') data.category = category;
       const result = await StudentService.create(data);
       return success(res, { id: result.id });

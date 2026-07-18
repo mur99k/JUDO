@@ -42,8 +42,7 @@ const AuthController = {
           try { fs.unlinkSync(req.file.path); } catch {}
           photo = storage.normalizeDbValue(uploaded.url);
         } catch (uploadErr) {
-          console.error('PHOTO UPLOAD ERROR:', uploadErr);
-          // Fallback: store local path
+          console.error('PHOTO UPLOAD ERROR:', uploadErr.message, uploadErr.stack);
           photo = '/uploads/' + req.file.filename;
         }
       }

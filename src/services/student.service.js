@@ -9,9 +9,14 @@ async function persistPhoto(file) {
   if (!file) return null;
   const key = 'students/' + file.filename;
   const buffer = fs.readFileSync(file.path);
-  const { url } = await storage.upload(key, buffer, file.mimetype);
-  try { fs.unlinkSync(file.path); } catch {}
-  return storage.normalizeDbValue(url);
+  try {
+    const { url } = await storage.upload(key, buffer, file.mimetype);
+    try { fs.unlinkSync(file.path); } catch {}
+    return storage.normalizeDbValue(url);
+  } catch (err) {
+    console.error('R2 upload failed (falling back to local):', err.message);
+    return '/uploads/' + file.filename;
+  }
 }
 
 const StudentService = {

@@ -35,11 +35,17 @@ const AuthController = {
       const { fullName, nationalId, age, phone, parentPhone } = req.body;
       var photo = null;
       if (req.file) {
-        const key = 'students/' + req.file.filename;
-        const buffer = fs.readFileSync(req.file.path);
-        const uploaded = await storage.upload(key, buffer, req.file.mimetype);
-        try { fs.unlinkSync(req.file.path); } catch {}
-        photo = storage.normalizeDbValue(uploaded.url);
+        try {
+          const key = 'students/' + req.file.filename;
+          const buffer = fs.readFileSync(req.file.path);
+          const uploaded = await storage.upload(key, buffer, req.file.mimetype);
+          try { fs.unlinkSync(req.file.path); } catch {}
+          photo = storage.normalizeDbValue(uploaded.url);
+        } catch (uploadErr) {
+          console.error('PHOTO UPLOAD ERROR:', uploadErr);
+          // Fallback: store local path
+          photo = '/uploads/' + req.file.filename;
+        }
       }
       const student = await AuthService.registerStudent({ fullName, nationalId, age, phone, parentPhone, photo });
       req.session.userId = student.id;

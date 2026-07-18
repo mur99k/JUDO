@@ -92,8 +92,9 @@ function isLocalUploadPath(value) {
 function normalizeDbValue(value) {
   if (!value) return value;
   if (detect().isRemote) {
-    // If a local /uploads path slipped in, convert to the R2 public URL.
-    if (isLocalUploadPath(value)) return detect().publicUrl(value.replace('/uploads/', ''));
+    // If a local /uploads path slipped in, keep it local so Express can serve it
+    // from disk rather than generating a non-existent R2 URL.
+    if (isLocalUploadPath(value)) return value;
     return value;
   }
   // Local mode: ensure value is a /uploads/... path.

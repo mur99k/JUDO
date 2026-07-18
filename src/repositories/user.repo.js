@@ -33,8 +33,8 @@ const UserRepo = {
     await db.query('DELETE FROM users WHERE id = $1', [id]);
   },
 
-  async updateProfile(id, data) {
-    const db = getConnection();
+  async updateProfile(id, data, conn) {
+    const db = conn || getConnection();
     const fields = [];
     const values = [];
     if (data.fullName !== undefined) { fields.push('fullName = $' + (fields.length + 1)); values.push(data.fullName); }
@@ -47,8 +47,8 @@ const UserRepo = {
     return true;
   },
 
-  async updatePassword(id, hash) {
-    const db = getConnection();
+  async updatePassword(id, hash, conn) {
+    const db = conn || getConnection();
     await db.query('UPDATE users SET password = $1 WHERE id = $2', [hash, id]);
   }
 };

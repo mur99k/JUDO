@@ -4,6 +4,7 @@ const UserRepo = require('../repositories/user.repo');
 const StudentRepo = require('../repositories/student.repo');
 const storage = require('../storage');
 const { AuthError, ValidationError } = require('../utils/errors');
+const { withTransaction } = require('../utils/transaction');
 
 async function persistPhoto(file, subDir) {
   if (!file) return null;
@@ -39,10 +40,12 @@ const AuthService = {
   },
 
   async registerStudent(data) {
-    const existing = await StudentRepo.findByNationalId(data.nationalId);
-    if (existing) throw new ValidationError('رقم الهوية مسجل مسبقاً');
-    const result = await StudentRepo.create(data);
-    return { id: result.id, name: data.fullName, role: 'student' };
+    return withTransaction(async (conn) => {
+      const existing = await StudentRepo.findByNationalId(data.nationalId, conn);
+      if (existing) throw new ValidationError('رقم الهوية مسجل مسبقاً');
+      const result = await StudentRepo.create(data, conn);
+      return { id: result.id, name: data.fullName, role: 'student' };
+    });
   },
 
   async changePassword(userId, currentPassword, newPassword) {

@@ -20,15 +20,17 @@ const SubscriptionService = {
   },
 
   async update(id, data) {
-    const sub = await SubscriptionRepo.findById(id);
-    if (!sub) throw new NotFoundError('الاشتراك غير موجود');
-    await SubscriptionRepo.update(id, data);
-    return SubscriptionRepo.findById(id);
+    return withTransaction(async (conn) => {
+      const sub = await SubscriptionRepo.findById(id, conn);
+      if (!sub) throw new NotFoundError('الاشتراك غير موجود');
+      await SubscriptionRepo.update(id, data);
+      return SubscriptionRepo.findById(id);
+    });
   },
 
   async delete(id) {
     return withTransaction(async (conn) => {
-      const sub = await SubscriptionRepo.findById(id);
+      const sub = await SubscriptionRepo.findById(id, conn);
       if (!sub) throw new NotFoundError('الاشتراك غير موجود');
       await SubscriptionRepo.delete(id, conn);
     });

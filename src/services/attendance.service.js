@@ -1,6 +1,7 @@
 const AttendanceRepo = require('../repositories/attendance.repo');
 const StudentRepo = require('../repositories/student.repo');
 const { today } = require('../utils/date');
+const { withTransaction } = require('../utils/transaction');
 
 const AttendanceService = {
   async getByDate(date) {
@@ -29,9 +30,11 @@ const AttendanceService = {
   },
 
   async save(records) {
-    for (const rec of records) {
-      await AttendanceRepo.upsert(rec.studentId, rec.date, rec.status, rec.notes);
-    }
+    return withTransaction(async (conn) => {
+      for (const rec of records) {
+        await AttendanceRepo.upsert(rec.studentId, rec.date, rec.status, rec.notes, conn);
+      }
+    });
   },
 
   async getSummary(month, year) {

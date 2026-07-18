@@ -29,8 +29,8 @@ const SubscriptionRepo = {
     }));
   },
 
-  async findById(id) {
-    const db = getConnection();
+  async findById(id, conn) {
+    const db = conn || getConnection();
     const r = await db.query(`
       SELECT sub.*, s.fullName as studentName
       FROM subscriptions sub

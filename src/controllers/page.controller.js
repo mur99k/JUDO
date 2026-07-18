@@ -163,6 +163,7 @@ module.exports = {
   },
   dashboardProfile: function(req, res) {
     if (!req.session.userId) return res.redirect('/login');
+    if (req.session.role === 'student') return res.redirect('/student');
     var d = { title: 'الملف الشخصي', user: res.locals.user, activePage: 'profile', breadcrumbs: [{url:'/dashboard',label:'لوحة التحكم'},{label:'الملف الشخصي'}] };
     renderDash('pages/dashboard/profile.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
   },

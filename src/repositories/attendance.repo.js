@@ -13,8 +13,8 @@ const AttendanceRepo = {
     return r.rows;
   },
 
-  async findByStudentAndDate(studentId, date) {
-    const db = getConnection();
+  async findByStudentAndDate(studentId, date, conn) {
+    const db = conn || getConnection();
     const r = await db.query(
       'SELECT * FROM attendance WHERE studentId = $1 AND date = $2',
       [studentId, date]
@@ -22,9 +22,9 @@ const AttendanceRepo = {
     return r.rows[0] || null;
   },
 
-  async upsert(studentId, date, status, notes) {
-    const db = getConnection();
-    const existing = await this.findByStudentAndDate(studentId, date);
+  async upsert(studentId, date, status, notes, conn) {
+    const db = conn || getConnection();
+    const existing = await this.findByStudentAndDate(studentId, date, conn);
     if (existing) {
       await db.query(
         'UPDATE attendance SET status = $1, notes = $2 WHERE id = $3',

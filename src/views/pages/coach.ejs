@@ -7,7 +7,7 @@
 <div class="coach-profile-bar">
   <div class="coach-profile-avatar">
     <% if (coachPhoto) { %>
-      <img src="<%= coachPhoto %>" alt="<%= coachName %>" onerror="this.style.display='none';this.parentNode.innerHTML='<svg width=\\'34\' height=\\'34\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><path d=\'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2\'/><circle cx=\'12\' cy=\'7\' r=\'4\'/></svg>'">
+      <img src="<%= coachPhoto %>" alt="<%= coachName %>" onerror="this.onerror=null;this.style.display='none';this.parentNode.innerHTML='<svg width=\\'34\' height=\\'34\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><path d=\'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2\'/><circle cx=\'12\' cy=\'7\' r=\'4\'/></svg>'">
     <% } else { %>
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <% } %>

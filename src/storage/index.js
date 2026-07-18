@@ -18,7 +18,8 @@ let impl = null;
 
 function detect() {
   if (impl) return impl;
-  if (config.storage.type === 'r2') {
+  var useR2 = config.storage.type === 'r2' && config.storage.endpoint && config.storage.bucket && config.storage.accessKeyId && config.storage.secretAccessKey;
+  if (useR2) {
     const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
     const client = new S3Client({
       region: config.storage.region,

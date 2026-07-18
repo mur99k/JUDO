@@ -38,8 +38,8 @@ const StudentRepo = {
     return r.rows[0] || null;
   },
 
-  async findByNationalId(nationalId) {
-    const db = getConnection();
+  async findByNationalId(nationalId, conn) {
+    const db = conn || getConnection();
     const r = await db.query(`SELECT ${COLUMNS} FROM students WHERE nationalId = $1`, [nationalId]);
     return r.rows[0] || null;
   },

@@ -32,7 +32,7 @@
         <!-- Crop area (hidden by default) -->
         <div id="cropArea" style="display:none;margin-bottom:12px;">
           <div style="position:relative;max-height:250px;overflow:hidden;border-radius:12px;background:#f0f0f0;">
-            <img id="cropImage" src="" alt="قص الصورة" style="max-width:100%;">
+            <img id="cropImage" src="" alt="قص الصورة" style="max-width:100%;" onerror="this.onerror=null;this.style.display='none'">
           </div>
           <div style="display:flex;align-items:center;gap:12px;margin-top:8px;justify-content:center;">
             <button type="button" id="cropZoomOut" style="background:var(--gray-100);border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">−</button>

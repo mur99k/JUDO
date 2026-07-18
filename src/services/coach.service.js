@@ -40,13 +40,13 @@ const CoachService = {
     if (!coach || coach.role !== 'coach') throw new NotFoundError('المدرب غير موجود');
     const { password, ...profileData } = data;
     if (file) profileData.profileImage = await persistPhoto(file, 'coaches');
-    if (Object.keys(profileData).length > 0) await UserRepo.updateProfile(id, profileData);
-    if (password) {
-      await UserRepo.updatePassword(id, bcrypt.hashSync(password, 10));
-    }
-    const updated = await UserRepo.findById(id);
-    updated.profileImage = storage.normalizeDbValue(updated.profileImage);
-    return updated;
+    return withTransaction(async (conn) => {
+      if (Object.keys(profileData).length > 0) await UserRepo.updateProfile(id, profileData, conn);
+      if (password) await UserRepo.updatePassword(id, bcrypt.hashSync(password, 10), conn);
+      const updated = await UserRepo.findById(id, conn);
+      updated.profileImage = storage.normalizeDbValue(updated.profileImage);
+      return updated;
+    });
   },
 
   async delete(id) {

@@ -16,7 +16,7 @@ function login(data) {
       headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(d), 'Origin': ORIGIN }, timeout: 30000 };
     const r = https.request(opts, (res) => {
       let b = ''; res.on('data', c => b += c);
-      res.on('end', () => resolve({ body: JSON.parse(b), cookie: res.headers['set-cookie'] ? res.headers['set-cookie'][0].split(';')[0] : null }));
+      res.on('end', () => resolve({ body: JSON.parse(b), cookie: res.headers['set-cookie'] ? res.headers['set-cookie'][0].split(';')[0] : null }););
     }); r.write(d); r.end();
   });
 }

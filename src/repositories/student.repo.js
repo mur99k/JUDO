@@ -10,7 +10,7 @@ const StudentRepo = {
     let sql = `SELECT ${COLUMNS} FROM students WHERE 1=1`;
     const params = [];
     if (filters.search) {
-      sql += ' AND (fullName LIKE $' + (params.length + 1) + ' OR nationalId LIKE $' + (params.length + 1) + ' OR phone LIKE $' + (params.length + 1) + ')';
+      sql += ' AND (fullName LIKE $' + (params.length + 1) + ' OR nationalId LIKE $' + (params.length + 2) + ' OR phone LIKE $' + (params.length + 3) + ')';
       const s = `%${filters.search}%`;
       params.push(s, s, s);
     }

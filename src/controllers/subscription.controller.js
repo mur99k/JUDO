@@ -28,8 +28,9 @@ const SubscriptionController = {
       const d = Number(days) || 30;
       var computedEndDate = endDate;
       if (!computedEndDate && startDate) {
-        const dt = new Date(startDate);
-        dt.setDate(dt.getDate() + d);
+        const parts = startDate.split('-');
+        const dt = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
+        dt.setUTCDate(dt.getUTCDate() + d);
         computedEndDate = dt.toISOString().split('T')[0];
       }
       const result = await SubscriptionService.create({ studentId: Number(studentId), type: type || 'عادي', days: d, amount: Number(amount) || 0, startDate, endDate: computedEndDate, paymentMethod, notes });

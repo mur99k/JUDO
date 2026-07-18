@@ -1,14 +1,14 @@
 const { getConnection } = require('../database/connection');
 
 const UserRepo = {
-  async findByEmail(email) {
-    const db = getConnection();
+  async findByEmail(email, conn) {
+    const db = conn || getConnection();
     const r = await db.query('SELECT * FROM users WHERE email = $1', [email]);
     return r.rows[0] || null;
   },
 
-  async findById(id) {
-    const db = getConnection();
+  async findById(id, conn) {
+    const db = conn || getConnection();
     const r = await db.query('SELECT id, fullName, email, phone, profileImage, role, createdAt FROM users WHERE id = $1', [id]);
     return r.rows[0] || null;
   },
@@ -19,8 +19,8 @@ const UserRepo = {
     return r.rows;
   },
 
-  async create(data) {
-    const db = getConnection();
+  async create(data, conn) {
+    const db = conn || getConnection();
     const r = await db.query(
       'INSERT INTO users (fullName, email, phone, password, role) VALUES ($1, $2, $3, $4, $5) RETURNING id',
       [data.fullName, data.email, data.phone, data.password, data.role]
@@ -28,8 +28,8 @@ const UserRepo = {
     return { id: r.lastId || (r.rows[0] && r.rows[0].id) };
   },
 
-  async delete(id) {
-    const db = getConnection();
+  async delete(id, conn) {
+    const db = conn || getConnection();
     await db.query('DELETE FROM users WHERE id = $1', [id]);
   },
 

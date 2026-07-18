@@ -4,6 +4,7 @@ const AttendanceRepo = require('../repositories/attendance.repo');
 const SubscriptionRepo = require('../repositories/subscription.repo');
 const storage = require('../storage');
 const { NotFoundError } = require('../utils/errors');
+const { withTransaction } = require('../utils/transaction');
 
 async function persistPhoto(file) {
   if (!file) return null;
@@ -34,7 +35,9 @@ const StudentService = {
   },
 
   async create(data) {
-    return StudentRepo.create(data);
+    return withTransaction(async (conn) => {
+      return StudentRepo.create(data, conn);
+    });
   },
 
   async update(id, data, file) {
@@ -48,10 +51,12 @@ const StudentService = {
   },
 
   async delete(id) {
-    const student = await StudentRepo.findById(id);
-    if (!student) throw new NotFoundError('الطالب غير موجود');
-    if (student.photo) { try { await storage.remove(storage.keyFromUrl(student.photo)); } catch {} }
-    await StudentRepo.delete(id);
+    return withTransaction(async (conn) => {
+      const student = await StudentRepo.findById(id, conn);
+      if (!student) throw new NotFoundError('الطالب غير موجود');
+      await StudentRepo.delete(id, conn);
+      if (student.photo) { try { await storage.remove(storage.keyFromUrl(student.photo)); } catch {} }
+    });
   },
 
   async getStats() {

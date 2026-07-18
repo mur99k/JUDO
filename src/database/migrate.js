@@ -60,6 +60,10 @@ async function seed() {
     );
   }
 
+  // Set default password for existing students who have no password (legacy accounts)
+  const defaultStudentHash = bcrypt.hashSync('student123', 10);
+  await db.query('UPDATE students SET password = $1 WHERE password IS NULL', [defaultStudentHash]);
+
   const settingKeys = [
     ['adminName', 'الكابتن معتوق'],
     ['adminPhone', ''],

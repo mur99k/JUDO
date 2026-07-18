@@ -57,6 +57,15 @@
             <input type="tel" class="form-input" name="parentPhone">
           </div>
         </div>
+        <div style="margin-top:8px;padding-top:12px;border-top:1px solid var(--gray-100);">
+          <details style="font-size:0.85rem;">
+            <summary style="cursor:pointer;color:var(--text-muted);font-weight:500;">تغيير كلمة المرور</summary>
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px;">
+              <input type="password" class="form-input" name="currentPassword" placeholder="كلمة المرور الحالية" style="font-size:0.85rem;">
+              <input type="password" class="form-input" name="newPassword" minlength="6" placeholder="كلمة المرور الجديدة" style="font-size:0.85rem;">
+            </div>
+          </details>
+        </div>
         <button type="submit" class="btn btn-primary w-full">حفظ</button>
       </form>
     </div>

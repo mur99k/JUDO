@@ -95,10 +95,14 @@
       btn.querySelector('.btn-text').textContent = 'جاري...';
 
       try {
+        var pwd = form.querySelector('input[name="password"]').value;
+        var pwdConfirm = document.getElementById('regPasswordConfirm').value;
+        if (pwd !== pwdConfirm) { showError('كلمة المرور غير متطابقة'); btn.disabled = false; btn.querySelector('.btn-text').textContent = 'تسجيل'; return; }
         var fd = new FormData();
         fd.append('fullName', form.querySelector('input[name="fullName"]').value);
         fd.append('nationalId', form.querySelector('input[name="nationalId"]').value);
         fd.append('age', form.querySelector('input[name="age"]').value);
+        fd.append('password', pwd);
         var phone = form.querySelector('input[name="phone"]').value;
         if (phone) fd.append('phone', phone);
         var parentPhone = form.querySelector('input[name="parentPhone"]').value;

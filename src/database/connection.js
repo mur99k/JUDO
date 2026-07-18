@@ -18,9 +18,9 @@ let flavor = null;
 // pg lowercases all column names. Map known multi-word columns to camelCase.
 const PG_CAMEL_MAP = {
   fullname: 'fullName', nationalid: 'nationalId', parentphone: 'parentPhone',
-  profileimage: 'profileImage', studentid: 'studentId', coachid: 'coachId',
+  profileimage: 'profileImage', studentid: 'studentId',
   createdat: 'createdAt', updatedat: 'updatedAt', startdate: 'startDate',
-  enddate: 'endDate', paymentmethod: 'paymentMethod', coachgroups: 'coachGroups',
+  enddate: 'endDate', paymentmethod: 'paymentMethod',
   studentname: 'studentName', remainingdays: 'remainingDays', coachname: 'coachName'
 };
 

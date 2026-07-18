@@ -6,6 +6,7 @@ const cors = require('cors');
 const config = require('./config');
 const logger = require('./utils/logger');
 const { injectUser } = require('./middleware/auth');
+const { csrfProtection } = require('./middleware/csrf');
 const { errorHandler } = require('./middleware/error');
 const setupRoutes = require('./routes');
 
@@ -38,7 +39,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: config.sessionSecret,
   resave: true,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
     // Secure cookies only when served over HTTPS (directly or via proxy).
     secure: config.https.behindProxy || config.https.direct,
@@ -49,6 +50,7 @@ app.use(session({
 }));
 
 app.use(injectUser);
+app.use('/api', csrfProtection);
 
 app.use('/styles', express.static(path.join(__dirname, '..', 'client', 'styles')));
 app.use('/scripts', express.static(path.join(__dirname, '..', 'client', 'scripts')));

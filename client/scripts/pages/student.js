@@ -253,16 +253,23 @@ async function studentLogout() {
         var nameInput = editForm.querySelector('input[name="fullName"]');
         var phoneInput = editForm.querySelector('input[name="phone"]');
         var parentInput = editForm.querySelector('input[name="parentPhone"]');
+        var currPwd = editForm.querySelector('input[name="currentPassword"]');
+        var newPwd = editForm.querySelector('input[name="newPassword"]');
         if (nameInput) fd.append('fullName', nameInput.value);
         if (phoneInput) fd.append('phone', phoneInput.value);
         if (parentInput) fd.append('parentPhone', parentInput.value);
-        if (croppedBlob) {
-          fd.append('photo', croppedBlob, 'profile.jpg');
+        if (croppedBlob) fd.append('photo', croppedBlob, 'profile.jpg');
+        if (newPwd && newPwd.value) {
+          if (!currPwd || !currPwd.value) { Toast.error('خطأ', 'يرجى إدخال كلمة المرور الحالية'); btn.disabled = false; btn.textContent = 'حفظ'; return; }
+          if (newPwd.value.length < 6) { Toast.error('خطأ', 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل'); btn.disabled = false; btn.textContent = 'حفظ'; return; }
+          await API.put('/api/auth/password', { currentPassword: currPwd.value, newPassword: newPwd.value });
         }
         await API.formPut('/api/auth/profile', fd);
         Toast.success('تم', 'تم حفظ التعديلات');
         btn.disabled = false;
         btn.textContent = 'حفظ';
+        if (currPwd) currPwd.value = '';
+        if (newPwd) newPwd.value = '';
         croppedBlob = null;
         Modal.close('editStudentModal');
         loadDashboard();

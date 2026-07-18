@@ -1,5 +1,6 @@
 const SubscriptionRepo = require('../repositories/subscription.repo');
 const { NotFoundError } = require('../utils/errors');
+const { withTransaction } = require('../utils/transaction');
 
 const SubscriptionService = {
   async list(filters) {
@@ -13,7 +14,9 @@ const SubscriptionService = {
   },
 
   async create(data) {
-    return SubscriptionRepo.create(data);
+    return withTransaction(async (conn) => {
+      return SubscriptionRepo.create(data, conn);
+    });
   },
 
   async update(id, data) {
@@ -24,9 +27,11 @@ const SubscriptionService = {
   },
 
   async delete(id) {
-    const sub = await SubscriptionRepo.findById(id);
-    if (!sub) throw new NotFoundError('الاشتراك غير موجود');
-    await SubscriptionRepo.delete(id);
+    return withTransaction(async (conn) => {
+      const sub = await SubscriptionRepo.findById(id);
+      if (!sub) throw new NotFoundError('الاشتراك غير موجود');
+      await SubscriptionRepo.delete(id, conn);
+    });
   },
 
   async getStats() {

@@ -43,8 +43,8 @@ const SubscriptionRepo = {
     return { ...row, remainingDays: row.status !== 'نشط' ? 0 : daysBetween(today, row.endDate) };
   },
 
-  async create(data) {
-    const db = getConnection();
+  async create(data, conn) {
+    const db = conn || getConnection();
     const r = await db.query(
       `INSERT INTO subscriptions (studentId, type, days, amount, startDate, endDate, status, paymentMethod, notes)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
@@ -72,8 +72,8 @@ const SubscriptionRepo = {
     return true;
   },
 
-  async delete(id) {
-    const db = getConnection();
+  async delete(id, conn) {
+    const db = conn || getConnection();
     await db.query('DELETE FROM subscriptions WHERE id = $1', [id]);
   },
 

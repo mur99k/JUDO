@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const UserRepo = require('../repositories/user.repo');
 const storage = require('../storage');
 const { NotFoundError, ValidationError } = require('../utils/errors');
+const { withTransaction } = require('../utils/transaction');
 
 async function persistPhoto(file, subDir) {
   if (!file) return null;
@@ -24,12 +25,14 @@ const CoachService = {
   },
 
   async create(data, file) {
-    const existing = await UserRepo.findByEmail(data.email);
-    if (existing) throw new ValidationError('البريد الإلكتروني مستخدم مسبقاً');
-    const hash = bcrypt.hashSync(data.password, 10);
-    const profileImage = file ? await persistPhoto(file, 'coaches') : null;
-    const result = await UserRepo.create({ ...data, password: hash, role: 'coach', profileImage });
-    return result;
+    return withTransaction(async (conn) => {
+      const existing = await UserRepo.findByEmail(data.email, conn);
+      if (existing) throw new ValidationError('البريد الإلكتروني مستخدم مسبقاً');
+      const hash = bcrypt.hashSync(data.password, 10);
+      const profileImage = file ? await persistPhoto(file, 'coaches') : null;
+      const result = await UserRepo.create({ ...data, password: hash, role: 'coach', profileImage }, conn);
+      return result;
+    });
   },
 
   async update(id, data, file) {
@@ -47,10 +50,12 @@ const CoachService = {
   },
 
   async delete(id) {
-    const coach = await UserRepo.findById(id);
-    if (!coach || coach.role !== 'coach') throw new NotFoundError('المدرب غير موجود');
-    if (coach.profileImage) { try { await storage.remove(storage.keyFromUrl(coach.profileImage)); } catch {} }
-    await UserRepo.delete(id);
+    return withTransaction(async (conn) => {
+      const coach = await UserRepo.findById(id, conn);
+      if (!coach || coach.role !== 'coach') throw new NotFoundError('المدرب غير موجود');
+      await UserRepo.delete(id, conn);
+      if (coach.profileImage) { try { await storage.remove(storage.keyFromUrl(coach.profileImage)); } catch {} }
+    });
   }
 };
 

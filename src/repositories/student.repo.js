@@ -32,8 +32,8 @@ const StudentRepo = {
     return r.rows;
   },
 
-  async findById(id) {
-    const db = getConnection();
+  async findById(id, conn) {
+    const db = conn || getConnection();
     const r = await db.query(`SELECT ${COLUMNS} FROM students WHERE id = $1`, [id]);
     return r.rows[0] || null;
   },
@@ -44,8 +44,14 @@ const StudentRepo = {
     return r.rows[0] || null;
   },
 
-  async create(data) {
-    const db = getConnection();
+  async findByNationalIdWithPassword(nationalId, conn) {
+    const db = conn || getConnection();
+    const r = await db.query('SELECT * FROM students WHERE nationalId = $1', [nationalId]);
+    return r.rows[0] || null;
+  },
+
+  async create(data, conn) {
+    const db = conn || getConnection();
     const r = await db.query(
       'INSERT INTO students (fullName, nationalId, age, phone, parentPhone, photo, password, category) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
       [data.fullName, data.nationalId, data.age || null, data.phone || null,
@@ -71,8 +77,8 @@ const StudentRepo = {
     return true;
   },
 
-  async delete(id) {
-    const db = getConnection();
+  async delete(id, conn) {
+    const db = conn || getConnection();
     await db.query('DELETE FROM students WHERE id = $1', [id]);
   },
 

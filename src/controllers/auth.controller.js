@@ -17,7 +17,9 @@ const AuthController = {
       }
 
       if (nationalId) {
-        const student = await AuthService.loginStudent(nationalId);
+        const { password } = req.body;
+        if (!password) return error(res, 'كلمة المرور مطلوبة');
+        const student = await AuthService.loginStudent(nationalId, password);
         req.session.userId = student.id;
         req.session.userName = student.name;
         req.session.role = 'student';
@@ -32,7 +34,9 @@ const AuthController = {
 
   async register(req, res, next) {
     try {
-      const { fullName, nationalId, age, phone, parentPhone } = req.body;
+      const { fullName, nationalId, age, phone, parentPhone, password } = req.body;
+      if (!password || password.length < 6) return error(res, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      const hashedPassword = require('bcryptjs').hashSync(password, 10);
       var photo = null;
       if (req.file) {
         try {
@@ -46,7 +50,7 @@ const AuthController = {
           photo = '/uploads/' + req.file.filename;
         }
       }
-      const student = await AuthService.registerStudent({ fullName, nationalId, age, phone, parentPhone, photo });
+      const student = await AuthService.registerStudent({ fullName, nationalId, age, phone, parentPhone, photo, password: hashedPassword });
       req.session.userId = student.id;
       req.session.userName = student.name;
       req.session.role = 'student';

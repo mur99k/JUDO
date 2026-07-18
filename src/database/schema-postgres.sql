@@ -64,14 +64,6 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS coach_groups (
-  id SERIAL PRIMARY KEY,
-  coachId INTEGER NOT NULL,
-  studentId INTEGER NOT NULL,
-  FOREIGN KEY (coachId) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (studentId) REFERENCES students(id) ON DELETE CASCADE
-);
-
 -- Performance indexes
 CREATE INDEX IF NOT EXISTS idx_subscriptions_studentId ON subscriptions(studentId);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);
@@ -79,5 +71,3 @@ CREATE INDEX IF NOT EXISTS idx_subscriptions_startDate ON subscriptions(startDat
 CREATE INDEX IF NOT EXISTS idx_attendance_date ON attendance(date);
 CREATE INDEX IF NOT EXISTS idx_students_status ON students(status);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
-CREATE INDEX IF NOT EXISTS idx_coach_groups_coachId ON coach_groups(coachId);
-CREATE INDEX IF NOT EXISTS idx_coach_groups_studentId ON coach_groups(studentId);

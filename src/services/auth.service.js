@@ -26,7 +26,7 @@ const AuthService = {
     const student = await StudentRepo.findByNationalId(nationalId);
     if (!student) throw new AuthError('رقم الهوية غير صحيح');
     if (student.status !== 'نشط') throw new AuthError('الحساب غير نشط');
-    return { id: student.id, name: student.fullName, role: 'student' };
+    return { id: student.id, name: student.fullName, role: 'student', photo: storage.normalizeDbValue(student.photo) };
   },
 
   async registerStudent(data) {

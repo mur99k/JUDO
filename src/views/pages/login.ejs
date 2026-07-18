@@ -10,13 +10,13 @@
       </div>
 
       <div style="display:flex;gap:0;margin-bottom:20px;border-radius:10px;overflow:hidden;border:1px solid var(--gray-200);">
-        <button class="auth-tab" id="tabStudent" data-form="studentLoginForm" style="flex:1;padding:10px;border:none;cursor:pointer;font-weight:600;font-size:0.85rem;background:var(--color-navy);color:white;">طالب</button>
-        <button class="auth-tab" id="tabAdmin" data-form="adminLoginForm" style="flex:1;padding:10px;border:none;cursor:pointer;font-weight:600;font-size:0.85rem;background:var(--gray-50);color:var(--text-muted);">مدير / مدرب</button>
+        <button type="button" class="auth-tab" id="tabStudent" data-form="studentLoginForm" style="flex:1;padding:10px;border:none;cursor:pointer;font-weight:600;font-size:0.85rem;background:var(--color-navy);color:white;">طالب</button>
+        <button type="button" class="auth-tab" id="tabAdmin" data-form="adminLoginForm" style="flex:1;padding:10px;border:none;cursor:pointer;font-weight:600;font-size:0.85rem;background:var(--gray-50);color:var(--text-muted);">مدير / مدرب</button>
       </div>
 
       <div id="errorDisplay" class="auth-error" style="display:none;background:var(--danger-soft);color:var(--danger);padding:10px 14px;border-radius:8px;font-size:0.85rem;margin-bottom:16px;text-align:center;"></div>
 
-      <form id="studentLoginForm" class="form auth-form" style="display:flex;flex-direction:column;gap:16px;">
+      <form id="studentLoginForm" class="form auth-form" novalidate style="display:flex;flex-direction:column;gap:16px;">
         <div class="form-group">
           <label class="form-label">رقم الهوية</label>
           <input type="text" class="form-input" name="nationalId" required inputmode="numeric" pattern="\d{10}" maxlength="10" placeholder="أدخل رقم الهوية (10 أرقام)">
@@ -24,7 +24,7 @@
         <button type="submit" class="btn btn-accent w-full"><span class="btn-text">دخول</span></button>
       </form>
 
-      <form id="adminLoginForm" class="form auth-form" style="display:none;flex-direction:column;gap:16px;">
+      <form id="adminLoginForm" class="form auth-form" novalidate style="display:none;flex-direction:column;gap:16px;">
         <div class="form-group">
           <label class="form-label">البريد الإلكتروني</label>
           <input type="email" class="form-input" name="email" required placeholder="أدخل البريد الإلكتروني">

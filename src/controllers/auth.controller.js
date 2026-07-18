@@ -1,5 +1,7 @@
 const { success, error } = require('../utils/response');
 const AuthService = require('../services/auth.service');
+const storage = require('../storage');
+const fs = require('fs');
 
 const AuthController = {
   async login(req, res, next) {
@@ -32,7 +34,13 @@ const AuthController = {
     try {
       const { fullName, nationalId, age, phone, parentPhone } = req.body;
       var photo = null;
-      if (req.file) photo = '/uploads/' + req.file.filename;
+      if (req.file) {
+        const key = 'students/' + req.file.filename;
+        const buffer = fs.readFileSync(req.file.path);
+        const uploaded = await storage.upload(key, buffer, req.file.mimetype);
+        try { fs.unlinkSync(req.file.path); } catch {}
+        photo = storage.normalizeDbValue(uploaded.url);
+      }
       const student = await AuthService.registerStudent({ fullName, nationalId, age, phone, parentPhone, photo });
       req.session.userId = student.id;
       req.session.userName = student.name;
@@ -63,6 +71,7 @@ const AuthController = {
       }
       const student = await require('../repositories/student.repo').findById(userId);
       if (!student) return error(res, 'الطالب غير موجود', 404);
+      student.photo = storage.normalizeDbValue(student.photo);
       const AttendanceService = require('../services/attendance.service');
       const SubscriptionService = require('../services/subscription.service');
       const rate = await AttendanceService.getStudentRate(userId);

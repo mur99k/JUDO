@@ -17,6 +17,22 @@
   function showError(msg) { if (errorEl) { errorEl.textContent = msg; errorEl.style.display = 'block'; } }
   function hideError() { if (errorEl) errorEl.style.display = 'none'; }
 
+  function fetchWithTimeout(url, opts, timeout) {
+    return new Promise(function(resolve, reject) {
+      var ctrl = new AbortController();
+      var timer = setTimeout(function() { ctrl.abort(); }, timeout || 15000);
+      opts.signal = ctrl.signal;
+      fetch(url, opts).then(function(res) {
+        clearTimeout(timer);
+        resolve(res);
+      }).catch(function(err) {
+        clearTimeout(timer);
+        if (err.name === 'AbortError') reject(new Error('انتهت مهلة الاتصال'));
+        else reject(err);
+      });
+    });
+  }
+
   if (fileInput) {
     fileInput.addEventListener('change', function() {
       var file = fileInput.files[0];
@@ -89,7 +105,7 @@
         if (parentPhone) fd.append('parentPhone', parentPhone);
         if (croppedBlob) fd.append('photo', croppedBlob, 'profile.jpg');
 
-        var res = await fetch('/api/auth/register', { method: 'POST', body: fd });
+        var res = await fetchWithTimeout('/api/auth/register', { method: 'POST', body: fd });
         var json = await res.json();
 
         if (json.success) {

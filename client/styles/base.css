@@ -14,6 +14,11 @@ html {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   height: 100%;
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 body {
@@ -62,7 +67,9 @@ img {
 }
 
 ul, ol { list-style: none; }
-button { font-family: inherit; cursor: pointer; }
+button { font-family: inherit; cursor: pointer; touch-action: manipulation; -ms-touch-action: manipulation; }
+a { touch-action: manipulation; -ms-touch-action: manipulation; }
+input, select, textarea { touch-action: manipulation; -ms-touch-action: manipulation; }
 
 /* ═══════════════════════════════════════════════════════════════
    CONTAINER

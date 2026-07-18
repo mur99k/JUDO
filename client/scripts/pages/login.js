@@ -3,6 +3,22 @@
   var errorEl = document.getElementById('errorDisplay');
   var backBtn = document.getElementById('backToStudent');
 
+  function fetchWithTimeout(url, opts, timeout) {
+    return new Promise(function(resolve, reject) {
+      var ctrl = new AbortController();
+      var timer = setTimeout(function() { ctrl.abort(); }, timeout || 15000);
+      opts.signal = ctrl.signal;
+      fetch(url, opts).then(function(res) {
+        clearTimeout(timer);
+        resolve(res);
+      }).catch(function(err) {
+        clearTimeout(timer);
+        if (err.name === 'AbortError') reject(new Error('انتهت مهلة الاتصال'));
+        else reject(err);
+      });
+    });
+  }
+
   function switchForm(formId) {
     var forms = document.querySelectorAll('.auth-form');
     forms.forEach(function(f) { f.style.display = 'none'; });
@@ -56,7 +72,7 @@
       try {
         var fd = new FormData(adminForm); var data = {};
         fd.forEach(function(v, k) { data[k] = v; });
-        var res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        var res = await fetchWithTimeout('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
         var json = await res.json();
         if (json.success) {
           if (json.role === 'coach') window.location.href = '/coach';
@@ -74,7 +90,7 @@
       try {
         var fd = new FormData(studentForm); var data = {};
         fd.forEach(function(v, k) { data[k] = v; });
-        var res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        var res = await fetchWithTimeout('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
         var json = await res.json();
         if (json.success && json.role === 'student') window.location.href = '/student';
         else throw new Error(json.error || 'بيانات الدخول غير صحيحة');

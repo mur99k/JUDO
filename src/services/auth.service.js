@@ -28,14 +28,10 @@ const AuthService = {
     return { id: user.id, name: user.fullName, email: user.email, role: user.role, profileImage: storage.normalizeDbValue(user.profileImage) };
   },
 
-  async loginStudent(nationalId, password) {
-    const student = await StudentRepo.findByNationalIdWithPassword(nationalId);
-    if (!student) throw new AuthError('رقم الهوية أو كلمة المرور غير صحيحة');
+  async loginStudent(nationalId) {
+    const student = await StudentRepo.findByNationalId(nationalId);
+    if (!student) throw new AuthError('رقم الهوية غير صحيح');
     if (student.status !== 'نشط') throw new AuthError('الحساب غير نشط');
-    if (student.password && !require('bcryptjs').compareSync(password, student.password)) {
-      throw new AuthError('رقم الهوية أو كلمة المرور غير صحيحة');
-    }
-    if (!student.password) throw new AuthError('رقم الهوية أو كلمة المرور غير صحيحة');
     return { id: student.id, name: student.fullName, role: 'student', photo: storage.normalizeDbValue(student.photo) };
   },
 

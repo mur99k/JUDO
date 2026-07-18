@@ -1,7 +1,8 @@
 (function() {
   var tabs = document.querySelectorAll('.auth-tab');
   var errorEl = document.getElementById('errorDisplay');
-  var backBtn = document.getElementById('backToStudent');
+  var studentForm = document.getElementById('studentLoginForm');
+  var adminForm = document.getElementById('adminLoginForm');
 
   function fetchWithTimeout(url, opts, timeout) {
     return new Promise(function(resolve, reject) {
@@ -19,11 +20,17 @@
     });
   }
 
+  function clearForm(form) {
+    if (!form) return;
+    var inputs = form.querySelectorAll('input');
+    inputs.forEach(function(inp) { inp.value = ''; });
+  }
+
   function switchForm(formId) {
     var forms = document.querySelectorAll('.auth-form');
     forms.forEach(function(f) { f.style.display = 'none'; });
     var target = document.getElementById(formId);
-    if (target) target.style.display = 'flex';
+    if (target) { target.style.display = 'flex'; clearForm(target); }
     hideError();
   }
 
@@ -36,15 +43,9 @@
         });
         tab.style.background = 'var(--color-navy)';
         tab.style.color = 'white';
-        switchForm(tab.getAttribute('data-form'));
+        var formId = tab.id === 'tabStudent' ? 'studentLoginForm' : 'adminLoginForm';
+        switchForm(formId);
       });
-    });
-  }
-
-  if (backBtn) {
-    backBtn.addEventListener('click', function() {
-      var studentTab = document.getElementById('tabStudent');
-      if (studentTab) studentTab.click();
     });
   }
 
@@ -60,9 +61,6 @@
     if (!text.dataset.orig) text.dataset.orig = text.textContent;
     text.textContent = loading ? 'جاري...' : text.dataset.orig;
   }
-
-  var adminForm = document.getElementById('adminLoginForm');
-  var studentForm = document.getElementById('studentLoginForm');
 
   if (adminForm) {
     adminForm.addEventListener('submit', async function(e) {

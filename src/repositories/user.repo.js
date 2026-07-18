@@ -15,7 +15,7 @@ const UserRepo = {
 
   async findByRole(role) {
     const db = getConnection();
-    const r = await db.query('SELECT id, fullName, email, phone, profileImage, role, createdAt FROM users WHERE role = $1 ORDER BY createdAt DESC', [role]);
+    const r = await db.query('SELECT id, fullName, email, phone, profileImage, role, createdAt FROM users WHERE role = $1 ORDER BY createdAt ASC', [role]);
     return r.rows;
   },
 

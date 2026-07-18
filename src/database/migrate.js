@@ -35,42 +35,28 @@ async function seed() {
     await db.query('UPDATE users SET password = $1, role = $2 WHERE email = $3', [hash, 'admin', 'Matoq701@gmail.com']);
   }
 
-  // Seed coaches if not present
+  // Upsert coaches (always reset password, re-create if missing)
   const coachHash = bcrypt.hashSync('coach123', 10);
-
-  const moataq = await db.query('SELECT id FROM users WHERE email = $1', ['coach.moataq@riyadah.com']);
-  let moataqId;
-  if (moataq.rows.length === 0) {
-    const r = await db.query(
-      'INSERT INTO users (fullName, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id',
-      ['كابتن معتوق', 'coach.moataq@riyadah.com', coachHash, 'coach']
-    );
-    moataqId = r.rows[0].id;
-  } else {
-    moataqId = moataq.rows[0].id;
-  }
-
-  const marwan = await db.query('SELECT id FROM users WHERE email = $1', ['coach.marwan@riyadah.com']);
-  let marwanId;
-  if (marwan.rows.length === 0) {
-    const r = await db.query(
-      'INSERT INTO users (fullName, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id',
-      ['كابتن مروان', 'coach.marwan@riyadah.com', coachHash, 'coach']
-    );
-    marwanId = r.rows[0].id;
-  } else {
-    marwanId = marwan.rows[0].id;
-  }
-
-  // Coach bios
-  const coachBios = [
-    ['coachBio_' + moataqId, 'بطل المملكة وحاصل على بطولات داخلية وخارجية. خبرة أكثر من 20 سنة.'],
-    ['coachBio_' + marwanId, 'مدرب سابق في نادي الأهلي ولاعب منتخب وبطل المملكة.']
+  const seedCoaches = [
+    { name: 'كابتن معتوق', email: 'coach.moataq@riyadah.com', bio: 'بطل المملكة وحاصل على بطولات داخلية وخارجية. خبرة أكثر من 20 سنة.' },
+    { name: 'كابتن مروان', email: 'coach.marwan@riyadah.com', bio: 'مدرب سابق في نادي الأهلي ولاعب منتخب وبطل المملكة.' }
   ];
-  for (const [key, value] of coachBios) {
+  for (const sc of seedCoaches) {
+    const existing = await db.query('SELECT id FROM users WHERE email = $1', [sc.email]);
+    let coachId;
+    if (existing.rows.length === 0) {
+      const r = await db.query(
+        'INSERT INTO users (fullName, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id',
+        [sc.name, sc.email, coachHash, 'coach']
+      );
+      coachId = r.rows[0].id;
+    } else {
+      coachId = existing.rows[0].id;
+      await db.query('UPDATE users SET password = $1 WHERE id = $2', [coachHash, coachId]);
+    }
     await db.query(
       'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value',
-      [key, value]
+      ['coachBio_' + coachId, sc.bio]
     );
   }
 

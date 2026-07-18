@@ -32,27 +32,6 @@ const StudentRepo = {
     return r.rows;
   },
 
-  async countAll(filters = {}) {
-    const db = getConnection();
-    let sql = 'SELECT COUNT(*) as count FROM students WHERE 1=1';
-    const params = [];
-    if (filters.search) {
-      sql += ' AND (fullName LIKE $' + (params.length + 1) + ' OR nationalId LIKE $' + (params.length + 1) + ' OR phone LIKE $' + (params.length + 1) + ')';
-      const s = `%${filters.search}%`;
-      params.push(s, s, s);
-    }
-    if (filters.status) {
-      sql += ' AND status = $' + (params.length + 1);
-      params.push(filters.status);
-    }
-    if (filters.category) {
-      sql += ' AND category = $' + (params.length + 1);
-      params.push(filters.category);
-    }
-    const r = await db.query(sql, params);
-    return Number(r.rows[0].count);
-  },
-
   async findById(id) {
     const db = getConnection();
     const r = await db.query(`SELECT ${COLUMNS} FROM students WHERE id = $1`, [id]);
@@ -86,7 +65,7 @@ const StudentRepo = {
       }
     }
     if (fields.length === 0) return null;
-    fields.push(`updatedAt = NOW()`);
+    fields.push('updatedAt = NOW()');
     values.push(id);
     await db.query(`UPDATE students SET ${fields.join(', ')} WHERE id = $${values.length}`, values);
     return true;

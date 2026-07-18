@@ -79,14 +79,14 @@ const SubscriptionRepo = {
 
   async getActiveCount() {
     const db = getConnection();
-    const r = await db.query("SELECT COUNT(*) as count FROM subscriptions WHERE status = $1", ['نشط']);
+    const r = await db.query('SELECT COUNT(*) as count FROM subscriptions WHERE status = $1', ['نشط']);
     return Number(r.rows[0].count);
   },
 
   async getTotalRevenue() {
     const db = getConnection();
     const r = await db.query(
-      "SELECT COALESCE(SUM(amount), 0) as total FROM subscriptions WHERE status != $1", ['ملغي']
+      'SELECT COALESCE(SUM(amount), 0) as total FROM subscriptions WHERE status != $1', ['ملغي']
     );
     return Number(r.rows[0].total);
   },
@@ -108,7 +108,7 @@ const SubscriptionRepo = {
     const db = getConnection();
     const today = new Date().toISOString().split('T')[0];
     const r = await db.query(
-      `UPDATE subscriptions SET status = $1 WHERE status = $2 AND endDate < $3`,
+      'UPDATE subscriptions SET status = $1 WHERE status = $2 AND endDate < $3',
       ['منتهي', 'نشط', today]
     );
     return r.rowCount;

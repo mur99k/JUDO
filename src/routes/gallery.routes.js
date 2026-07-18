@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const GalleryController = require('../controllers/gallery.controller');
-const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { requireAdmin } = require('../middleware/auth');
 
 const config = require('../config');
 const photosDir = config.media.galleryDir;

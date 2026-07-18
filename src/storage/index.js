@@ -59,7 +59,7 @@ function detect() {
     impl = {
       isRemote: false,
       publicUrl(key) { return '/uploads/' + key; },
-      async upload(key, buffer, mimeType) {
+      async upload(key, buffer, _mimeType) {
         const fp = path.join(dir, key);
         const parent = path.dirname(fp);
         if (!fs.existsSync(parent)) fs.mkdirSync(parent, { recursive: true });

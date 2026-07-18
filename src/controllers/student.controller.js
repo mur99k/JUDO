@@ -1,6 +1,5 @@
-const { success, error, paginated } = require('../utils/response');
+const { success, error } = require('../utils/response');
 const StudentService = require('../services/student.service');
-const { NotFoundError } = require('../utils/errors');
 
 const StudentController = {
   async list(req, res, next) {

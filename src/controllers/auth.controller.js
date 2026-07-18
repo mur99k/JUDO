@@ -1,11 +1,10 @@
 const { success, error } = require('../utils/response');
 const AuthService = require('../services/auth.service');
-const { AppError } = require('../utils/errors');
 
 const AuthController = {
   async login(req, res, next) {
     try {
-      const { email, password, nationalId, phone } = req.body;
+      const { email, password, nationalId } = req.body;
 
       if (email && password) {
         const user = await AuthService.loginAdmin(email, password);

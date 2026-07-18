@@ -182,7 +182,6 @@ module.exports = {
   },
   coach: async function(req, res) {
     if (!req.session.userId || req.session.role !== 'coach') return res.redirect('/login');
-    const UserRepo = require('../repositories/user.repo');
     const coach = await UserRepo.findById(req.session.userId) || {};
     var d = { title: 'لوحة المدرب', user: res.locals.user, coach: coach, activePage: 'coach', breadcrumbs: [{label:'لوحة المدرب'}] };
     renderDash('pages/coach.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });

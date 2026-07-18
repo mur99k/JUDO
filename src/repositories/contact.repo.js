@@ -7,12 +7,6 @@ const ContactRepo = {
       'INSERT INTO contact_messages (name, phone, message) VALUES ($1, $2, $3)',
       [data.name, data.phone || null, data.message || null]
     );
-  },
-
-  async findAll() {
-    const db = getConnection();
-    const r = await db.query('SELECT * FROM contact_messages ORDER BY createdAt DESC');
-    return r.rows;
   }
 };
 

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const StudentController = require('../controllers/student.controller');
-const { requireAuth, requireAdmin, requireAdminOrCoach } = require('../middleware/auth');
+const { requireAdmin, requireAdminOrCoach } = require('../middleware/auth');
 const { createUploader } = require('../middleware/upload');
 
 const upload = createUploader('students');

@@ -44,7 +44,7 @@ const GalleryService = {
       const { url } = await storage.upload(key, buffer, file.mimetype);
       try { fs.unlinkSync(file.path); } catch {}
       return { name: file.filename, url };
-    } catch (remoteErr) {
+    } catch {
       // Fallback: serve from local filesystem via /gallery-img/
       const stat = fs.statSync(file.path);
       const url = '/gallery-img/' + encodeURIComponent(file.filename) + '?v=' + stat.mtime.getTime();

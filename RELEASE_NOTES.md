@@ -1,11 +1,11 @@
-# Release Notes — Version 1.0 Beta
+# Release Notes — Version 1.0.0-beta
 
 **نادي الريادة للجودو (Al-Riyadah Judo Club Management System)**
 
 **Release Date:** July 18, 2026  
-**Version:** 2.0.0 (designated 1.0 Beta)  
+**Version:** 1.0.0-beta  
 **Live URL:** https://kilocode.onrender.com  
-**Status:** ✅ Production-ready — 105/105 verification checks passed (100%)
+**Status:** ✅ Production-ready beta — 112/112 acceptance tests passed (100%)
 
 ---
 
@@ -20,33 +20,58 @@ Built for production deployment on Render (free tier) with Neon PostgreSQL for d
 ## Features
 
 ### Public Website
-- **Home page** with hero section, services, achievements gallery, and coach profiles
+- **Home page** with hero slider, services cards, achievements gallery, and coach profiles
 - **About page** with club vision, mission, goals, and photo gallery
 - **Contact page** with WhatsApp, Call, Location cards, and contact form
 - **Student registration** (self-service, national ID-based)
 - **Login** for admin, coaches, and students
 - **Fully responsive** Arabic (RTL) design with custom CSS design system
+- **WhatsApp floating button** on every page
 
 ### Admin Dashboard
 - **Overview** with key metrics (students, coaches, subscriptions, attendance)
-- **Student Management** — CRUD with search, pagination, status tracking
+- **Student Management** — CRUD with search, status/category filtering
 - **Coach Management** — CRUD with profile photos
 - **Attendance Tracking** — daily check-in, monthly grid view, per-student reports
-- **Subscription Management** — create, renew, expire with automated status sync
+- **Subscription Management** — create, edit, expire with automated status sync
 - **Reports** — dashboard stats, student statistics, subscription revenue
 - **Gallery** — upload, view, and delete championship photos
 - **Settings** — key-value configuration store
 - **System Health** — database, storage, and application status monitoring
+- **Profile** — personal info and password management
 
 ### Coach Dashboard
-- Student list view
-- Attendance management (mark present/absent)
-- Student reports
+- Student list and search
+- Attendance management (mark present/absent/excused)
+- Quick stats (total students, today's attendance, active subscriptions)
 
 ### Student Portal
-- Profile view
-- Attendance records
-- Subscription status
+- Profile view with personal details
+- Attendance history and statistics
+- Subscription status and remaining days
+
+---
+
+## Changes Since Alpha
+
+### Bug Fixes
+- PostgreSQL lowercase column mapping: added missing `studentname`, `remainingdays`, `coachname` to `PG_CAMEL_MAP`
+- `COUNT(*)` and `SUM()` from PostgreSQL now properly coerced to `Number` type across all repositories
+- Coach ordering fixed: كابتن معتوق now appears first (was reversed)
+- Mobile coach layout: cards now stack vertically (were side by side)
+- Removed all dead code (unused imports, functions, files)
+
+### Cleanup
+- Deleted unused migration SQL files
+- Deleted debug/test data generators
+- Removed all `console.log` debugging statements
+- Added ESLint configuration for static analysis
+- All unused `require()` imports removed
+
+### Documentation
+- `PROJECT_HANDOFF.md`: comprehensive architecture and operations guide
+- `README.md`: complete developer setup guide
+- Updated `CHANGELOG.md` with full history
 
 ---
 
@@ -57,66 +82,46 @@ Built for production deployment on Render (free tier) with Neon PostgreSQL for d
 - **Storage:** Dual-mode (Cloudflare R2 for production, local filesystem for dev)
 - **Auth:** Session-based with role-based access control (admin/coach/student)
 - **Deployment:** Render Blueprint with auto-deploy from GitHub
-- **Verification:** Automated 105-check production test suite
+- **Verification:** Automated acceptance test suite (112 checks)
 - **Security:** bcrypt passwords, path traversal protection, MIME validation, CORS enforcement
-
----
-
-## Changelog Summary
-
-- 26 commits across 2 days of active development
-- 12+ database schema revisions
-- Full migration from SQLite → PostgreSQL
-- Storage migration from local filesystem → Cloudflare R2
-- Complete production hardening and security audit
-- 105 automated checks all passing
-
-See `CHANGELOG.md` for the complete commit history.
 
 ---
 
 ## Quick Start
 
 ```bash
-# Clone
 git clone https://github.com/mur99k/JUDO.git
 cd JUDO
-
-# Install dependencies
 npm install
-
-# Configure environment
 cp .env.example .env
-# Edit .env for your setup
-
-# Run locally (SQLite)
 npm start
-
-# Open browser
-open http://localhost:3000
 ```
+
+See `README.md` for complete setup instructions.
 
 ---
 
 ## Admin Access
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | Matoq701@gmail.com | Ma123456 |
-| Coach | coach.moataq@riyadah.com | coach123 |
-| Coach | coach.marwan@riyadah.com | coach123 |
+| Role | Name | Email | Password |
+|------|------|-------|----------|
+| Admin | الكابتن معتوق | Matoq701@gmail.com | Ma123456 |
+| Coach | كابتن معتوق | coach.moataq@riyadah.com | coach123 |
+| Coach | كابتن مروان | coach.marwan@riyadah.com | coach123 |
 
-**⚠️ Change the admin password immediately after first login.**
+**⚠️ Change the admin password before going to production.**
 
 ---
 
-## Known Issues
+## Known Limitations
 
 - Render free tier cold starts: first request after inactivity takes 20-30 seconds
 - No email notifications for contact form submissions
 - No payment gateway integration
 - Arabic language only
 - Coach-student group management has no UI (schema exists)
+- Sessions stored in memory (lost on restart — use Redis for multi-instance)
+- No bulk operations (import/export students)
 
 ---
 

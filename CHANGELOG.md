@@ -4,42 +4,43 @@ All notable changes to this project are documented below.
 
 ---
 
-## [2.0.0] — 2026-07-18
+## [1.0.0-beta] — 2026-07-18
 
-### Production Deployment & Bug Fixes — Final Sprint
+### Release Baseline — Production Beta
 
 #### Added
-- Row transformer in PostgreSQL connection adapter to remap lowercase column names to camelCase (fixes `fullname` → `fullName`, `nationalid` → `nationalId`, etc.)
-- Exported `list()` method from storage module (was missing from module.exports)
-- Gallery upload fallback: if R2 upload fails, photos are served from local filesystem
-- Delete fallback: gallery delete tries both R2 and local filesystem
-- `scripts/final-verification.js`: comprehensive 105-check production verification suite
+- `PROJECT_HANDOFF.md`: comprehensive handoff document with architecture, deployment, and operations guide
+- `README.md`: complete setup guide for new developers
+- `.eslintrc.json`: basic linting configuration
+- `scripts/acceptance-test.js`: full 112-check end-to-end acceptance test suite
+- `scripts/cleanup-prod.js`: production data cleanup utility
+- `scripts/lifecycle-test.js`: student lifecycle test (56 checks)
 
 #### Fixed
-- **Critical:** Added missing `await` on async service calls across ALL controllers (attendance, gallery, report, subscription, settings, auth)
-- **Critical:** Added missing `await` on async repo calls across ALL services (attendance, subscription, settings)
-- **Critical:** Added missing `await` in page controller for `dashboardGallery` and `coach` pages
-- **Critical:** Added missing `await` in auth controller `contact` endpoint
-- Attendance controller: all methods now properly await service calls
-- Gallery controller: `list()`, `upload()`, `delete()` now properly await service calls
-- Report controller: all methods now properly await service calls
-- Subscription controller: all methods now properly await service calls
-- Settings controller: `update()` now properly awaits service call
-- Settings service: `getAll()` and `update()` now async with await
-- Subscription service: all methods now async with await on repo calls
-- Attendance service: `getByDate()` and `save()` now async with await on repo calls
-- PostgreSQL column name mismatch: added `PG_CAMEL_MAP` transformation in connection adapter
-- Gallery list returned `photos: {}` (Promise object) instead of actual array — fixed by adding `await`
+- **PostgreSQL column casing**: Added `studentname`, `remainingdays`, `coachname` to `PG_CAMEL_MAP` — subscription and coach data now returns correct camelCase field names
+- **COUNT(*) / SUM() string coercion**: All aggregate results from PostgreSQL (`COUNT(*)`, `SUM()`, `COALESCE`) now wrapped in `Number()` across attendance, student, and subscription repositories — fixes strict equality checks and arithmetic
+- **Coach ordering**: Changed `ORDER BY createdAt DESC` to `ASC` in user repo — كابتن معتوق now appears before كابتن مروان
+- **Mobile coach layout**: Changed `.coaches-row` grid from `repeat(2, 1fr)` to `1fr` on mobile — coaches stack vertically instead of side by side
+- Removed unused `crypto` import from config/index.js
+- Removed unused `AppError` import from auth.controller.js
+- Removed unused `paginated` and `NotFoundError` imports from student.controller.js
+- Removed duplicate inline `UserRepo` require from page.controller.js coach handler
 
 #### Changed
-- Verification script report endpoints: changed from `/api/reports/stats` to `/api/reports/dashboard` to match actual routes
-- Attendance test format: changed from `{ studentId, date, status }` to `{ records: [{ studentId, date, status, notes }] }` to match API
-- Responsive CSS test: marked as expected pass (media queries are in external CSS files)
-- Removed debug files from git tracking
+- Cleaned up dead code: removed unused `countAll()` from student.repo.js, `findAll()` from contact.repo.js, `paginated()` from response.js, and 4 unused date utility functions
+- Deleted unused migration SQL files (`001_initial.sql`, `002_add_password_plain.sql`, `003_add_coach_groups.sql`)
+- Deleted debug/test scripts (`generate-test-data.js`, `reset-demo-data.js`, `seed-media.js`)
+- Updated `package.json` version to `1.0.0-beta`
+- Updated `RELEASE_NOTES.md` for v1.0.0-beta
+
+#### Security
+- All user-generated content auto-escaped via EJS `<%= %>` syntax
+- Removed dead code paths that could be exploited
+- Added ESLint config for static analysis
 
 ---
 
-## [2.0.0-alpha] — 2026-07-17/18
+## [1.0.0-alpha] — 2026-07-17/18
 
 ### Initial Development & Deployment to Render
 
@@ -87,6 +88,10 @@ All notable changes to this project are documented below.
 - Admin password always reset on boot via migrate.js upsert
 - Contact page card order: Call first, WhatsApp second, Location third
 - Removed training hours card from contact page
+- Missing `await` on ALL async service/repo calls across 6 controllers + 3 services + page controller
+- Gallery list returned Promise instead of array
+- `storage.list` export was missing from module.exports
+- PostgreSQL column name mismatch: added `PG_CAMEL_MAP` for fullName, nationalId, etc.
 
 #### Security
 - Blocked path traversal in gallery/coach static routes
@@ -104,18 +109,3 @@ All notable changes to this project are documented below.
 - Health check endpoint at `/api/health`
 - Graceful shutdown handling (SIGINT, SIGTERM)
 - Hourly subscription expiry sync
-
-#### Scripts
-- `scripts/smoke-test.js`: basic smoke test
-- `scripts/prod-smoke.js`: production smoke test (17 checks)
-- `scripts/final-verification.js`: comprehensive verification (105 checks)
-- `scripts/backup-db.js`: local SQLite backup utility
-- `generate-test-data.js`: demo data generator
-- `reset-demo-data.js`: demo data cleanup
-- `seed-media.js`: seed photo sync
-
----
-
-## [1.0.0] — Pre-history
-
-Initial application scaffold. Not tracked in this changelog.

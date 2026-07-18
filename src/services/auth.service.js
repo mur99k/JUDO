@@ -2,7 +2,6 @@ const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const UserRepo = require('../repositories/user.repo');
 const StudentRepo = require('../repositories/student.repo');
-const AttendanceRepo = require('../repositories/attendance.repo');
 const storage = require('../storage');
 const { AuthError, ValidationError } = require('../utils/errors');
 

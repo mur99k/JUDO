@@ -13,7 +13,7 @@ const SettingsController = {
 
   async update(req, res, next) {
     try {
-      const settings = SettingsService.update(req.body);
+      const settings = await SettingsService.update(req.body);
       return success(res, { settings });
     } catch (err) {
       next(err);

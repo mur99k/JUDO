@@ -5,7 +5,7 @@ const AttendanceController = {
   async getByDate(req, res, next) {
     try {
       const { date } = req.query;
-      const records = AttendanceService.getByDate(date);
+      const records = await AttendanceService.getByDate(date);
       return success(res, { records });
     } catch (err) {
       next(err);
@@ -14,7 +14,7 @@ const AttendanceController = {
 
   async getToday(req, res, next) {
     try {
-      const records = AttendanceService.getToday();
+      const records = await AttendanceService.getToday();
       const today = require('../utils/date').today();
       return success(res, { records, date: today });
     } catch (err) {
@@ -26,7 +26,7 @@ const AttendanceController = {
     try {
       const { records } = req.body;
       if (!records || !records.length) return error(res, 'بيانات الحضور مطلوبة');
-      AttendanceService.save(records);
+      await AttendanceService.save(records);
       return success(res, { count: records.length });
     } catch (err) {
       next(err);
@@ -36,7 +36,7 @@ const AttendanceController = {
   async getSummary(req, res, next) {
     try {
       const { month, year } = req.query;
-      const summary = AttendanceService.getSummary(month, year);
+      const summary = await AttendanceService.getSummary(month, year);
       const m = month || (new Date().getMonth() + 1).toString();
       const y = year || new Date().getFullYear().toString();
       return success(res, { summary, month: m, year: y });
@@ -48,7 +48,7 @@ const AttendanceController = {
   async getMonthlyGrid(req, res, next) {
     try {
       const { month, year } = req.query;
-      const data = AttendanceService.getMonthlyGrid(month, year);
+      const data = await AttendanceService.getMonthlyGrid(month, year);
       return success(res, data);
     } catch (err) {
       next(err);
@@ -61,7 +61,7 @@ const AttendanceController = {
       if (!startDate || !endDate) {
         return error(res, 'تاريخ البداية والنهاية مطلوبان');
       }
-      const data = AttendanceService.getStudentReport(req.params.studentId, startDate, endDate);
+      const data = await AttendanceService.getStudentReport(req.params.studentId, startDate, endDate);
       return success(res, data);
     } catch (err) {
       next(err);
@@ -70,7 +70,7 @@ const AttendanceController = {
 
   async getStudentAllTimeStats(req, res, next) {
     try {
-      const data = AttendanceService.getStudentAllTimeStats(req.params.studentId);
+      const data = await AttendanceService.getStudentAllTimeStats(req.params.studentId);
       return success(res, data);
     } catch (err) {
       next(err);

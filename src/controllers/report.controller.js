@@ -4,7 +4,7 @@ const ReportService = require('../services/report.service');
 const ReportController = {
   async dashboard(req, res, next) {
     try {
-      const data = ReportService.getDashboard();
+      const data = await ReportService.getDashboard();
       return success(res, data);
     } catch (err) {
       next(err);
@@ -13,7 +13,7 @@ const ReportController = {
 
   async students(req, res, next) {
     try {
-      const data = ReportService.getStudentStats();
+      const data = await ReportService.getStudentStats();
       return success(res, data);
     } catch (err) {
       next(err);
@@ -22,7 +22,7 @@ const ReportController = {
 
   async subscriptions(req, res, next) {
     try {
-      const data = ReportService.getSubscriptionStats();
+      const data = await ReportService.getSubscriptionStats();
       return success(res, data);
     } catch (err) {
       next(err);

@@ -143,10 +143,13 @@ module.exports = {
     var d = { title: 'التقارير', user: res.locals.user, activePage: 'reports', breadcrumbs: [{url:'/dashboard',label:'لوحة التحكم'},{label:'التقارير'}] };
     renderDash('pages/dashboard/reports.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
   },
-  dashboardGallery: function(req, res) {
+  dashboardGallery: async function(req, res) {
     if (!req.session.userId) return res.redirect('/login');
-    var d = { title: 'معرض الصور', user: res.locals.user, activePage: 'gallery', photos: GalleryService.list(), breadcrumbs: [{url:'/dashboard',label:'لوحة التحكم'},{label:'معرض الصور'}] };
-    renderDash('pages/dashboard/gallery.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
+    try {
+      var photos = await GalleryService.list();
+      var d = { title: 'معرض الصور', user: res.locals.user, activePage: 'gallery', photos, breadcrumbs: [{url:'/dashboard',label:'لوحة التحكم'},{label:'معرض الصور'}] };
+      renderDash('pages/dashboard/gallery.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
+    } catch (e) { res.status(500).send(e.message); }
   },
   dashboardSettings: function(req, res) {
     if (!req.session.userId) return res.redirect('/login');
@@ -177,10 +180,10 @@ module.exports = {
     var d = { title: 'صفحتي', user: res.locals.user, activePage: 'student' };
     renderPublic('pages/student.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
   },
-  coach: function(req, res) {
+  coach: async function(req, res) {
     if (!req.session.userId || req.session.role !== 'coach') return res.redirect('/login');
     const UserRepo = require('../repositories/user.repo');
-    const coach = UserRepo.findById(req.session.userId) || {};
+    const coach = await UserRepo.findById(req.session.userId) || {};
     var d = { title: 'لوحة المدرب', user: res.locals.user, coach: coach, activePage: 'coach', breadcrumbs: [{label:'لوحة المدرب'}] };
     renderDash('pages/coach.ejs', d, function(e, f) { if (e) return res.status(500).send(e.message); res.send(f); });
   }

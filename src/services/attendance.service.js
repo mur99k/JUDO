@@ -3,10 +3,10 @@ const StudentRepo = require('../repositories/student.repo');
 const { today } = require('../utils/date');
 
 const AttendanceService = {
-  getByDate(date) {
+  async getByDate(date) {
     date = date || today();
-    const students = StudentRepo.findAll({ status: 'نشط' });
-    const records = AttendanceRepo.findByDate(date);
+    const students = await StudentRepo.findAll({ status: 'نشط' });
+    const records = await AttendanceRepo.findByDate(date);
     const recordMap = {};
     for (const r of records) { recordMap[r.studentId] = r; }
     const result = [];
@@ -24,17 +24,17 @@ const AttendanceService = {
     return result;
   },
 
-  getToday() {
+  async getToday() {
     return this.getByDate(today());
   },
 
-  save(records) {
+  async save(records) {
     for (const rec of records) {
-      AttendanceRepo.upsert(rec.studentId, rec.date, rec.status, rec.notes);
+      await AttendanceRepo.upsert(rec.studentId, rec.date, rec.status, rec.notes);
     }
   },
 
-  getSummary(month, year) {
+  async getSummary(month, year) {
     const m = month || (new Date().getMonth() + 1);
     const y = year || new Date().getFullYear();
     return AttendanceRepo.getMonthlyAttendance(m, y);
@@ -44,17 +44,17 @@ const AttendanceService = {
     return AttendanceRepo.getStudentRate(studentId);
   },
 
-  getMonthlyGrid(month, year) {
+  async getMonthlyGrid(month, year) {
     const m = month || (new Date().getMonth() + 1);
     const y = year || new Date().getFullYear();
     return AttendanceRepo.getMonthlyGrid(m, y);
   },
 
-  getStudentReport(studentId, startDate, endDate) {
+  async getStudentReport(studentId, startDate, endDate) {
     return AttendanceRepo.getStudentReport(studentId, startDate, endDate);
   },
 
-  getStudentAllTimeStats(studentId) {
+  async getStudentAllTimeStats(studentId) {
     return AttendanceRepo.getStudentAllTimeStats(studentId);
   }
 };

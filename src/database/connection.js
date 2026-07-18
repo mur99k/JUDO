@@ -15,6 +15,21 @@ const config = require('../config');
 let impl = null;
 let flavor = null;
 
+// pg lowercases all column names. Map known multi-word columns to camelCase.
+const PG_CAMEL_MAP = {
+  fullname: 'fullName', nationalid: 'nationalId', parentphone: 'parentPhone',
+  profileimage: 'profileImage', studentid: 'studentId', coachid: 'coachId',
+  createdat: 'createdAt', updatedat: 'updatedAt', startdate: 'startDate',
+  enddate: 'endDate', paymentmethod: 'paymentMethod', coachgroups: 'coachGroups'
+};
+
+function mapRow(row) {
+  if (!row || typeof row !== 'object') return row;
+  const out = {};
+  for (const [k, v] of Object.entries(row)) out[PG_CAMEL_MAP[k] || k] = v;
+  return out;
+}
+
 function detect() {
   if (impl) return;
   if (config.db.type === 'postgres') {
@@ -24,13 +39,14 @@ function detect() {
     impl = {
       async query(sql, params) {
         const r = await pool.query(translateToPg(sql), params || []);
-        return { rows: r.rows, rowCount: r.rowCount, lastId: r.rows && r.rows[0] && (r.rows[0].id !== undefined ? r.rows[0].id : null) };
+        const rows = r.rows.map(mapRow);
+        return { rows, rowCount: r.rowCount, lastId: rows[0] && (rows[0].id !== undefined ? rows[0].id : null) };
       },
       async transaction(fn) {
         const client = await pool.connect();
         try {
           await client.query('BEGIN');
-          const out = await fn({ query: async (s, p) => { const r = await client.query(translateToPg(s), p || []); return { rows: r.rows, rowCount: r.rowCount }; } });
+          const out = await fn({ query: async (s, p) => { const r = await client.query(translateToPg(s), p || []); return { rows: r.rows.map(mapRow), rowCount: r.rowCount }; } });
           await client.query('COMMIT');
           return out;
         } catch (e) {

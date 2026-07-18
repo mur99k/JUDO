@@ -2,42 +2,42 @@ const SubscriptionRepo = require('../repositories/subscription.repo');
 const { NotFoundError } = require('../utils/errors');
 
 const SubscriptionService = {
-  list(filters) {
+  async list(filters) {
     return SubscriptionRepo.findAll(filters);
   },
 
-  getById(id) {
-    const sub = SubscriptionRepo.findById(id);
+  async getById(id) {
+    const sub = await SubscriptionRepo.findById(id);
     if (!sub) throw new NotFoundError('الاشتراك غير موجود');
     return sub;
   },
 
-  create(data) {
+  async create(data) {
     return SubscriptionRepo.create(data);
   },
 
-  update(id, data) {
-    const sub = SubscriptionRepo.findById(id);
+  async update(id, data) {
+    const sub = await SubscriptionRepo.findById(id);
     if (!sub) throw new NotFoundError('الاشتراك غير موجود');
-    SubscriptionRepo.update(id, data);
+    await SubscriptionRepo.update(id, data);
     return SubscriptionRepo.findById(id);
   },
 
-  delete(id) {
-    const sub = SubscriptionRepo.findById(id);
+  async delete(id) {
+    const sub = await SubscriptionRepo.findById(id);
     if (!sub) throw new NotFoundError('الاشتراك غير موجود');
-    SubscriptionRepo.delete(id);
+    await SubscriptionRepo.delete(id);
   },
 
-  getStats() {
-    const active = SubscriptionRepo.getActiveCount();
-    const revenue = SubscriptionRepo.getTotalRevenue();
+  async getStats() {
+    const active = await SubscriptionRepo.getActiveCount();
+    const revenue = await SubscriptionRepo.getTotalRevenue();
     const year = new Date().getFullYear();
-    const monthlyRevenue = SubscriptionRepo.getMonthlyRevenue(year);
+    const monthlyRevenue = await SubscriptionRepo.getMonthlyRevenue(year);
     return { active, revenue, monthlyRevenue };
   },
 
-  syncExpired() {
+  async syncExpired() {
     return SubscriptionRepo.expireOverdue();
   }
 };

@@ -4,7 +4,7 @@ const GalleryService = require('../services/gallery.service');
 const GalleryController = {
   async list(req, res, next) {
     try {
-      const photos = GalleryService.list();
+      const photos = await GalleryService.list();
       return success(res, { photos });
     } catch (err) {
       next(err);
@@ -23,7 +23,7 @@ const GalleryController = {
 
   async delete(req, res, next) {
     try {
-      GalleryService.delete(req.params.name);
+      await GalleryService.delete(req.params.name);
       return success(res);
     } catch (err) {
       next(err);

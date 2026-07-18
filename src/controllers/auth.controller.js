@@ -82,7 +82,7 @@ const AuthController = {
     try {
       const { name, phone, message } = req.body;
       if (!name || !message) return error(res, 'الاسم والرسالة مطلوبان');
-      require('../repositories/contact.repo').create({ name, phone, message });
+      await require('../repositories/contact.repo').create({ name, phone, message });
       return success(res);
     } catch (err) {
       next(err);

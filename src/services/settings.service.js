@@ -1,12 +1,12 @@
 const SettingsRepo = require('../repositories/settings.repo');
 
 const SettingsService = {
-  getAll() {
+  async getAll() {
     return SettingsRepo.getAll();
   },
 
-  update(data) {
-    SettingsRepo.setMultiple(data);
+  async update(data) {
+    await SettingsRepo.setMultiple(data);
     return SettingsRepo.getAll();
   }
 };

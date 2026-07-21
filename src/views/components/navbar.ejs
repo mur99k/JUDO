@@ -2,7 +2,7 @@
   <div class="container">
     <div class="navbar-content">
       <a href="/" class="navbar-brand">
-        <img src="/logo/logo.png" alt="نادي الريادة للجودو" class="navbar-logo" width="40" height="40">
+        <% if (!hideLogo) { %><img src="/logo/logo.png" alt="نادي الريادة للجودو" class="navbar-logo" width="40" height="40"><% } %>
         <span>نادي الريادة للجودو</span>
       </a>
 
@@ -34,7 +34,7 @@
 
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
-      <img src="/logo/logo.png" alt="نادي الريادة للجودو" class="navbar-logo" width="40" height="40">
+      <% if (!hideLogo) { %><img src="/logo/logo.png" alt="نادي الريادة للجودو" class="navbar-logo" width="40" height="40"><% } %>
       <span>نادي الريادة للجودو</span>
       <button class="mobile-menu-close" id="mobileMenuClose" aria-label="إغلاق">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">

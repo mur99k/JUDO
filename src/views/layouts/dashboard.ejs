@@ -24,7 +24,7 @@
     <aside class="dash-sidebar" id="dashSidebar">
       <div class="dash-sidebar-head">
         <a href="/dashboard" class="dash-sidebar-logo">
-          <% if (!hideLogo) { %><img src="/logo/logo.png" alt="نادي الريادة للجودو" width="36" height="36"><% } %>
+          <% if (typeof hideLogo === 'undefined' || !hideLogo) { %><img src="/logo/logo.png" alt="نادي الريادة للجودو" width="36" height="36"><% } %>
           <span>نادي الريادة</span>
         </a>
         <button class="dash-sidebar-close" id="dashSidebarClose" aria-label="إغلاق">

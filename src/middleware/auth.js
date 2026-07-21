@@ -31,9 +31,7 @@ function injectUser(req, res, next) {
     name: req.session.userName,
     role: req.session.role
   } : null;
-  if (typeof res.locals.hideLogo === 'undefined') {
-    res.locals.hideLogo = process.env.HIDE_LOGO === '1' || process.env.HIDE_LOGO === 'true' || false;
-  }
+  res.locals.hideLogo = process.env.HIDE_LOGO === '0' ? false : true;
   next();
 }
 

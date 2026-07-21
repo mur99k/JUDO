@@ -6,7 +6,7 @@
         <div class="footer-brand">
           <div class="footer-logo-wrap">
             <% if (typeof hideLogo === 'undefined' || !hideLogo) { %><img src="/logo/logo.png" alt="<%= hideLogo ? 'جودو' : 'نادي الريادة للجودو' %>" class="footer-logo-img" width="56" height="56"><% } %>
-            <span class="footer-club-name">نادي الريادة<br>للجودو</span>
+            <span class="footer-club-name"><%= hideLogo ? 'جودو' : 'نادي الريادة<br>للجودو' %></span>
           </div>
         </div>
 

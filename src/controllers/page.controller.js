@@ -54,6 +54,7 @@ function listAboutPhotos() {
 }
 
 function renderPublic(view, opts, cb) {
+  opts.hideLogo = process.env.HIDE_LOGO === '0' ? false : true;
   ejs.renderFile(path.join(V, view), opts, { views: [V] }, function(e, h) {
     if (e) return cb(e);
     opts.body = h;
@@ -65,6 +66,7 @@ function renderPublic(view, opts, cb) {
 }
 
 function renderDash(view, opts, cb) {
+  opts.hideLogo = process.env.HIDE_LOGO === '0' ? false : true;
   opts.breadcrumbs = opts.breadcrumbs || [{label: opts.title}];
   ejs.renderFile(path.join(V, view), opts, { views: [V] }, function(e, h) {
     if (e) return cb(e);

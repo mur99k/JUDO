@@ -5,7 +5,7 @@
         <!-- Column 1: Brand -->
         <div class="footer-brand">
           <div class="footer-logo-wrap">
-            <% if (typeof hideLogo === 'undefined' || !hideLogo) { %><img src="/logo/logo.png" alt="نادي الريادة للجودو" class="footer-logo-img" width="56" height="56"><% } %>
+            <% if (typeof hideLogo === 'undefined' || !hideLogo) { %><img src="/logo/logo.png" alt="<%= hideLogo ? 'جودو' : 'نادي الريادة للجودو' %>" class="footer-logo-img" width="56" height="56"><% } %>
             <span class="footer-club-name">نادي الريادة<br>للجودو</span>
           </div>
         </div>
@@ -73,7 +73,7 @@
 
     <!-- Bottom Bar -->
     <div class="footer-bottom">
-      <span class="footer-copy">&copy; 2026 نادي الريادة للجودو — جميع الحقوق محفوظة</span>
+      <span class="footer-copy">&copy; 2026 <%= hideLogo ? 'جودو — جميع الحقوق محفوظة' : 'نادي الريادة للجودو — جميع الحقوق محفوظة' %></span>
       <span class="footer-credit">صُمم وطُوّر <span class="gold">بعناية</span> ليقدم أفضل تجربة لأعضاء النادي — تطوير <span class="gold">MUR99K</span></span>
     </div>
   </div>

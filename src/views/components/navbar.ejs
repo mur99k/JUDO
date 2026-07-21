@@ -2,8 +2,8 @@
   <div class="container">
     <div class="navbar-content">
       <a href="/" class="navbar-brand">
-        <% if (typeof hideLogo === 'undefined' || !hideLogo) { %><img src="/logo/logo.png" alt="نادي الريادة للجودو" class="navbar-logo" width="40" height="40"><% } %>
-        <span>نادي الريادة للجودو</span>
+        <% if (typeof hideLogo === 'undefined' || !hideLogo) { %><img src="/logo/logo.png" alt="<%= hideLogo ? 'جودو' : 'نادي الريادة للجودو' %>" class="navbar-logo" width="40" height="40"><% } %>
+        <span><%= hideLogo ? 'جودو' : 'نادي الريادة للجودو' %></span>
       </a>
 
       <ul class="navbar-nav" id="navbarNav">
@@ -34,8 +34,8 @@
 
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
-      <% if (typeof hideLogo === 'undefined' || !hideLogo) { %><img src="/logo/logo.png" alt="نادي الريادة للجودو" class="navbar-logo" width="40" height="40"><% } %>
-      <span>نادي الريادة للجودو</span>
+      <% if (typeof hideLogo === 'undefined' || !hideLogo) { %><img src="/logo/logo.png" alt="<%= hideLogo ? 'جودو' : 'نادي الريادة للجودو' %>" class="navbar-logo" width="40" height="40"><% } %>
+      <span><%= hideLogo ? 'جودو' : 'نادي الريادة للجودو' %></span>
       <button class="mobile-menu-close" id="mobileMenuClose" aria-label="إغلاق">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>

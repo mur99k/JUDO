@@ -1,8 +1,8 @@
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <% if (typeof hideLogo === 'undefined' || !hideLogo) { %><img src="/logo/logo.png" alt="نادي الريادة للجودو" class="sidebar-logo" width="40" height="40"><% } %>
+    <% if (typeof hideLogo === 'undefined' || !hideLogo) { %><img src="/logo/logo.png" alt="<%= hideLogo ? 'جودو' : 'نادي الريادة للجودو' %>" class="sidebar-logo" width="40" height="40"><% } %>
     <div class="sidebar-info">
-      <div class="sidebar-app-name">نادي الريادة للجودو</div>
+      <div class="sidebar-app-name"><%= hideLogo ? 'جودو' : 'نادي الريادة للجودو' %></div>
       <div class="sidebar-app-sub">لوحة التحكم</div>
     </div>
   </div>

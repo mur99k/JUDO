@@ -118,8 +118,12 @@
       var s = students[i];
       var statusClass = 'tag-success';
       if (s.status === 'غير نشط') statusClass = 'tag-danger';
+      var avatarHtml = s.photo
+        ? '<img src="' + s.photo + '" style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.onerror=null;this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">' +
+          '<div style="width:30px;height:30px;border-radius:50%;background:var(--color-navy);color:var(--color-gold-light);display:none;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">' + (s.fullName ? s.fullName.charAt(0) : '?') + '</div>'
+        : '<div style="width:30px;height:30px;border-radius:50%;background:var(--color-navy);color:var(--color-gold-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">' + (s.fullName ? s.fullName.charAt(0) : '?') + '</div>';
       html += '<tr>' +
-        '<td><div style="display:flex;align-items:center;gap:8px;"><div style="width:30px;height:30px;border-radius:50%;background:var(--color-navy);color:var(--color-gold-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">' + (s.fullName ? s.fullName.charAt(0) : '?') + '</div><span style="font-weight:600;">' + (s.fullName || '') + '</span></div></td>' +
+        '<td><div style="display:flex;align-items:center;gap:8px;">' + avatarHtml + '<span style="font-weight:600;">' + (s.fullName || '') + '</span></div></td>' +
         '<td>' + catTag(s.category) + '</td>' +
         '<td style="color:#718096;">' + (s.nationalId || '') + '</td>' +
         '<td style="color:#718096;">' + (s.age || '') + '</td>' +
@@ -136,6 +140,7 @@
 
   window.showEditStudent = function(id) {
     editingId = id;
+    editCroppedBlob = null;
     API.get('/api/students/' + id).then(function(res) {
       if (!res.success) throw new Error(res.error || 'فشل');
       var s = res.student || {};
@@ -157,6 +162,18 @@
         if (opt.getAttribute('data-value') === catValue) opt.classList.add('active');
       });
       document.getElementById('editStudentId').value = id;
+      // Load photo preview
+      var preview = document.getElementById('editPhotoPreview');
+      var placeholder = document.getElementById('editPhotoPlaceholder');
+      if (s.photo && preview && placeholder) {
+        preview.src = s.photo;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+        preview.onerror = function(){ this.style.display='none'; if(placeholder) placeholder.style.display='flex'; };
+      } else if (preview) {
+        preview.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'flex';
+      }
       if (editModal) editModal.classList.add('active');
     }).catch(function(err) { alert(err.message); });
   };
@@ -187,22 +204,116 @@
     });
   }
 
+  // Photo cropper for edit modal
+  var editCropper = null;
+  var editCroppedBlob = null;
+  var editPhotoInput = document.getElementById('editPhotoInput');
+  var editCropArea = document.getElementById('editCropArea');
+  var editCropImage = document.getElementById('editCropImage');
+  var editPreview = document.getElementById('editPhotoPreview');
+  var editPlaceholder = document.getElementById('editPhotoPlaceholder');
+  var editCropConfirm = document.getElementById('editCropConfirm');
+  var editCropCancel = document.getElementById('editCropCancel');
+  var editZoomRange = document.getElementById('editCropZoomRange');
+  var editZoomIn = document.getElementById('editCropZoomIn');
+  var editZoomOut = document.getElementById('editCropZoomOut');
+
+  if (editPhotoInput) {
+    editPhotoInput.addEventListener('change', function() {
+      var file = editPhotoInput.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        editCropImage.src = e.target.result;
+        editCropImage.onload = function() {
+          editCropArea.style.display = 'block';
+          if (editCropper) editCropper.destroy();
+          editCropper = new Cropper(editCropImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.8,
+            cropBoxMovable: false,
+            cropBoxResizable: false,
+            toggleDragModeOnDblclick: false,
+            background: false,
+            zoomOnWheel: true
+          });
+        };
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (editZoomRange) {
+    editZoomRange.addEventListener('input', function() {
+      if (editCropper) editCropper.zoomTo(parseFloat(this.value));
+    });
+  }
+  if (editZoomIn) {
+    editZoomIn.addEventListener('click', function() {
+      if (editCropper) { editCropper.zoom(0.1); if (editZoomRange) editZoomRange.value = editCropper.getData().scaleX || 1; }
+    });
+  }
+  if (editZoomOut) {
+    editZoomOut.addEventListener('click', function() {
+      if (editCropper) { editCropper.zoom(-0.1); if (editZoomRange) editZoomRange.value = editCropper.getData().scaleX || 1; }
+    });
+  }
+  if (editCropConfirm) {
+    editCropConfirm.addEventListener('click', function() {
+      if (!editCropper) return;
+      var canvas = editCropper.getCroppedCanvas({ width: 300, height: 300 });
+      canvas.toBlob(function(blob) {
+        editCroppedBlob = blob;
+        var url = URL.createObjectURL(blob);
+        if (editPreview) { editPreview.src = url; editPreview.style.display = 'block'; }
+        if (editPlaceholder) editPlaceholder.style.display = 'none';
+        editCropArea.style.display = 'none';
+        if (editCropper) { editCropper.destroy(); editCropper = null; }
+      }, 'image/jpeg', 0.9);
+    });
+  }
+  if (editCropCancel) {
+    editCropCancel.addEventListener('click', function() {
+      editCropArea.style.display = 'none';
+      if (editCropper) { editCropper.destroy(); editCropper = null; }
+      editPhotoInput.value = '';
+    });
+  }
+
   if (editForm) {
     editForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      var fields = editForm.querySelectorAll('input,select');
-      var data = {};
-      for (var i = 0; i < fields.length; i++) {
-        var f = fields[i];
-        if (f.name && !f.disabled) data[f.name] = f.value;
-      }
+      var btn = editForm.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'جاري...';
       var id = document.getElementById('editStudentId').value;
-      API.put('/api/students/' + id, data).then(function(res) {
+      var fd = new FormData();
+      var nameInput = editForm.querySelector('input[name="fullName"]');
+      var nationalInput = editForm.querySelector('input[name="nationalId"]');
+      var ageInput = editForm.querySelector('input[name="age"]');
+      var phoneInput = editForm.querySelector('input[name="phone"]');
+      var parentInput = editForm.querySelector('input[name="parentPhone"]');
+      var catInput = editForm.querySelector('input[name="category"]');
+      if (nameInput) fd.append('fullName', nameInput.value);
+      if (nationalInput) fd.append('nationalId', nationalInput.value);
+      if (ageInput) fd.append('age', ageInput.value);
+      if (phoneInput) fd.append('phone', phoneInput.value);
+      if (parentInput) fd.append('parentPhone', parentInput.value);
+      if (catInput) fd.append('category', catInput.value);
+      if (editCroppedBlob) fd.append('photo', editCroppedBlob, 'profile.jpg');
+      API.formPut('/api/students/' + id, fd).then(function(res) {
         if (!res.success) throw new Error(res.error || 'فشل');
         if (editModal) editModal.classList.remove('active');
+        editCroppedBlob = null;
         loadStudents();
+        btn.disabled = false;
+        btn.textContent = 'تحديث';
       }).catch(function(err) {
         alert(err.message);
+        btn.disabled = false;
+        btn.textContent = 'تحديث';
       });
     });
   }

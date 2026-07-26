@@ -35,9 +35,13 @@
       var noSet = !s.status || s.status==='null';
       var st = noSet ? 'حاضر' : s.status;
       if(st==='حاضر') pres++; else if(st==='غائب') abs++; else if(st==='معذر') exc++;
+      var avatar = s.photo
+        ? '<img src="'+s.photo+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.onerror=null;this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">' +
+          '<div style="width:28px;height:28px;border-radius:50%;background:var(--color-navy);color:var(--color-gold-light);display:none;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;flex-shrink:0;">'+(s.studentName?s.studentName.charAt(0):'?')+'</div>'
+        : '<div style="width:28px;height:28px;border-radius:50%;background:var(--color-navy);color:var(--color-gold-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;flex-shrink:0;">'+(s.studentName?s.studentName.charAt(0):'?')+'</div>';
       rows += '<tr>'+
         '<td style="color:#718096;width:36px;">'+(i+1)+'</td>'+
-        '<td style="font-weight:600;">'+(s.studentName||'')+'</td>'+
+        '<td><div style="display:flex;align-items:center;gap:8px;">'+avatar+'<span style="font-weight:600;">'+(s.studentName||'')+'</span></div></td>'+
         '<td><div class="att-row-btns" data-sid="'+s.studentId+'">'+
           attBtn(st==='حاضر','حاضر','#059669')+
           attBtn(st==='غائب','غائب','#dc2626')+

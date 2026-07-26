@@ -17,6 +17,7 @@ const AttendanceService = {
         studentId: s.id,
         studentName: s.fullName,
         nationalId: s.nationalId,
+        photo: s.photo,
         status: rec ? rec.status : null,
         notes: rec ? rec.notes : null,
         date: date

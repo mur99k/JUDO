@@ -29,11 +29,49 @@
 
     var popup = el('div', 'hijri-picker-popup');
     popup.style.display = 'none';
-    wrap.appendChild(popup);
+    document.body.appendChild(popup);
 
     var parsed = H.parse(value) || H.parse(H.today());
     var viewYear = parsed.hy;
     var viewMonth = parsed.hm;
+
+    function positionPopup() {
+      var rect = inputEl.getBoundingClientRect();
+      var vw = window.innerWidth;
+      var vh = window.innerHeight;
+      var popupW = popup.offsetWidth || 280;
+      var popupH = popup.offsetHeight || 350;
+      var gap = 6;
+      var edgePad = 8;
+
+      // Default: right-aligned below input (RTL-friendly)
+      var top = rect.bottom + gap;
+      var right = vw - rect.right;
+
+      // If popup overflows left edge, flip to left-aligned
+      var popupLeft = vw - right - popupW;
+      if (popupLeft < edgePad) {
+        right = vw - rect.left - popupW;
+        if (vw - right - popupW < edgePad) {
+          // Still overflows: center it and use right of input
+          right = Math.max(edgePad, vw - rect.right - popupW / 2);
+        }
+      }
+
+      // If right edge overflows (negative right), clamp
+      if (right < edgePad) right = edgePad;
+      if (right + popupW > vw - edgePad) right = vw - popupW - edgePad;
+
+      // If popup overflows bottom, show above
+      if (top + popupH > vh - edgePad) {
+        top = rect.top - popupH - gap;
+        if (top < edgePad) top = edgePad;
+      }
+
+      popup.style.top = Math.max(edgePad, top) + 'px';
+      popup.style.right = right + 'px';
+      popup.style.left = 'auto';
+    }
 
     function render() {
       var p = H.parse(value) || {};
@@ -80,6 +118,11 @@
         })(d);
       }
       popup.appendChild(grid);
+
+      // Position after render so offsetHeight is computed
+      if (popup.style.display !== 'none') {
+        positionPopup();
+      }
     }
 
     function step(dir) {
@@ -93,12 +136,26 @@
 
     inputEl.onclick = function (e) {
       e.stopPropagation();
-      var open = popup.style.display === 'block';
+      var wasOpen = popup.style.display === 'block';
       document.querySelectorAll('.hijri-picker-popup').forEach(function (p) { p.style.display = 'none'; });
-      popup.style.display = open ? 'none' : 'block';
+      if (wasOpen) return;
+      popup.style.display = 'block';
       render();
     };
-    document.addEventListener('click', function () { popup.style.display = 'none'; });
+
+    document.addEventListener('click', function (e) {
+      if (!popup.contains(e.target) && e.target !== inputEl) {
+        popup.style.display = 'none';
+      }
+    });
+
+    window.addEventListener('resize', function () {
+      if (popup.style.display === 'block') positionPopup();
+    });
+
+    window.addEventListener('scroll', function () {
+      if (popup.style.display === 'block') positionPopup();
+    }, true);
 
     // expose programmatic setValue
     inputEl._hijriSet = function (v) { value = v; render(); };

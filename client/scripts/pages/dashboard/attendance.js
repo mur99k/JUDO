@@ -10,7 +10,7 @@
 
   function fmtAr(ds) {
     if (!ds) return '';
-    return Hijri.format(ds);
+    return Hijri.dayName(ds) + ' • ' + Hijri.format(ds);
   }
 
   function load() {

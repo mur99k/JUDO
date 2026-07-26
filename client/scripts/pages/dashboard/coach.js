@@ -8,7 +8,7 @@
 
   function displayArabicDate() {
     var el = document.getElementById('coachDateDisplay');
-    if (el) el.textContent = Hijri.format(getToday());
+    if (el) el.textContent = Hijri.dayName(getToday()) + ' • ' + Hijri.format(getToday());
   }
   displayArabicDate();
 

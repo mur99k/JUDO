@@ -8,6 +8,8 @@
     'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'
   ];
 
+  var DAY_NAMES = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
 
   // Parse a Hijri YYYY-MM-DD string.
@@ -49,6 +51,12 @@
 
   function monthName(num) {
     return HIJRI_MONTHS[(Number(num) - 1 + 12) % 12] || ('' + num);
+  }
+
+  function dayName(str) {
+    var u = fromStr(str);
+    if (!u) return '';
+    return DAY_NAMES[u._date.getDay()];
   }
 
   // Add N hijri days/months to a Hijri YYYY-MM-DD string.
@@ -94,11 +102,13 @@
   global.Hijri = {
     U: U,
     HIJRI_MONTHS: HIJRI_MONTHS,
+    DAY_NAMES: DAY_NAMES,
     parse: parse,
     fromStr: fromStr,
     today: today,
     format: format,
     monthName: monthName,
+    dayName: dayName,
     addDays: addDays,
     addMonths: addMonths,
     daysBetween: daysBetween,

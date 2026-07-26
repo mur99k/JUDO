@@ -6,7 +6,6 @@ const subscriptionRoutes = require('./subscription.routes');
 const reportRoutes = require('./report.routes');
 const galleryRoutes = require('./gallery.routes');
 const settingsRoutes = require('./settings.routes');
-const systemRoutes = require('./system.routes');
 const pageRoutes = require('./page.routes');
 const { notFound } = require('../middleware/error');
 
@@ -19,7 +18,6 @@ module.exports = function (app) {
   app.use('/api/reports', reportRoutes);
   app.use('/api/gallery', galleryRoutes);
   app.use('/api/settings', settingsRoutes);
-  app.use('/api/system', systemRoutes);
 
   app.use(pageRoutes);
 

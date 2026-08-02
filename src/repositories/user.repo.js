@@ -21,10 +21,14 @@ const UserRepo = {
 
   async create(data, conn) {
     const db = conn || getConnection();
-    const r = await db.query(
-      'INSERT INTO users (fullName, email, phone, password, role) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [data.fullName, data.email, data.phone, data.password, data.role]
-    );
+    const hasImage = data.profileImage !== undefined && data.profileImage !== null;
+    const sql = hasImage
+      ? 'INSERT INTO users (fullName, email, phone, password, role, profileImage) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id'
+      : 'INSERT INTO users (fullName, email, phone, password, role) VALUES ($1, $2, $3, $4, $5) RETURNING id';
+    const params = hasImage
+      ? [data.fullName, data.email, data.phone, data.password, data.role, data.profileImage]
+      : [data.fullName, data.email, data.phone, data.password, data.role];
+    const r = await db.query(sql, params);
     return { id: r.lastId || (r.rows[0] && r.rows[0].id) };
   },
 

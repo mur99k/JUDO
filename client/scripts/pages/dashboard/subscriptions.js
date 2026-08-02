@@ -68,10 +68,9 @@
         var days = durationDays();
         if (days < 1) days = 30;
         var end = Hijri.addDays(currentStart, days);
-        endDateInput.value = end;
         if (endDateInput._hijriSet) endDateInput._hijriSet(end);
       }
-      if (endDateHijri) endDateHijri.textContent = formatArabic(endDateInput.value);
+      if (endDateHijri) endDateHijri.textContent = formatArabic(endDateInput.dataset.hijri || Hijri.today());
     }
   }
 
@@ -202,8 +201,9 @@
         if (startDateHidden) startDateHidden.value = currentStart;
         if (startDateInput && startDateInput._hijriSet) startDateInput._hijriSet(currentStart);
         if (endDateInput) {
-          if (endDateInput._hijriSet) endDateInput._hijriSet(s.endDate || Hijri.addDays(currentStart, s.days||30));
-          if (endDateHijri) endDateHijri.textContent = formatArabic(s.endDate || Hijri.addDays(currentStart, s.days||30));
+          var rawEndDate = Hijri.parse(s.endDate) ? s.endDate : Hijri.addDays(currentStart, s.days||30);
+          if (endDateInput._hijriSet) endDateInput._hijriSet(rawEndDate);
+          if (endDateHijri) endDateHijri.textContent = formatArabic(rawEndDate);
         }
         if (modal) modal.classList.add('active');
       }).catch(function(e){alert(e.message)});
@@ -271,10 +271,10 @@
       dur = parseInt(durationInput.value) || 0;
     }
     data.days = dur || 30;
-    data.type = data.duration || 'عادي';
+    data.type = 'عادي';
 
-    if (endDateInput && endDateInput.value) {
-      data.endDate = endDateInput.value;
+    if (endDateInput && endDateInput.dataset.hijri) {
+      data.endDate = endDateInput.dataset.hijri;
     } else {
       data.endDate = Hijri.addDays(data.startDate, data.days);
     }

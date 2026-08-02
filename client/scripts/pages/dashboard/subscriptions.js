@@ -74,7 +74,7 @@
         var end = HIJRI_SAFE.addDays(currentStart, days);
         if (endDateInput._hijriSet) endDateInput._hijriSet(end);
       }
-      if (endDateHijri) endDateHIJRI_SAFE.textContent = formatArabic(endDateInput.dataset.hijri || HIJRI_SAFE.today());
+      if (endDateHijri) endDateHijri.textContent = formatArabic(endDateInput.dataset.hijri || HIJRI_SAFE.today());
     }
   }
 
@@ -94,7 +94,7 @@
       value: HIJRI_SAFE.addDays(currentStart, 30),
       onChange: function (v) {
         manualDate = true;
-        if (endDateHijri) endDateHIJRI_SAFE.textContent = formatArabic(v);
+        if (endDateHijri) endDateHijri.textContent = formatArabic(v);
       }
     });
   }
@@ -207,7 +207,7 @@
         if (endDateInput) {
           var rawEndDate = HIJRI_SAFE.parse(s.endDate) ? s.endDate : HIJRI_SAFE.addDays(currentStart, s.days||30);
           if (endDateInput._hijriSet) endDateInput._hijriSet(rawEndDate);
-          if (endDateHijri) endDateHIJRI_SAFE.textContent = formatArabic(rawEndDate);
+          if (endDateHijri) endDateHijri.textContent = formatArabic(rawEndDate);
         }
         if (modal) modal.classList.add('active');
       }).catch(function(e){alert(e.message)});
@@ -239,7 +239,7 @@
     if (startDateHidden) startDateHidden.value='';
     if (startDateInput && startDateInput._hijriSet) startDateInput._hijriSet(currentStart);
     if (endDateInput) { if (endDateInput._hijriSet) endDateInput._hijriSet(HIJRI_SAFE.addDays(currentStart, 30)); }
-    if (endDateHijri) endDateHIJRI_SAFE.textContent='';
+    if (endDateHijri) endDateHijri.textContent='';
     selectSubDuration(30, 'شهر');
     if (customDurationInput) { customDurationInput.value = ''; customDurationInput.style.display = 'none'; }
     if (amountInput) { amountInput.value = '0'; amountInput.disabled = false; amountInput.style.background = ''; }

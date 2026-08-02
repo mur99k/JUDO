@@ -5,6 +5,8 @@
   var saveBtn = document.getElementById('saveAttendanceBtn');
   var allStudents = [];
 
+  if (typeof Hijri === 'undefined') { console.error('Hijri not loaded'); return; }
+
   // Current selected Hijri date (YYYY-MM-DD).
   var currentHijri = Hijri.today();
 

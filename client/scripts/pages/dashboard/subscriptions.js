@@ -16,11 +16,15 @@
   var editingId = null;
   var manualDate = false;
   var allStudents = [];
-  var currentStart = Hijri.today();
+
+  var HIJRI_SAFE = typeof Hijri !== 'undefined' ? Hijri : null;
+  if (!HIJRI_SAFE) { console.error('Hijri library not loaded. Subscriptions page may not work correctly.'); return; }
+
+  var currentStart = HIJRI_SAFE.today();
 
   function formatArabic(dateStr) {
     if (!dateStr) return '--';
-    return Hijri.format(dateStr);
+    return HIJRI_SAFE.format(dateStr);
   }
 
   window.toggleCustomSelect = function(id) {
@@ -67,15 +71,15 @@
       if (!manualDate) {
         var days = durationDays();
         if (days < 1) days = 30;
-        var end = Hijri.addDays(currentStart, days);
+        var end = HIJRI_SAFE.addDays(currentStart, days);
         if (endDateInput._hijriSet) endDateInput._hijriSet(end);
       }
-      if (endDateHijri) endDateHijri.textContent = formatArabic(endDateInput.dataset.hijri || Hijri.today());
+      if (endDateHijri) endDateHIJRI_SAFE.textContent = formatArabic(endDateInput.dataset.hijri || HIJRI_SAFE.today());
     }
   }
 
   if (startDateInput) {
-    HijriPicker.create(startDateInput, {
+    (typeof HijriPicker !== 'undefined' ? HijriPicker : {}).create(startDateInput, {
       value: currentStart,
       onChange: function (v) {
         currentStart = v;
@@ -86,11 +90,11 @@
     });
   }
   if (endDateInput) {
-    HijriPicker.create(endDateInput, {
-      value: Hijri.addDays(currentStart, 30),
+    (typeof HijriPicker !== 'undefined' ? HijriPicker : {}).create(endDateInput, {
+      value: HIJRI_SAFE.addDays(currentStart, 30),
       onChange: function (v) {
         manualDate = true;
-        if (endDateHijri) endDateHijri.textContent = formatArabic(v);
+        if (endDateHijri) endDateHIJRI_SAFE.textContent = formatArabic(v);
       }
     });
   }
@@ -197,13 +201,13 @@
         }
         if (amountInput) { amountInput.value = s.amount||'0'; amountInput.disabled=false; amountInput.style.background=''; }
         if (exemptCheck) { exemptCheck.checked = false; amountInput.disabled=false; amountInput.style.background=''; }
-        currentStart = s.startDate || Hijri.today();
+        currentStart = s.startDate || HIJRI_SAFE.today();
         if (startDateHidden) startDateHidden.value = currentStart;
         if (startDateInput && startDateInput._hijriSet) startDateInput._hijriSet(currentStart);
         if (endDateInput) {
-          var rawEndDate = Hijri.parse(s.endDate) ? s.endDate : Hijri.addDays(currentStart, s.days||30);
+          var rawEndDate = HIJRI_SAFE.parse(s.endDate) ? s.endDate : HIJRI_SAFE.addDays(currentStart, s.days||30);
           if (endDateInput._hijriSet) endDateInput._hijriSet(rawEndDate);
-          if (endDateHijri) endDateHijri.textContent = formatArabic(rawEndDate);
+          if (endDateHijri) endDateHIJRI_SAFE.textContent = formatArabic(rawEndDate);
         }
         if (modal) modal.classList.add('active');
       }).catch(function(e){alert(e.message)});
@@ -215,8 +219,8 @@
     var data = { status: newStatus };
     if (action==='renew') {
       var days = parseInt(prompt('المدة بالأيام:', '30'))||30;
-      data.startDate = Hijri.today();
-      data.endDate = Hijri.addDays(data.startDate, days);
+      data.startDate = HIJRI_SAFE.today();
+      data.endDate = HIJRI_SAFE.addDays(data.startDate, days);
       data.days = days;
     }
     API.put('/api/subscriptions/'+id, data).then(function(r) {
@@ -231,11 +235,11 @@
     manualDate=false;
     if (modalTitle) modalTitle.textContent='إضافة اشتراك';
     if (form) form.reset();
-    currentStart = Hijri.today();
+    currentStart = HIJRI_SAFE.today();
     if (startDateHidden) startDateHidden.value='';
     if (startDateInput && startDateInput._hijriSet) startDateInput._hijriSet(currentStart);
-    if (endDateInput) { if (endDateInput._hijriSet) endDateInput._hijriSet(Hijri.addDays(currentStart, 30)); }
-    if (endDateHijri) endDateHijri.textContent='';
+    if (endDateInput) { if (endDateInput._hijriSet) endDateInput._hijriSet(HIJRI_SAFE.addDays(currentStart, 30)); }
+    if (endDateHijri) endDateHIJRI_SAFE.textContent='';
     selectSubDuration(30, 'شهر');
     if (customDurationInput) { customDurationInput.value = ''; customDurationInput.style.display = 'none'; }
     if (amountInput) { amountInput.value = '0'; amountInput.disabled = false; amountInput.style.background = ''; }
@@ -276,7 +280,7 @@
     if (endDateInput && endDateInput.dataset.hijri) {
       data.endDate = endDateInput.dataset.hijri;
     } else {
-      data.endDate = Hijri.addDays(data.startDate, data.days);
+      data.endDate = HIJRI_SAFE.addDays(data.startDate, data.days);
     }
 
     if (parseInt(data.days) < 1) data.days = 30;

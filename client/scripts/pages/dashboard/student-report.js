@@ -1,6 +1,7 @@
 (function() {
   var studentId = window.__studentId;
   if (!studentId) { return; }
+  if (typeof Hijri === 'undefined') { console.error('Hijri not loaded'); return; }
 
   var hijriMonthInput = document.getElementById('srHijriMonth');
   var hijriYearInput = document.getElementById('srHijriYear');

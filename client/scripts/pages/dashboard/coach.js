@@ -3,6 +3,7 @@
   var saveBtn = document.getElementById('saveCoachAttendance');
   var statsEl = document.getElementById('coachStats');
   if (!container) return;
+  if (typeof Hijri === 'undefined') { console.error('Hijri not loaded'); return; }
 
   function getToday() { return Hijri.today(); }
 

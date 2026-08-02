@@ -6,7 +6,6 @@ const config = require('./src/config');
 const logger = require('./src/utils/logger');
 const { close } = require('./src/database/connection');
 const { initDatabase } = require('./src/database/migrate');
-const { syncMediaToDisk } = require('./src/database/sync-media');
 const SubscriptionService = require('./src/services/subscription.service');
 
 logger.info('Starting', config.app.name, '| env:', config.isProduction ? 'production' : 'development');
@@ -28,7 +27,6 @@ function startServer() {
 
 (async () => {
   await initDatabase();
-  syncMediaToDisk();
 
   await SubscriptionService.syncExpired();
   setInterval(() => {

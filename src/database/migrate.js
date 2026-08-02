@@ -22,9 +22,9 @@ async function applySchema() {
 
 async function seed() {
   const db = getConnection();
-  // Remove old default admin account.
+  // Remove legacy default admin account.
   await db.query('DELETE FROM users WHERE email = $1', ['admin@riyadah.com']);
-  // Upsert admin — always set correct password hash.
+  // Upsert admin — the single required bootstrap account.
   const hash = bcrypt.hashSync('Ma123456', 10);
   const existing = await db.query('SELECT id FROM users WHERE email = $1', ['Matoq701@gmail.com']);
   if (existing.rows.length === 0) {
@@ -34,49 +34,6 @@ async function seed() {
     );
   } else {
     await db.query('UPDATE users SET password = $1, role = $2 WHERE email = $3', [hash, 'admin', 'Matoq701@gmail.com']);
-  }
-
-  // Upsert coaches (always reset password, re-create if missing)
-  const coachHash = bcrypt.hashSync('coach123', 10);
-  const seedCoaches = [
-    { name: 'كابتن معتوق', email: 'coach.moataq@riyadah.com', bio: 'بطل المملكة وحاصل على بطولات داخلية وخارجية. خبرة أكثر من 20 سنة.' },
-    { name: 'كابتن مروان', email: 'coach.marwan@riyadah.com', bio: 'مدرب سابق في نادي الأهلي ولاعب منتخب وبطل المملكة.' }
-  ];
-  for (const sc of seedCoaches) {
-    const existing = await db.query('SELECT id FROM users WHERE email = $1', [sc.email]);
-    let coachId;
-    if (existing.rows.length === 0) {
-      const r = await db.query(
-        'INSERT INTO users (fullName, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id',
-        [sc.name, sc.email, coachHash, 'coach']
-      );
-      coachId = r.rows[0].id;
-    } else {
-      coachId = existing.rows[0].id;
-      await db.query('UPDATE users SET password = $1 WHERE id = $2', [coachHash, coachId]);
-    }
-    await db.query(
-      'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value',
-      ['coachBio_' + coachId, sc.bio]
-    );
-  }
-
-  // Set default password for existing students who have no password (legacy accounts)
-  const defaultStudentHash = bcrypt.hashSync('student123', 10);
-  await db.query('UPDATE students SET password = $1 WHERE password IS NULL', [defaultStudentHash]);
-
-  const settingKeys = [
-    ['adminName', 'الكابتن معتوق'],
-    ['adminPhone', ''],
-    ['clubWhatsapp', ''],
-    ['aiProvider', ''],
-    ['aiApiKey', '']
-  ];
-  for (const [key, value] of settingKeys) {
-    await db.query(
-      'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value',
-      [key, value]
-    );
   }
 }
 
